@@ -1,7 +1,10 @@
+import { useState } from "react";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import PrimaryButton from "@/Components/PrimaryButton";
 import TextInput from "@/Components/TextInput";
+
+
 
 export default function Form({
     data,
@@ -13,9 +16,12 @@ export default function Form({
     brands,
     buttonText,
     product = null,
-})
+}) {
 
-{
+    const [preview, setPreview] = useState(
+        product?.image ? `/storage/${product.image}` : null
+    );
+
     return (
         <form onSubmit={submit} className="space-y-6">
 
@@ -214,31 +220,41 @@ export default function Form({
 
 
             {/* Product Image */}
+            
             <div>
                 <InputLabel htmlFor="image" value="Product Image" />
 
                 <input
                     id="image"
+                    name="image"
                     type="file"
                     accept="image/*"
                     className="mt-1 block w-full"
-                    onChange={(e) => setData("image", e.target.files[0])}
+                    onChange={(e) => {
+                        const file = e.target.files[0];
+
+                        setData("image", file);
+
+                        if (file) {
+                            setPreview(URL.createObjectURL(file));
+                        }
+                    }}
                 />
+
+                {preview && (
+                    <div className="mt-4">
+                        <img
+                            src={preview}
+                            alt="Preview"
+                            className="h-32 w-32 rounded-lg border object-cover"
+                        />
+                    </div>
+                )}
 
                 <InputError
                     message={errors.image}
                     className="mt-2"
                 />
-
-                {product?.image && (
-                    <div className="mt-4">
-                        <img
-                            src={`/storage/${product.image}`}
-                            alt={product.name}
-                            className="h-24 w-24 rounded border object-cover"
-                        />
-                    </div>
-                )}
             </div>
 
             {/* Sort Order */}
@@ -254,6 +270,7 @@ export default function Form({
                         setData("sort_order", e.target.value)
                     }
                 />
+                
 
                 <InputError
                     message={errors.sort_order}
