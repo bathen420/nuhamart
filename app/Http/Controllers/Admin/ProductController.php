@@ -1,15 +1,15 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
-
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use App\Models\Product;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Models\Brand;
 use App\Models\Category;
-use App\Models\Product;
 use Illuminate\Support\Str;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
 
 
@@ -18,14 +18,26 @@ class ProductController extends Controller
     /**
      * Display a listing of products.
      */
-    public function index()
+    public function index(Request $request)
         {
-            $products = Product::with(['category', 'brand'])
-                ->latest()
-                ->paginate(10);
+            $search = $request->search;
 
-            return inertia('Admin/Products/Index', [
+            $products = Product::with(['category', 'brand'])
+                ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('sku', 'like', "%{$search}%");
+                });
+            })
+                ->latest()
+                ->paginate(10)
+                ->withQueryString();
+
+            return Inertia::render('Admin/Products/Index', [
                 'products' => $products,
+                'filters' => [
+                    'search' => $search,
+                ],
             ]);
         }
 

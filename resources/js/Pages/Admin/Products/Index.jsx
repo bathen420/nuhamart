@@ -1,7 +1,20 @@
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, Link, router, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 
-export default function Index({ auth, products }) {
+export default function Index({ auth, products, filters }) {
+
+    const { data, setData, get } = useForm({
+        search: filters.search || "",
+    });
+
+    const searchProduct = (e) => {
+        e.preventDefault();
+
+        get(route("products.index"), {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    };
 
     const deleteProduct = (id) => {
         if (confirm("Are you sure you want to delete this product?")) {
@@ -23,13 +36,42 @@ export default function Index({ auth, products }) {
             <div className="py-8">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
 
-                    <div className="mb-4 flex justify-end">
+                    <div className="mb-4 flex items-center justify-between">
+
+                        <form
+                            onSubmit={searchProduct}
+                            className="flex items-center gap-2"
+                        >
+                            <input
+                                type="text"
+                                placeholder="Search product..."
+                                value={data.search}
+                                onChange={(e) => setData("search", e.target.value)}
+                                className="w-72 rounded-md border border-gray-300 px-3 py-2"
+                            />
+
+                            <button
+                                type="submit"
+                                className="rounded bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
+                            >
+                                Search
+                            </button>
+
+                            <Link
+                                href={route("products.index")}
+                                className="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+                            >
+                                Reset
+                            </Link>
+                        </form>
+
                         <Link
                             href={route("products.create")}
                             className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
                         >
                             + Add Product
                         </Link>
+
                     </div>
 
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
@@ -139,7 +181,7 @@ export default function Index({ auth, products }) {
                                     <tr>
 
                                         <td
-                                            colSpan="8"
+                                            colSpan="9"
                                             className="px-6 py-6 text-center text-gray-500"
                                         >
                                             No products found.
