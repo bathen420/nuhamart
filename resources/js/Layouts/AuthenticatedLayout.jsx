@@ -5,13 +5,15 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
+
 export default function AuthenticatedLayout({ header, children }) {
-    const user = usePage().props.auth.user;
+      const { auth, flash } = usePage().props;
+    const user = auth.user;
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
 
-    return (
+        return (
         <div className="min-h-screen bg-gray-100">
             <nav className="border-b border-gray-100 bg-white">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -168,6 +170,14 @@ export default function AuthenticatedLayout({ header, children }) {
                         {header}
                     </div>
                 </header>
+            )}
+
+            {flash?.success && (
+                <div className="mx-auto mt-4 max-w-7xl">
+                    <div className="rounded-lg border border-green-200 bg-green-100 px-4 py-3 text-green-700">
+                        {flash.success}
+                    </div>
+                </div>
             )}
 
             <main>{children}</main>

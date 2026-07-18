@@ -1,5 +1,7 @@
 import { Head, Link, router } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import Pagination from "@/Components/Pagination";
+
 
 export default function Index({ auth, categories }) {
 
@@ -165,6 +167,8 @@ export default function Index({ auth, categories }) {
 
 
                         </table>
+
+                        <Pagination links={categories.links} />
 
 
                     </div>

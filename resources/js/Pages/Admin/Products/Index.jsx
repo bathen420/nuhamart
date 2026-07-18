@@ -1,5 +1,6 @@
 import { Head, Link, router, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import Pagination from "@/Components/Pagination";
 
 export default function Index({ auth, products, filters }) {
 
@@ -122,9 +123,9 @@ export default function Index({ auth, products, filters }) {
                                                 )}
                                             </td>
 
-                                        <td className="px-4 py-3 font-medium">
-                                            {product.name}
-                                        </td>
+                                            <td className="px-4 py-3 font-medium">
+                                                {product.name}
+                                            </td>
 
                                             <td className="px-4 py-3">
                                                 {product.category?.name}
@@ -192,9 +193,11 @@ export default function Index({ auth, products, filters }) {
                                 )}
 
                             </tbody>
-
+                            
                         </table>
 
+                      <Pagination links={products.links} />
+                        
                     </div>
 
                 </div>
