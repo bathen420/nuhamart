@@ -15,11 +15,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
+        // Default Admin User
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'Admin',
+            'email' => 'admin@nuhamart.com',
+        ]);
+
+        // Seed Orders
+        $this->call([
+            OrderSeeder::class,
         ]);
     }
 }
