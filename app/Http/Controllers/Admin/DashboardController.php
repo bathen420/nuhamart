@@ -28,6 +28,10 @@ class DashboardController extends Controller
                 'customers'  => User::count(),
             ],
 
+             'recentProducts' => Product::latest()
+                ->take(5)
+                ->get(),
+
         ]);
     }
 }
