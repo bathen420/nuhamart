@@ -6,6 +6,7 @@ import {
     FolderTree,
     Tags,
     Package,
+    ShoppingBag,
 } from "lucide-react";
 
 import AdminMenuItem from "./AdminMenuItem";
@@ -52,6 +53,14 @@ export default function AdminSidebar() {
                     icon={Package}
                 >
                     Products
+                </AdminMenuItem>
+
+                <AdminMenuItem
+                    href={route("orders.index")}
+                    active={page.url.startsWith("/admin/orders")}
+                    icon={ShoppingBag}
+                >
+                    Orders
                 </AdminMenuItem>
 
             </nav>

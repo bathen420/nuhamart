@@ -8,6 +8,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\OrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,6 +41,8 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
         Route::resource('brands', BrandController::class);
 
         Route::resource('products', ProductController::class);
+
+        Route::resource('orders', OrderController::class);
 
 });
 
