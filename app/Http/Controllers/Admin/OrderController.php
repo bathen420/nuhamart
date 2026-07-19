@@ -75,51 +75,37 @@ class OrderController extends Controller
      */
     public function store(StoreOrderRequest $request)
     {
-        DB::transaction(function () use ($request) {
+        $data = $request->validated();
 
-            $order = Order::create([
+        // Create Order
+        $order = Order::create([
+            'order_number'     => $data['order_number'],
+            'user_id'          => auth()->id(),
+            'customer_name'    => $data['customer_name'],
+            'customer_phone'   => $data['customer_phone'],
+            'customer_email'   => $data['customer_email'] ?? null,
+            'customer_address' => $data['customer_address'],
+            'subtotal'         => $data['subtotal'],
+            'discount'         => $data['discount'] ?? 0,
+            'shipping'         => $data['shipping'] ?? 0,
+            'total'            => $data['total'],
+            'payment_method'   => $data['payment_method'],
+            'payment_status'   => $data['payment_status'],
+            'order_status'     => $data['order_status'],
+            'note'             => $data['note'] ?? null,
+        ]);
 
-                'order_number'     => $request->order_number,
-                'user_id'          => auth()->id(),
+        // Save Order Items
+        foreach ($data['items'] as $item) {
 
-                'customer_name'    => $request->customer_name,
-                'customer_phone'   => $request->customer_phone,
-                'customer_email'   => $request->customer_email,
-                'customer_address' => $request->customer_address,
-
-                'subtotal'         => $request->subtotal,
-                'discount'         => $request->discount,
-                'shipping'         => $request->shipping,
-                'total'            => $request->total,
-
-                'payment_method'   => $request->payment_method,
-                'payment_status'   => $request->payment_status,
-                'order_status'     => $request->order_status,
-
-                'note'             => $request->note,
-
+            $order->items()->create([
+                'product_id' => $item['product_id'],
+                'quantity'   => $item['quantity'],
+                'price'      => $item['price'],
+                'subtotal'   => $item['subtotal'],
             ]);
 
-            foreach ($request->items as $item) {
-
-                $product = Product::findOrFail($item['product_id']);
-
-                $order->items()->create([
-
-                    'product_id' => $product->id,
-                    'quantity'   => $item['quantity'],
-                    'price'      => $item['price'],
-                    'subtotal'   => $item['subtotal'],
-
-                ]);
-
-                $product->decrement(
-                    'stock_quantity',
-                    $item['quantity']
-                );
-            }
-
-        });
+        }
 
         return redirect()
             ->route('orders.index')

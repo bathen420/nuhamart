@@ -8,7 +8,7 @@ use Illuminate\Validation\Rule;
 class UpdateOrderRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Determine if the user is authorized.
      */
     public function authorize(): bool
     {
@@ -16,47 +16,146 @@ class UpdateOrderRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Validation Rules
      */
     public function rules(): array
     {
         return [
 
             'order_number' => [
-
                 'required',
-
                 'string',
-
-                'max:50',
-
+                'max:100',
                 Rule::unique('orders', 'order_number')->ignore($this->order),
-
             ],
 
-            'customer_name' => 'required|string|max:255',
+            'customer_name' => [
+                'required',
+                'string',
+                'max:255',
+            ],
 
-            'customer_phone' => 'required|string|max:20',
+            'customer_phone' => [
+                'required',
+                'string',
+                'max:30',
+            ],
 
-            'customer_email' => 'nullable|email|max:255',
+            'customer_email' => [
+                'nullable',
+                'email',
+                'max:255',
+            ],
 
-            'customer_address' => 'required|string',
+            'customer_address' => [
+                'required',
+                'string',
+            ],
 
-            'subtotal' => 'required|numeric|min:0',
+            'discount' => [
+                'nullable',
+                'numeric',
+                'min:0',
+            ],
 
-            'discount' => 'nullable|numeric|min:0',
+            'shipping' => [
+                'nullable',
+                'numeric',
+                'min:0',
+            ],
 
-            'shipping' => 'nullable|numeric|min:0',
+            'subtotal' => [
+                'required',
+                'numeric',
+                'min:0',
+            ],
 
-            'total' => 'required|numeric|min:0',
+            'total' => [
+                'required',
+                'numeric',
+                'min:0',
+            ],
 
-            'payment_method' => 'required|string',
+            'payment_method' => [
+                'required',
+                'string',
+            ],
 
-            'payment_status' => 'required|in:Pending,Paid,Failed',
+            'payment_status' => [
+                'required',
+                'in:Pending,Paid,Failed',
+            ],
 
-            'order_status' => 'required|in:Pending,Processing,Shipped,Delivered,Cancelled',
+            'order_status' => [
+                'required',
+                'in:Pending,Processing,Shipped,Delivered,Cancelled',
+            ],
 
-            'note' => 'nullable|string',
+            'note' => [
+                'nullable',
+                'string',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Order Items
+            |--------------------------------------------------------------------------
+            */
+
+            'items' => [
+                'required',
+                'array',
+                'min:1',
+            ],
+
+            'items.*.product_id' => [
+                'required',
+                'exists:products,id',
+            ],
+
+            'items.*.quantity' => [
+                'required',
+                'integer',
+                'min:1',
+            ],
+
+            'items.*.price' => [
+                'required',
+                'numeric',
+                'min:0',
+            ],
+
+            'items.*.subtotal' => [
+                'required',
+                'numeric',
+                'min:0',
+            ],
+
+        ];
+    }
+
+    /**
+     * Custom Messages
+     */
+    public function messages(): array
+    {
+        return [
+
+            'order_number.required' => 'Order Number is required.',
+
+            'customer_name.required' => 'Customer Name is required.',
+
+            'customer_phone.required' => 'Customer Phone is required.',
+
+            'customer_address.required' => 'Customer Address is required.',
+
+            'items.required' => 'Please add at least one product.',
+
+            'items.*.product_id.required' => 'Please select a product.',
+
+            'items.*.quantity.required' => 'Quantity is required.',
+
+            'items.*.quantity.min' => 'Quantity must be at least 1.',
 
         ];
     }

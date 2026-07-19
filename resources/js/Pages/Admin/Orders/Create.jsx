@@ -1,5 +1,5 @@
 import { Head, useForm } from "@inertiajs/react";
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 
 export default function Create({ auth, products }) {
@@ -64,7 +64,7 @@ export default function Create({ auth, products }) {
     const updateProduct = (index, productId) => {
 
         const product = products.find(
-            p => p.id == productId
+            (p) => p.id == productId
         );
 
         const updated = [...items];
@@ -105,9 +105,11 @@ export default function Create({ auth, products }) {
 
     const grandTotal = useMemo(() => {
 
-        return subtotal
-            - Number(data.discount)
-            + Number(data.shipping);
+        return (
+            subtotal -
+            Number(data.discount) +
+            Number(data.shipping)
+        );
 
     }, [subtotal, data.discount, data.shipping]);
 
@@ -115,18 +117,17 @@ export default function Create({ auth, products }) {
 
         e.preventDefault();
 
-       post(route("orders.store"), {
-        data: {
-            ...data,
-            subtotal,
-            total: grandTotal,
-            items,
-        },
-    });
+        post(route("orders.store"), {
+            data: {
+                ...data,
+                subtotal,
+                total: grandTotal,
+                items,
+            },
+        });
 
     };
 
-    
     return (
 
         <AuthenticatedLayout
@@ -140,7 +141,7 @@ export default function Create({ auth, products }) {
 
             <Head title="Create Order" />
 
-            <div className="mx-auto max-w-7xl">
+            <div className="mx-auto max-w-7xl py-6">
 
                 <form
                     onSubmit={submit}
@@ -155,7 +156,7 @@ export default function Create({ auth, products }) {
                             Customer Information
                         </h3>
 
-                        <div className="grid grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
 
                             <div>
 
@@ -167,13 +168,16 @@ export default function Create({ auth, products }) {
                                     type="text"
                                     value={data.order_number}
                                     onChange={(e) =>
-                                        setData(
-                                            "order_number",
-                                            e.target.value
-                                        )
+                                        setData("order_number", e.target.value)
                                     }
                                     className="w-full rounded-lg border px-4 py-2"
                                 />
+
+                                {errors.order_number && (
+                                    <p className="mt-1 text-sm text-red-500">
+                                        {errors.order_number}
+                                    </p>
+                                )}
 
                             </div>
 
@@ -187,53 +191,62 @@ export default function Create({ auth, products }) {
                                     type="text"
                                     value={data.customer_name}
                                     onChange={(e) =>
-                                        setData(
-                                            "customer_name",
-                                            e.target.value
-                                        )
+                                        setData("customer_name", e.target.value)
                                     }
                                     className="w-full rounded-lg border px-4 py-2"
                                 />
+
+                                {errors.customer_name && (
+                                    <p className="mt-1 text-sm text-red-500">
+                                        {errors.customer_name}
+                                    </p>
+                                )}
 
                             </div>
 
                             <div>
 
                                 <label className="mb-2 block">
-                                    Phone
+                                    Customer Phone
                                 </label>
 
                                 <input
                                     type="text"
                                     value={data.customer_phone}
                                     onChange={(e) =>
-                                        setData(
-                                            "customer_phone",
-                                            e.target.value
-                                        )
+                                        setData("customer_phone", e.target.value)
                                     }
                                     className="w-full rounded-lg border px-4 py-2"
                                 />
+
+                                {errors.customer_phone && (
+                                    <p className="mt-1 text-sm text-red-500">
+                                        {errors.customer_phone}
+                                    </p>
+                                )}
 
                             </div>
 
                             <div>
 
                                 <label className="mb-2 block">
-                                    Email
+                                    Customer Email
                                 </label>
 
                                 <input
                                     type="email"
                                     value={data.customer_email}
                                     onChange={(e) =>
-                                        setData(
-                                            "customer_email",
-                                            e.target.value
-                                        )
+                                        setData("customer_email", e.target.value)
                                     }
                                     className="w-full rounded-lg border px-4 py-2"
                                 />
+
+                                {errors.customer_email && (
+                                    <p className="mt-1 text-sm text-red-500">
+                                        {errors.customer_email}
+                                    </p>
+                                )}
 
                             </div>
 
@@ -242,26 +255,29 @@ export default function Create({ auth, products }) {
                         <div className="mt-6">
 
                             <label className="mb-2 block">
-                                Address
+                                Customer Address
                             </label>
 
                             <textarea
-                                rows="3"
+                                rows="4"
                                 value={data.customer_address}
                                 onChange={(e) =>
-                                    setData(
-                                        "customer_address",
-                                        e.target.value
-                                    )
+                                    setData("customer_address", e.target.value)
                                 }
                                 className="w-full rounded-lg border px-4 py-2"
                             />
+
+                            {errors.customer_address && (
+                                <p className="mt-1 text-sm text-red-500">
+                                    {errors.customer_address}
+                                </p>
+                            )}
 
                         </div>
 
                     </div>
 
-                    {/* Products */}
+                                        {/* Products */}
 
                     <div className="rounded-xl bg-white p-6 shadow">
 
@@ -274,7 +290,7 @@ export default function Create({ auth, products }) {
                             <button
                                 type="button"
                                 onClick={addItem}
-                                className="rounded-lg bg-blue-600 px-5 py-2 text-white"
+                                className="rounded-lg bg-blue-600 px-5 py-2 text-white hover:bg-blue-700"
                             >
                                 + Add Product
                             </button>
@@ -294,7 +310,7 @@ export default function Create({ auth, products }) {
                                         </th>
 
                                         <th className="border px-4 py-3">
-                                            Qty
+                                            Quantity
                                         </th>
 
                                         <th className="border px-4 py-3">
@@ -336,18 +352,16 @@ export default function Create({ auth, products }) {
                                                         Select Product
                                                     </option>
 
-                                                    {products.map(
-                                                        (product) => (
+                                                    {products.map((product) => (
 
-                                                            <option
-                                                                key={product.id}
-                                                                value={product.id}
-                                                            >
-                                                                {product.name}
-                                                            </option>
+                                                        <option
+                                                            key={product.id}
+                                                            value={product.id}
+                                                        >
+                                                            {product.name}
+                                                        </option>
 
-                                                        )
-                                                    )}
+                                                    ))}
 
                                                 </select>
 
@@ -370,26 +384,24 @@ export default function Create({ auth, products }) {
 
                                             </td>
 
-                                            <td className="border p-3">
+                                            <td className="border p-3 text-center">
 
-                                                ৳ {item.price}
-
-                                            </td>
-
-                                            <td className="border p-3 font-semibold">
-
-                                                ৳ {item.subtotal}
+                                                ৳ {Number(item.price).toFixed(2)}
 
                                             </td>
 
-                                            <td className="border p-3">
+                                            <td className="border p-3 text-center font-semibold">
+
+                                                ৳ {Number(item.subtotal).toFixed(2)}
+
+                                            </td>
+
+                                            <td className="border p-3 text-center">
 
                                                 <button
                                                     type="button"
-                                                    onClick={() =>
-                                                        removeItem(index)
-                                                    }
-                                                    className="rounded bg-red-600 px-3 py-2 text-white"
+                                                    onClick={() => removeItem(index)}
+                                                    className="rounded bg-red-600 px-3 py-2 text-white hover:bg-red-700"
                                                 >
                                                     Remove
                                                 </button>
@@ -400,7 +412,7 @@ export default function Create({ auth, products }) {
 
                                     ))}
 
-                                                                    </tbody>
+                                </tbody>
 
                             </table>
 
@@ -408,7 +420,7 @@ export default function Create({ auth, products }) {
 
                     </div>
 
-                    {/* Order Summary */}
+                                        {/* Order Summary */}
 
                     <div className="rounded-xl bg-white p-6 shadow">
 
@@ -416,7 +428,7 @@ export default function Create({ auth, products }) {
                             Order Summary
                         </h3>
 
-                        <div className="grid grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
 
                             <div>
 
@@ -432,6 +444,12 @@ export default function Create({ auth, products }) {
                                     }
                                     className="w-full rounded-lg border px-4 py-2"
                                 />
+
+                                {errors.discount && (
+                                    <p className="mt-1 text-sm text-red-500">
+                                        {errors.discount}
+                                    </p>
+                                )}
 
                             </div>
 
@@ -450,6 +468,12 @@ export default function Create({ auth, products }) {
                                     className="w-full rounded-lg border px-4 py-2"
                                 />
 
+                                {errors.shipping && (
+                                    <p className="mt-1 text-sm text-red-500">
+                                        {errors.shipping}
+                                    </p>
+                                )}
+
                             </div>
 
                             <div>
@@ -465,11 +489,15 @@ export default function Create({ auth, products }) {
                                     }
                                     className="w-full rounded-lg border px-4 py-2"
                                 >
-                                    <option>Cash On Delivery</option>
-                                    <option>BKash</option>
-                                    <option>Nagad</option>
-                                    <option>Rocket</option>
-                                    <option>Bank Transfer</option>
+                                    <option value="Cash On Delivery">
+                                        Cash On Delivery
+                                    </option>
+                                    <option value="BKash">BKash</option>
+                                    <option value="Nagad">Nagad</option>
+                                    <option value="Rocket">Rocket</option>
+                                    <option value="Bank Transfer">
+                                        Bank Transfer
+                                    </option>
                                 </select>
 
                             </div>
@@ -487,9 +515,9 @@ export default function Create({ auth, products }) {
                                     }
                                     className="w-full rounded-lg border px-4 py-2"
                                 >
-                                    <option>Pending</option>
-                                    <option>Paid</option>
-                                    <option>Failed</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Paid">Paid</option>
+                                    <option value="Failed">Failed</option>
                                 </select>
 
                             </div>
@@ -507,11 +535,11 @@ export default function Create({ auth, products }) {
                                     }
                                     className="w-full rounded-lg border px-4 py-2"
                                 >
-                                    <option>Pending</option>
-                                    <option>Processing</option>
-                                    <option>Shipped</option>
-                                    <option>Delivered</option>
-                                    <option>Cancelled</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Processing">Processing</option>
+                                    <option value="Shipped">Shipped</option>
+                                    <option value="Delivered">Delivered</option>
+                                    <option value="Cancelled">Cancelled</option>
                                 </select>
 
                             </div>
@@ -542,7 +570,7 @@ export default function Create({ auth, products }) {
                                 <span>Subtotal</span>
 
                                 <span className="font-semibold">
-                                    ৳ {subtotal}
+                                    ৳ {subtotal.toFixed(2)}
                                 </span>
 
                             </div>
@@ -552,7 +580,7 @@ export default function Create({ auth, products }) {
                                 <span>Discount</span>
 
                                 <span>
-                                    ৳ {data.discount}
+                                    ৳ {Number(data.discount).toFixed(2)}
                                 </span>
 
                             </div>
@@ -562,7 +590,7 @@ export default function Create({ auth, products }) {
                                 <span>Shipping</span>
 
                                 <span>
-                                    ৳ {data.shipping}
+                                    ৳ {Number(data.shipping).toFixed(2)}
                                 </span>
 
                             </div>
@@ -574,7 +602,7 @@ export default function Create({ auth, products }) {
                                 <span>Grand Total</span>
 
                                 <span>
-                                    ৳ {grandTotal}
+                                    ৳ {grandTotal.toFixed(2)}
                                 </span>
 
                             </div>
@@ -588,9 +616,7 @@ export default function Create({ auth, products }) {
                                 disabled={processing}
                                 className="rounded-lg bg-green-600 px-8 py-3 text-white hover:bg-green-700 disabled:opacity-50"
                             >
-                                {processing
-                                    ? "Saving..."
-                                    : "Save Order"}
+                                {processing ? "Saving..." : "Save Order"}
                             </button>
 
                         </div>
