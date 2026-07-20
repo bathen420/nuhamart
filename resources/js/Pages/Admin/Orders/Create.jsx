@@ -35,6 +35,12 @@ export default function Create({ auth, products }) {
 
         shipping: 0,
 
+        subtotal: 0,
+
+        total: 0,
+
+        items: [],
+
         note: "",
 
     });
@@ -114,19 +120,18 @@ export default function Create({ auth, products }) {
     }, [subtotal, data.discount, data.shipping]);
 
     const submit = (e) => {
-
         e.preventDefault();
 
-        post(route("orders.store"), {
-            data: {
-                ...data,
-                subtotal,
-                total: grandTotal,
-                items,
-            },
+        setData({
+            ...data,
+            subtotal,
+            total: grandTotal,
+            items,
         });
 
+        post(route("orders.store"));
     };
+
 
     return (
 
@@ -274,6 +279,8 @@ export default function Create({ auth, products }) {
                             )}
 
                         </div>
+
+                       
 
                     </div>
 
