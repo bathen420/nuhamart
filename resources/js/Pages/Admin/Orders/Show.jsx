@@ -5,13 +5,10 @@ const paymentBadge = (status) => {
     switch (status) {
         case "Paid":
             return "bg-green-100 text-green-700";
-
         case "Pending":
             return "bg-yellow-100 text-yellow-700";
-
         case "Failed":
             return "bg-red-100 text-red-700";
-
         default:
             return "bg-gray-100 text-gray-700";
     }
@@ -21,19 +18,14 @@ const orderBadge = (status) => {
     switch (status) {
         case "Pending":
             return "bg-yellow-100 text-yellow-700";
-
         case "Processing":
             return "bg-blue-100 text-blue-700";
-
         case "Shipped":
             return "bg-purple-100 text-purple-700";
-
         case "Delivered":
             return "bg-green-100 text-green-700";
-
         case "Cancelled":
             return "bg-red-100 text-red-700";
-
         default:
             return "bg-gray-100 text-gray-700";
     }
@@ -41,98 +33,86 @@ const orderBadge = (status) => {
 
 export default function Show({ auth, order }) {
 
-       const printInvoice = () => {
+    const printInvoice = () => {
         window.print();
     };
 
-    <style>
-    {`
-    @media print{
-
-        aside,
-        nav,
-        header,
-        button,
-        a{
-            display:none !important;
-        }
-
-        body{
-            background:white;
-        }
-
-    }
-    `}
-    </style>
-    
-
     return (
-        
-        <AuthenticatedLayout
-            user={auth.user}
-            header={
-                <h2 className="text-xl font-semibold">
-                    Invoice
-                </h2>
-            }
-        >
+        <>
+            <style>{`
+                @media print{
+                    nav,
+                    aside,
+                    header,
+                    .print-hidden{
+                        display:none !important;
+                    }
 
-            <Head title={`Invoice ${order.order_number}`} />
+                    body{
+                        background:#fff;
+                    }
 
-            <div
-                id="invoice"
-                className="mx-auto max-w-5xl bg-white p-10 shadow-lg print:shadow-none print:max-w-full print:p-0"
+                    #invoice{
+                        width:100%;
+                        max-width:100%;
+                        box-shadow:none;
+                        margin:0;
+                        padding:0;
+                    }
+                }
+            `}</style>
+
+            <AuthenticatedLayout
+                user={auth.user}
+                header={
+                    <h2 className="text-xl font-semibold">
+                        Invoice
+                    </h2>
+                }
+            >
+
+                <Head title={`Invoice ${order.order_number}`} />
+
+                <div
+                    id="invoice"
+                    className="mx-auto max-w-6xl space-y-6 bg-white p-8 shadow-xl"
                 >
-
-                <div 
-                    className="mx-auto max-w-7xl py-8 space-y-6">
 
                     {/* Top Buttons */}
 
                     <div className="flex justify-between print-hidden">
 
-                        <div className="flex gap-3">
-
-                            <button
-                                onClick={printInvoice}
-                                className="rounded-lg bg-blue-600 px-5 py-2 text-white hover:bg-blue-700"
-                            >
-                                🖨 Print
-                            </button>
-
-                            <Link
-                                href={route("orders.index")}
-                                className="rounded-lg bg-gray-700 px-5 py-2 text-white hover:bg-gray-800"
-                            >
-                                Back
-                            </Link>
-
-                        </div>
+                        <Link
+                            href={route("orders.index")}
+                            className="rounded-lg bg-gray-700 px-5 py-2 text-white"
+                        >
+                            ← Back
+                        </Link>
 
                         <div className="space-x-3">
 
                             <button
                                 onClick={printInvoice}
-                                className="rounded-lg bg-blue-600 px-5 py-2 text-white hover:bg-blue-700 print:hidden"
+                                className="rounded-lg bg-blue-600 px-5 py-2 text-white"
                             >
                                 🖨 Print
                             </button>
 
-                            <button
-                                className="rounded-lg bg-red-600 px-5 py-2 text-white hover:bg-red-700 print:hidden"
+                            <a
+                                href={route("orders.pdf", order.id)}
+                                className="rounded-lg bg-red-600 px-5 py-2 text-white"
                             >
                                 📄 PDF
-                            </button>
+                            </a>
 
                         </div>
 
                     </div>
+                                        {/* Invoice Header */}
 
-                    {/* Invoice Header */}
+                    <div className="rounded-xl border-b-4 border-blue-600 pb-8">
 
-                    <div className="print-card rounded-xl bg-white p-6 shadow">
-
-                        <div className="flex flex-col md:flex-row justify-between">
+                        <div className="flex flex-col justify-between md:flex-row">
 
                             <div>
 
@@ -140,7 +120,7 @@ export default function Show({ auth, order }) {
                                     NuhaMart
                                 </h1>
 
-                                <p className="text-gray-500 mt-2">
+                                <p className="mt-2 text-gray-500">
                                     Professional Inventory & POS System
                                 </p>
 
@@ -156,7 +136,7 @@ export default function Show({ auth, order }) {
 
                             </div>
 
-                            <div className="text-right mt-8 md:mt-0">
+                            <div className="mt-8 text-right md:mt-0">
 
                                 <h2 className="text-5xl font-bold text-gray-700">
                                     INVOICE
@@ -165,27 +145,19 @@ export default function Show({ auth, order }) {
                                 <div className="mt-6 space-y-2">
 
                                     <p>
-
                                         <span className="font-bold">
                                             Invoice #
                                         </span>
-
                                         <br />
-
                                         {order.order_number}
-
                                     </p>
 
                                     <p>
-
                                         <span className="font-bold">
                                             Date
                                         </span>
-
                                         <br />
-
                                         {new Date(order.created_at).toLocaleDateString()}
-
                                     </p>
 
                                 </div>
@@ -196,14 +168,11 @@ export default function Show({ auth, order }) {
 
                     </div>
 
-                
-                    {/* Customer & Payment Information */}
+                    {/* Customer & Payment */}
 
                     <div className="grid gap-6 md:grid-cols-2">
 
-                        {/* Customer Card */}
-
-                        <div className="rounded-xl bg-white p-6 shadow">
+                        <div className="rounded-xl bg-gray-50 p-6">
 
                             <h3 className="mb-5 border-b pb-2 text-xl font-bold">
                                 Customer Information
@@ -212,34 +181,22 @@ export default function Show({ auth, order }) {
                             <div className="space-y-3">
 
                                 <p>
-                                    <span className="font-semibold">
-                                        Customer Name:
-                                    </span>
-                                    <br />
+                                    <strong>Name:</strong><br />
                                     {order.customer_name}
                                 </p>
 
                                 <p>
-                                    <span className="font-semibold">
-                                        Phone:
-                                    </span>
-                                    <br />
+                                    <strong>Phone:</strong><br />
                                     {order.customer_phone}
                                 </p>
 
                                 <p>
-                                    <span className="font-semibold">
-                                        Email:
-                                    </span>
-                                    <br />
+                                    <strong>Email:</strong><br />
                                     {order.customer_email || "-"}
                                 </p>
 
                                 <p>
-                                    <span className="font-semibold">
-                                        Address:
-                                    </span>
-                                    <br />
+                                    <strong>Address:</strong><br />
                                     {order.customer_address}
                                 </p>
 
@@ -247,9 +204,7 @@ export default function Show({ auth, order }) {
 
                         </div>
 
-                        {/* Payment Card */}
-
-                        <div className="rounded-xl bg-white p-6 shadow">
+                        <div className="rounded-xl bg-gray-50 p-6">
 
                             <h3 className="mb-5 border-b pb-2 text-xl font-bold">
                                 Payment Information
@@ -261,9 +216,7 @@ export default function Show({ auth, order }) {
 
                                     <span>Payment Method</span>
 
-                                    <strong>
-                                        {order.payment_method}
-                                    </strong>
+                                    <strong>{order.payment_method}</strong>
 
                                 </div>
 
@@ -272,9 +225,7 @@ export default function Show({ auth, order }) {
                                     <span>Payment Status</span>
 
                                     <span
-                                        className={`rounded-full px-3 py-1 text-sm font-semibold ${paymentBadge(
-                                            order.payment_status
-                                        )}`}
+                                        className={`rounded-full px-3 py-1 text-sm font-semibold ${paymentBadge(order.payment_status)}`}
                                     >
                                         {order.payment_status}
                                     </span>
@@ -286,9 +237,7 @@ export default function Show({ auth, order }) {
                                     <span>Order Status</span>
 
                                     <span
-                                        className={`rounded-full px-3 py-1 text-sm font-semibold ${orderBadge(
-                                            order.order_status
-                                        )}`}
+                                        className={`rounded-full px-3 py-1 text-sm font-semibold ${orderBadge(order.order_status)}`}
                                     >
                                         {order.order_status}
                                     </span>
@@ -310,8 +259,7 @@ export default function Show({ auth, order }) {
                         </div>
 
                     </div>
-
-                    {/* Products */}
+                                        {/* Products */}
 
                     <div className="rounded-xl bg-white p-6 shadow">
 
@@ -327,7 +275,7 @@ export default function Show({ auth, order }) {
 
                                     <tr>
 
-                                        <th className="border px-4 py-3 text-center">
+                                        <th className="border px-4 py-3 text-center w-16">
                                             #
                                         </th>
 
@@ -364,12 +312,8 @@ export default function Show({ auth, order }) {
                                                 {index + 1}
                                             </td>
 
-                                            <td className="border px-4 py-3">
-
-                                                <div className="font-semibold">
-                                                    {item.product?.name}
-                                                </div>
-
+                                            <td className="border px-4 py-3 font-medium">
+                                                {item.product?.name || "-"}
                                             </td>
 
                                             <td className="border px-4 py-3 text-center">
@@ -456,56 +400,58 @@ export default function Show({ auth, order }) {
 
                     </div>
 
-                </div>
+                                        {/* Footer */}
 
-                {/* Footer */}
+                    <div className="rounded-xl bg-white p-8 shadow">
 
-                <div className="rounded-xl bg-white p-8 shadow print:shadow-none">
+                        <div className="grid gap-8 md:grid-cols-2">
 
-                    <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+                            <div>
 
-                        <div>
+                                <h3 className="mb-3 text-lg font-bold">
+                                    Notes
+                                </h3>
 
-                            <h3 className="mb-3 text-lg font-bold">
-                                Notes
-                            </h3>
-
-                            <p className="text-gray-600">
-                                {order.note || "No additional notes."}
-                            </p>
-
-                        </div>
-
-                        <div className="text-right">
-
-                            <div className="mt-10 inline-block border-t border-black pt-2">
-
-                                <p className="font-semibold">
-                                    Authorized Signature
+                                <p className="text-gray-600">
+                                    {order.note || "No additional notes."}
                                 </p>
+
+                            </div>
+
+                            <div className="text-right">
+
+                                <div className="mt-16 inline-block border-t border-black pt-2">
+
+                                    <p className="font-semibold">
+                                        Authorized Signature
+                                    </p>
+
+                                </div>
 
                             </div>
 
                         </div>
 
-                    </div>
+                        <div className="mt-10 border-t pt-6 text-center">
 
-                    <div className="mt-10 border-t pt-6 text-center">
+                            <h2 className="text-2xl font-bold text-blue-700">
+                                Thank You For Your Business ❤️
+                            </h2>
 
-                        <h2 className="text-xl font-bold text-blue-700">
-                            Thank You For Your Business ❤️
-                        </h2>
+                            <p className="mt-2 text-gray-500">
+                                Generated by NuhaMart Inventory & POS System
+                            </p>
 
-                        <p className="mt-2 text-gray-500">
-                            Generated by NuhaMart Inventory & POS System
-                        </p>
+                        </div>
 
                     </div>
 
                 </div>
 
-            </div>
+            </AuthenticatedLayout>
 
-        </AuthenticatedLayout>
+        </>
+
     );
+
 }

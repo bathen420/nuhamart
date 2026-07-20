@@ -10,6 +10,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 
 class OrderController extends Controller
@@ -179,6 +180,18 @@ class OrderController extends Controller
         return redirect()
             ->route('orders.index')
             ->with('success', 'Order deleted successfully.');
+    }
+
+
+    public function download(Order $order)
+    {
+        $order->load('items.product', 'user');
+
+        $pdf = Pdf::loadView('pdf.invoice', [
+            'order' => $order,
+        ]);
+
+        return $pdf->download('Invoice-'.$order->order_number.'.pdf');
     }
 
     

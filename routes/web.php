@@ -44,7 +44,14 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
 
         Route::resource('orders', OrderController::class);
 
-});
+
+        Route::get(
+            'orders/{order}/pdf',
+            [OrderController::class, 'download']
+        )->name('orders.pdf');
+
+
+        });
 
 /*
 |--------------------------------------------------------------------------
