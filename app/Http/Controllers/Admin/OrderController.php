@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 
+
 class OrderController extends Controller
 {
     /**
@@ -77,35 +78,38 @@ class OrderController extends Controller
     {
         $data = $request->validated();
 
-        // Create Order
-        $order = Order::create([
-            'order_number'     => $data['order_number'],
-            'user_id'          => auth()->id(),
-            'customer_name'    => $data['customer_name'],
-            'customer_phone'   => $data['customer_phone'],
-            'customer_email'   => $data['customer_email'] ?? null,
-            'customer_address' => $data['customer_address'],
-            'subtotal'         => $data['subtotal'],
-            'discount'         => $data['discount'] ?? 0,
-            'shipping'         => $data['shipping'] ?? 0,
-            'total'            => $data['total'],
-            'payment_method'   => $data['payment_method'],
-            'payment_status'   => $data['payment_status'],
-            'order_status'     => $data['order_status'],
-            'note'             => $data['note'] ?? null,
-        ]);
+        DB::transaction(function () use ($data) {
 
-        // Save Order Items
-        foreach ($data['items'] as $item) {
-
-            $order->items()->create([
-                'product_id' => $item['product_id'],
-                'quantity'   => $item['quantity'],
-                'price'      => $item['price'],
-                'subtotal'   => $item['subtotal'],
+            // Create Order
+            $order = Order::create([
+                'order_number'     => $data['order_number'],
+                'user_id'          => auth()->id(),
+                'customer_name'    => $data['customer_name'],
+                'customer_phone'   => $data['customer_phone'],
+                'customer_email'   => $data['customer_email'] ?? null,
+                'customer_address' => $data['customer_address'],
+                'subtotal'         => $data['subtotal'],
+                'discount'         => $data['discount'] ?? 0,
+                'shipping'         => $data['shipping'] ?? 0,
+                'total'            => $data['total'],
+                'payment_method'   => $data['payment_method'],
+                'payment_status'   => $data['payment_status'],
+                'order_status'     => $data['order_status'],
+                'note'             => $data['note'] ?? null,
             ]);
 
-        }
+            foreach ($data['items'] as $item) {
+
+                $order->items()->create([
+                    'product_id' => $item['product_id'],
+                    'quantity'   => $item['quantity'],
+                    'price'      => $item['price'],
+                    'subtotal'   => $item['subtotal'],
+                ]);
+
+            }
+
+        });
 
         return redirect()
             ->route('orders.index')
