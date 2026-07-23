@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\StockHistoryController;
 use App\Http\Controllers\Admin\SupplierController;
+use App\Http\Controllers\Admin\PurchaseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,6 +46,8 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
         Route::resource('products', ProductController::class);
 
         Route::resource('orders', OrderController::class);
+
+        Route::resource('purchases', PurchaseController::class);
 
 
         Route::get(
