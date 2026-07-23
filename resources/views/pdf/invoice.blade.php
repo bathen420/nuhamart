@@ -12,67 +12,89 @@
     <style>
 
         *{
+            margin:0;
+            padding:0;
             box-sizing:border-box;
-            font-family: DejaVu Sans, sans-serif;
+            font-family: DejaVu Sans,sans-serif;
         }
 
         body{
 
-            margin:40px;
+            font-size:13px;
             color:#333;
+            padding:35px;
+
+        }
+
+        .container{
+
+            width:100%;
 
         }
 
         .header{
 
-            width:100%;
-            overflow:hidden;
-            margin-bottom:30px;
-            border-bottom:2px solid #0d6efd;
+            border-bottom:4px solid #2563eb;
             padding-bottom:20px;
+            margin-bottom:30px;
+            overflow:hidden;
 
         }
 
-        .left{
+        .company{
 
-            width:50%;
+            width:55%;
             float:left;
 
         }
 
-        .right{
+        .invoice{
 
-            width:50%;
+            width:45%;
             float:right;
             text-align:right;
 
         }
 
-        h1{
+        .logo{
 
-            margin:0;
-            color:#0d6efd;
             font-size:34px;
+            font-weight:bold;
+            color:#2563eb;
 
         }
 
-        h2{
+        .subtitle{
 
-            margin:0;
-            font-size:32px;
-
-        }
-
-        p{
-
-            margin:5px 0;
+            color:#666;
+            margin-top:5px;
 
         }
 
-        .clear{
+        .address{
 
+            margin-top:18px;
+            line-height:22px;
+            color:#555;
+
+        }
+
+        .invoice-title{
+
+            font-size:38px;
+            font-weight:bold;
+
+        }
+
+        .invoice-box{
+
+            margin-top:15px;
+            line-height:24px;
+
+        }
+
+        .clearfix{
             clear:both;
-
         }
 
         .card{
@@ -80,18 +102,19 @@
             border:1px solid #ddd;
             padding:20px;
             margin-top:25px;
-            border-radius:6px;
+            overflow:hidden;
+            border-radius:5px;
 
         }
 
-        .half{
+        .left{
 
             width:48%;
             float:left;
 
         }
 
-        .half-right{
+        .right{
 
             width:48%;
             float:right;
@@ -100,11 +123,23 @@
 
         .title{
 
-            font-size:18px;
+            font-size:17px;
             font-weight:bold;
-            margin-bottom:15px;
             border-bottom:1px solid #ddd;
             padding-bottom:8px;
+            margin-bottom:15px;
+
+        }
+
+        .row{
+
+            margin-bottom:10px;
+
+        }
+
+        .label{
+
+            font-weight:bold;
 
         }
 
@@ -118,19 +153,19 @@
 
         table th{
 
-            background:#0d6efd;
-            color:#fff;
+            background:#2563eb;
+            color:white;
             padding:12px;
             border:1px solid #ddd;
-            font-size:14px;
+            font-size:13px;
 
         }
 
         table td{
 
-            padding:12px;
             border:1px solid #ddd;
-            font-size:13px;
+            padding:11px;
+            font-size:12px;
 
         }
 
@@ -146,338 +181,297 @@
 
         }
 
+        .summary{
+
+            width:40%;
+            float:right;
+            margin-top:30px;
+
+        }
+
+        .summary table{
+
+            margin-top:0;
+
+        }
+
+        .summary td{
+
+            padding:10px;
+
+        }
+
+        .grand{
+
+            background:#2563eb;
+            color:white;
+            font-weight:bold;
+            font-size:15px;
+
+        }
+
     </style>
 
 </head>
 
 <body>
 
+<div class="container">
+
 <div class="header">
 
-    <div class="left">
+<div class="company">
 
-        <h1>NuhaMart</h1>
+<div class="logo">
 
-        <p>Professional Inventory & POS System</p>
-
-        <p>Dhaka, Bangladesh</p>
-
-        <p>support@nuhamart.com</p>
-
-        <p>+8801700000000</p>
-
-    </div>
-
-    <div class="right">
-
-        <h2>INVOICE</h2>
-
-        <br>
-
-        <strong>Invoice No:</strong>
-
-        <br>
-
-        {{ $order->order_number }}
-
-        <br><br>
-
-        <strong>Date:</strong>
-
-        <br>
-
-        {{ $order->created_at->format('d M Y') }}
-
-    </div>
+NuhaMart
 
 </div>
 
-<div class="clear"></div>
+<div class="subtitle">
 
-<div class="card">
-
-    <div class="half">
-
-        <div class="title">
-            Customer Information
-        </div>
-
-        <p>
-
-            <strong>Name :</strong>
-
-            {{ $order->customer_name }}
-
-        </p>
-
-        <p>
-
-            <strong>Phone :</strong>
-
-            {{ $order->customer_phone }}
-
-        </p>
-
-        <p>
-
-            <strong>Email :</strong>
-
-            {{ $order->customer_email ?: '-' }}
-
-        </p>
-
-        <p>
-
-            <strong>Address :</strong>
-
-            {{ $order->customer_address }}
-
-        </p>
-
-    </div>
-
-    <div class="half-right">
-
-        <div class="title">
-            Payment Information
-        </div>
-
-        <p>
-
-            <strong>Payment Method :</strong>
-
-            {{ $order->payment_method }}
-
-        </p>
-
-        <p>
-
-            <strong>Payment Status :</strong>
-
-            {{ $order->payment_status }}
-
-        </p>
-
-        <p>
-
-            <strong>Order Status :</strong>
-
-            {{ $order->order_status }}
-
-        </p>
-
-    </div>
+Professional Inventory & POS System
 
 </div>
 
-<div class="clear"></div>
+<div class="address">
 
-<table>
+Dhaka, Bangladesh
 
-    <thead>
+<br>
 
-        <tr>
+support@nuhamart.com
 
-            <th width="8%">
-                #
-            </th>
+<br>
 
-            <th>
-                Product
-            </th>
++8801700000000
 
-            <th width="12%">
-                Qty
-            </th>
+</div>
 
-            <th width="20%">
-                Unit Price
-            </th>
+</div>
 
-            <th width="22%">
-                Total
-            </th>
+<div class="invoice">
 
-        </tr>
+<div class="invoice-title">
 
-    </thead>
+INVOICE
 
-    <tbody>
+</div>
 
-        @foreach($order->items as $item)
+<div class="invoice-box">
 
-        <tr>
+<strong>Invoice No</strong>
 
-            <td class="text-center">
-                {{ $loop->iteration }}
-            </td>
+<br>
 
-            <td>
-                {{ $item->product->name ?? '-' }}
-            </td>
-
-            <td class="text-center">
-                {{ $item->quantity }}
-            </td>
-
-            <td class="text-right">
-                ৳ {{ number_format($item->price, 2) }}
-            </td>
-
-            <td class="text-right">
-                ৳ {{ number_format($item->subtotal, 2) }}
-            </td>
-
-        </tr>
-
-        @endforeach
-
-    </tbody>
-
-</table>
+{{ $order->order_number }}
 
 <br><br>
 
-<table style="width:40%; float:right;">
+<strong>Date</strong>
 
-    <tr>
+<br>
 
-        <td>
-            Subtotal
-        </td>
+{{ $order->created_at->format('d M Y') }}
 
-        <td class="text-right">
-            ৳ {{ number_format($order->subtotal,2) }}
-        </td>
+</div>
 
-    </tr>
+</div>
 
-    <tr>
+</div>
 
-        <td>
-            Discount
-        </td>
+<div class="clearfix"></div>
 
-        <td class="text-right">
-            ৳ {{ number_format($order->discount,2) }}
-        </td>
+<div class="card">
 
-    </tr>
+<div class="left">
 
-    <tr>
+<div class="title">
 
-        <td>
-            Shipping
-        </td>
+Customer Information
 
-        <td class="text-right">
-            ৳ {{ number_format($order->shipping,2) }}
-        </td>
+</div>
 
-    </tr>
+<div class="row">
 
-    <tr>
+<span class="label">
 
-        <td>
+Customer :
 
-            <strong>
-                Grand Total
-            </strong>
+</span>
 
-        </td>
+{{ $order->customer_name }}
 
-        <td class="text-right">
+</div>
 
-            <strong>
+<div class="row">
 
-                ৳ {{ number_format($order->total,2) }}
+<span class="label">
 
-            </strong>
+Phone :
 
-        </td>
+</span>
 
-    </tr>
+{{ $order->customer_phone }}
+
+</div>
+
+<div class="row">
+
+<span class="label">
+
+Email :
+
+</span>
+
+{{ $order->customer_email ?: '-' }}
+
+</div>
+
+<div class="row">
+
+<span class="label">
+
+Address :
+
+</span>
+
+{{ $order->customer_address }}
+
+</div>
+
+</div>
+
+<div class="right">
+
+<div class="title">
+
+Payment Information
+
+</div>
+
+<div class="row">
+
+<span class="label">
+
+Method :
+
+</span>
+
+{{ $order->payment_method }}
+
+</div>
+
+<div class="row">
+
+<span class="label">
+
+Payment :
+
+</span>
+
+{{ $order->payment_status }}
+
+</div>
+
+<div class="row">
+
+<span class="label">
+
+Order :
+
+</span>
+
+{{ $order->order_status }}
+
+</div>
+
+</div>
+
+</div>
+
+<div class="clearfix"></div>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th width="8%">
+
+#
+
+</th>
+
+<th>
+
+Product
+
+</th>
+
+<th width="12%">
+
+Qty
+
+</th>
+
+<th width="20%">
+
+Unit Price
+
+</th>
+
+<th width="22%">
+
+Total
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+@foreach($order->items as $item)
+
+<tr>
+
+<td class="text-center">
+
+{{ $loop->iteration }}
+
+</td>
+
+<td>
+
+{{ $item->product->name }}
+
+</td>
+
+<td class="text-center">
+
+{{ $item->quantity }}
+
+</td>
+
+<td class="text-right">
+
+৳ {{ number_format($item->price,2) }}
+
+</td>
+
+<td class="text-right">
+
+৳ {{ number_format($item->subtotal,2) }}
+
+</td>
+
+</tr>
+
+@endforeach
+
+</tbody>
 
 </table>
-
-<div class="clear"></div>
-
-<br><br><br>
-
-@if($order->note)
-
-<div style="margin-top:40px;">
-
-    <h3>Notes</h3>
-
-    <p>
-
-        {{ $order->note }}
-
-    </p>
-
-</div>
-
-@endif
-
-<div style="margin-top:80px;">
-
-    <div style="width:45%; float:left;">
-
-        <p>
-
-            ___________________________
-
-        </p>
-
-        <strong>
-
-            Customer Signature
-
-        </strong>
-
-    </div>
-
-    <div style="width:45%; float:right; text-align:right;">
-
-        <p>
-
-            ___________________________
-
-        </p>
-
-        <strong>
-
-            Authorized Signature
-
-        </strong>
-
-    </div>
-
-</div>
-
-<div class="clear"></div>
-
-<hr style="margin-top:70px;">
-
-<div style="text-align:center; margin-top:20px;">
-
-    <h2 style="color:#0d6efd; margin-bottom:8px;">
-
-        Thank You For Your Business ❤️
-
-    </h2>
-
-    <p>
-
-        This invoice was generated by
-
-        <strong>NuhaMart Inventory & POS System</strong>
-
-    </p>
-
-</div>
-
-</body>
-
-</html>

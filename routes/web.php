@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\StockHistoryController;
+use App\Http\Controllers\Admin\SupplierController;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,9 +48,18 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
 
 
         Route::get(
+            'stock-history',
+            [StockHistoryController::class, 'index']
+        )->name('stock-history.index');
+
+
+        Route::get(
             'orders/{order}/pdf',
             [OrderController::class, 'download']
         )->name('orders.pdf');
+
+
+        Route::resource('suppliers', SupplierController::class);
 
 
         });

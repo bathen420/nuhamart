@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
-
+use App\Models\StockHistory;
 
 class OrderController extends Controller
 {
@@ -102,12 +102,53 @@ class OrderController extends Controller
 
                 foreach ($data['items'] as $item) {
 
+                    // Product বের করি
+                    $product = Product::findOrFail($item['product_id']);
+
+                    $stockBefore = $product->stock_quantity;
+
+                    // পর্যাপ্ত Stock আছে কিনা
+                    if ($stockBefore < $item['quantity']) {
+                        throw new \Exception(
+                            "Insufficient stock for {$product->name}"
+                        );
+                    }
+
+                    // নতুন Stock
+                    $stockAfter = $stockBefore - $item['quantity'];
+
+                    // Order Item Save
                     $order->items()->create([
                         'product_id' => $item['product_id'],
                         'quantity'   => $item['quantity'],
                         'price'      => $item['price'],
                         'subtotal'   => $item['subtotal'],
                     ]);
+
+                    // Product Stock Update
+                    $product->update([
+                        'stock_quantity' => $stockAfter,
+                    ]);
+
+                    // Stock History Save
+                    try {
+
+                        StockHistory::create([
+                            'product_id'   => $product->id,
+                            'user_id'      => auth()->id(),
+                            'type'         => 'OUT',
+                            'quantity'     => $item['quantity'],
+                            'stock_before' => $stockBefore,
+                            'stock_after'  => $stockAfter,
+                            'reference'    => $order->order_number,
+                            'note'         => 'Order Sale',
+                        ]);
+
+                    } catch (\Throwable $e) {
+
+                        dd($e->getMessage(), $e->getTraceAsString());
+
+                    };
                 }
 
             });
