@@ -219,20 +219,31 @@ function FinancialCard({
     icon,
     iconClass,
     backgroundClass,
+    valueType = "currency",
+    suffix = "",
 }) {
+    const displayValue =
+        valueType === "currency"
+            ? formatCurrency(value)
+            : `${Number(value ?? 0).toLocaleString("en-BD")}${suffix}`;
+
     return (
         <div
             className={`relative overflow-hidden rounded-2xl border border-gray-100 p-5 shadow-sm ${backgroundClass}`}
         >
             <div className="relative z-10 flex items-start justify-between gap-4">
                 <div>
-                    <p className="text-sm font-medium text-gray-600">{title}</p>
-
-                    <p className="mt-3 text-2xl font-bold tracking-tight text-gray-900">
-                        {formatCurrency(value)}
+                    <p className="text-sm font-medium text-gray-600">
+                        {title}
                     </p>
 
-                    <p className="mt-2 text-xs text-gray-500">{description}</p>
+                    <p className="mt-3 text-2xl font-bold tracking-tight text-gray-900">
+                        {displayValue}
+                    </p>
+
+                    <p className="mt-2 text-xs text-gray-500">
+                        {description}
+                    </p>
                 </div>
 
                 <div
@@ -510,6 +521,8 @@ export default function Dashboard({
                             <FinancialCard
                                 title="Pending Orders"
                                 value={stats.pending_orders}
+                                valueType="number"
+                                suffix=" Orders"
                                 description="Orders waiting for completion"
                                 icon="pending"
                                 iconClass="bg-orange-100 text-orange-600"
