@@ -12,6 +12,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\CustomerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,6 +48,10 @@ Route::middleware(['auth', 'verified'])
         Route::resource('products', ProductController::class);
 
         Route::resource('suppliers', SupplierController::class);
+
+        Route::resource('customers', CustomerController::class);
+
+       
 
         /*
         |--------------------------------------------------------------------------

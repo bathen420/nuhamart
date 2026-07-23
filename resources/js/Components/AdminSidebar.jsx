@@ -9,6 +9,7 @@ import {
     Truck,
     ShoppingCart,
     History,
+    Users,
 } from "lucide-react";
 
 import AdminMenuItem from "./AdminMenuItem";
@@ -69,6 +70,14 @@ export default function AdminSidebar() {
                     icon={Package}
                 >
                     Products
+                </AdminMenuItem>
+
+                <AdminMenuItem
+                    href={route("customers.index")}
+                    active={page.url.startsWith("/admin/customers")}
+                    icon={Users}
+                >
+                    Customers
                 </AdminMenuItem>
 
                 <AdminMenuItem
