@@ -1,26 +1,67 @@
-import { Head } from "@inertiajs/react";
+import { Head, useForm } from "@inertiajs/react";
 
 import CheckoutLayout from "@/Components/Checkout/CheckoutLayout";
+import CustomerForm from "@/Components/Checkout/CustomerForm";
+import PaymentMethod from "@/Components/Checkout/PaymentMethod";
 import OrderSummary from "@/Components/Checkout/OrderSummary";
 
 export default function CheckoutIndex() {
+    const {
+        data,
+        setData,
+        post,
+        processing,
+        errors,
+    } = useForm({
+        name: "",
+        phone: "",
+        email: "",
+        division: "",
+        district: "",
+        area: "",
+        address: "",
+        note: "",
+        payment_method: "cod",
+    });
+
+    const submit = (event) => {
+        event.preventDefault();
+
+        post(route("checkout.store"), {
+            preserveScroll: true,
+        });
+    };
+
     return (
         <>
             <Head title="Checkout" />
 
             <CheckoutLayout
                 left={
-                    <div className="rounded-2xl bg-white p-8 shadow-sm">
-                        <h1 className="text-3xl font-black text-slate-900">
-                            Checkout
-                        </h1>
+                    <form
+                        id="checkout-form"
+                        onSubmit={submit}
+                        className="space-y-6"
+                    >
+                        <CustomerForm
+                            data={data}
+                            setData={setData}
+                            errors={errors}
+                        />
 
-                        <p className="mt-3 text-slate-500">
-                            Customer and delivery information form will be added here.
-                        </p>
-                    </div>
+                        <PaymentMethod
+                            data={data}
+                            setData={setData}
+                            errors={errors}
+                        />
+                    </form>
                 }
-                right={<OrderSummary />}
+                right={
+                    <OrderSummary
+                        processing={processing}
+                        formId="checkout-form"
+                    />
+                }
             />
         </>
     );

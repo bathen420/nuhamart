@@ -3,17 +3,17 @@
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\StockHistoryController;
 use App\Http\Controllers\Admin\SupplierController;
+use App\Http\Controllers\Checkout\OrderController as CheckoutOrderController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use App\Http\Controllers\CustomerController;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -23,12 +23,25 @@ use App\Http\Controllers\CustomerController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
-        'canLogin'       => Route::has('login'),
-        'canRegister'    => Route::has('register'),
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
-        'phpVersion'     => PHP_VERSION,
+        'phpVersion' => PHP_VERSION,
     ]);
 })->name('home');
+
+Route::get('/cart', function () {
+    return Inertia::render('Cart/Index');
+})->name('cart.index');
+
+Route::get('/checkout', function () {
+    return Inertia::render('Checkout/Index');
+})->name('checkout.index');
+
+Route::post(
+    '/checkout/place-order',
+    [CheckoutOrderController::class, 'store']
+)->name('checkout.store');
 
 /*
 |--------------------------------------------------------------------------
@@ -52,8 +65,6 @@ Route::middleware(['auth', 'verified'])
 
         Route::resource('customers', CustomerController::class);
 
-       
-
         /*
         |--------------------------------------------------------------------------
         | Order Routes
@@ -62,10 +73,10 @@ Route::middleware(['auth', 'verified'])
 
         Route::get(
             'orders/{order}/pdf',
-            [OrderController::class, 'download']
+            [AdminOrderController::class, 'download']
         )->name('orders.pdf');
 
-        Route::resource('orders', OrderController::class);
+        Route::resource('orders', AdminOrderController::class);
 
         /*
         |--------------------------------------------------------------------------
@@ -122,11 +133,3 @@ Route::get('/dashboard', function () {
     ->name('dashboard');
 
 require __DIR__.'/auth.php';
-
-Route::get('/cart', function () {
-    return Inertia::render('Cart/Index');
-})->name('cart.index');
-
-Route::get('/checkout', function () {
-    return Inertia::render('Checkout/Index');
-})->name('checkout.index');

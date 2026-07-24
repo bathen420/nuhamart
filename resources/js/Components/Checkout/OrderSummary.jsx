@@ -53,11 +53,12 @@ export default function OrderSummary() {
             </div>
 
             <button
-                type="button"
-                disabled={cartItems.length === 0}
+                type="submit"
+                form={formId}
+                disabled={cartItems.length === 0 || processing}
                 className="mt-6 w-full rounded-xl bg-indigo-600 px-5 py-4 font-bold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-300"
             >
-                Place Order
+                {processing ? "Placing Order..." : "Place Order"}
             </button>
         </div>
     );
