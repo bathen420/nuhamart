@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\CustomerController;
 
+
 /*
 |--------------------------------------------------------------------------
 | Frontend
@@ -121,3 +122,11 @@ Route::get('/dashboard', function () {
     ->name('dashboard');
 
 require __DIR__.'/auth.php';
+
+Route::get('/cart', function () {
+    return Inertia::render('Cart/Index');
+})->name('cart.index');
+
+Route::get('/checkout', function () {
+    return Inertia::render('Checkout/Index');
+})->name('checkout.index');

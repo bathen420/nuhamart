@@ -1,99 +1,194 @@
-import { createContext, useContext, useMemo, useState } from "react";
+import {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useMemo,
+    useState,
+} from "react";
 
 const CartContext = createContext(null);
 
+const STORAGE_KEY = "nuhamart_cart";
+
+function getProductPrice(product) {
+    return Number(product.sale_price ?? product.price ?? 0);
+}
+
+function loadStoredCart() {
+    if (typeof window === "undefined") {
+        return [];
+    }
+
+    try {
+        const storedCart = window.localStorage.getItem(STORAGE_KEY);
+
+        return storedCart ? JSON.parse(storedCart) : [];
+    } catch (error) {
+        console.error("Unable to load cart:", error);
+
+        return [];
+    }
+}
+
 export function CartProvider({ children }) {
-    const [cartItems, setCartItems] = useState([]);
+    const [cartItems, setCartItems] = useState(loadStoredCart);
 
-    const addToCart = (product) => {
-        setCartItems((prev) => {
-            const existing = prev.find((item) => item.id === product.id);
+    useEffect(() => {
+        try {
+            window.localStorage.setItem(
+                STORAGE_KEY,
+                JSON.stringify(cartItems),
+            );
+        } catch (error) {
+            console.error("Unable to save cart:", error);
+        }
+    }, [cartItems]);
 
-            if (existing) {
-                return prev.map((item) =>
+    const addToCart = useCallback((product, quantity = 1) => {
+        if (!product?.id) {
+            console.error("Product ID is required to add an item to cart.");
+
+            return;
+        }
+
+        const safeQuantity = Math.max(1, Number(quantity) || 1);
+
+        setCartItems((currentItems) => {
+            const existingItem = currentItems.find(
+                (item) => item.id === product.id,
+            );
+
+            if (existingItem) {
+                return currentItems.map((item) =>
                     item.id === product.id
                         ? {
                               ...item,
-                              quantity: item.quantity + 1,
+                              quantity: item.quantity + safeQuantity,
                           }
-                        : item
+                        : item,
                 );
             }
 
             return [
-                ...prev,
+                ...currentItems,
                 {
                     ...product,
-                    quantity: 1,
+                    quantity: safeQuantity,
                 },
             ];
         });
-    };
+    }, []);
 
-    const removeFromCart = (id) => {
-        setCartItems((prev) =>
-            prev.filter((item) => item.id !== id)
+    const removeFromCart = useCallback((productId) => {
+        setCartItems((currentItems) =>
+            currentItems.filter((item) => item.id !== productId),
         );
-    };
+    }, []);
 
-    const increaseQuantity = (id) => {
-        setCartItems((prev) =>
-            prev.map((item) =>
-                item.id === id
+    const increaseQuantity = useCallback((productId) => {
+        setCartItems((currentItems) =>
+            currentItems.map((item) =>
+                item.id === productId
                     ? {
                           ...item,
                           quantity: item.quantity + 1,
                       }
-                    : item
-            )
+                    : item,
+            ),
         );
-    };
+    }, []);
 
-    const decreaseQuantity = (id) => {
-        setCartItems((prev) =>
-            prev
+    const decreaseQuantity = useCallback((productId) => {
+        setCartItems((currentItems) =>
+            currentItems
                 .map((item) =>
-                    item.id === id
+                    item.id === productId
                         ? {
                               ...item,
-                              quantity: item.quantity - 1,
+                              quantity: Math.max(0, item.quantity - 1),
                           }
-                        : item
+                        : item,
                 )
-                .filter((item) => item.quantity > 0)
+                .filter((item) => item.quantity > 0),
         );
-    };
+    }, []);
 
-    const clearCart = () => {
+    const updateQuantity = useCallback((productId, quantity) => {
+        const safeQuantity = Number(quantity);
+
+        if (!Number.isInteger(safeQuantity)) {
+            return;
+        }
+
+        if (safeQuantity <= 0) {
+            setCartItems((currentItems) =>
+                currentItems.filter((item) => item.id !== productId),
+            );
+
+            return;
+        }
+
+        setCartItems((currentItems) =>
+            currentItems.map((item) =>
+                item.id === productId
+                    ? {
+                          ...item,
+                          quantity: safeQuantity,
+                      }
+                    : item,
+            ),
+        );
+    }, []);
+
+    const clearCart = useCallback(() => {
         setCartItems([]);
-    };
+    }, []);
 
-    const totalItems = useMemo(() => {
-        return cartItems.reduce(
-            (total, item) => total + item.quantity,
-            0
-        );
-    }, [cartItems]);
+    const totalItems = useMemo(
+        () =>
+            cartItems.reduce(
+                (total, item) => total + Number(item.quantity || 0),
+                0,
+            ),
+        [cartItems],
+    );
 
-    const subtotal = useMemo(() => {
-        return cartItems.reduce((total, item) => {
-            const price =
-                item.sale_price ?? item.price ?? 0;
+    const subtotal = useMemo(
+        () =>
+            cartItems.reduce(
+                (total, item) =>
+                    total +
+                    getProductPrice(item) * Number(item.quantity || 0),
+                0,
+            ),
+        [cartItems],
+    );
 
-            return total + price * item.quantity;
-        }, 0);
-    }, [cartItems]);
-
-    const value = {
-        cartItems,
-        addToCart,
-        removeFromCart,
-        increaseQuantity,
-        decreaseQuantity,
-        clearCart,
-        totalItems,
-        subtotal,
-    };
+    const value = useMemo(
+        () => ({
+            cartItems,
+            totalItems,
+            subtotal,
+            addToCart,
+            removeFromCart,
+            increaseQuantity,
+            decreaseQuantity,
+            updateQuantity,
+            clearCart,
+        }),
+        [
+            cartItems,
+            totalItems,
+            subtotal,
+            addToCart,
+            removeFromCart,
+            increaseQuantity,
+            decreaseQuantity,
+            updateQuantity,
+            clearCart,
+        ],
+    );
 
     return (
         <CartContext.Provider value={value}>
@@ -107,7 +202,7 @@ export function useCartContext() {
 
     if (!context) {
         throw new Error(
-            "useCartContext must be used inside CartProvider"
+            "useCartContext must be used inside a CartProvider.",
         );
     }
 

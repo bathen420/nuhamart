@@ -66,23 +66,15 @@ function ProductCard({
 
     const productUrl = slug ? `/products/${slug}` : "#";
 
-    const handleAddToCart = () => {
+    const handleAddToCart = (event) => {
+        event?.preventDefault();
+        event?.stopPropagation();
+
         if (isOutOfStock) {
             return;
         }
 
-        // Global Cart Context
         addToCart(product);
-
-        // Optional callback
-        if (typeof onAddToCart === "function") {
-            onAddToCart(product);
-        }
-
-        console.log("Added to cart:", {
-            id,
-            product,
-        });
     };
 
     const handleQuickView = () => {
@@ -301,7 +293,12 @@ function ProductCard({
                             Out of Stock
                         </button>
                     ) : (
-                        <AddToCartButton onClick={handleAddToCart} />
+                        
+                        <AddToCartButton
+                            onClick={handleAddToCart}
+                            disabled={isOutOfStock}
+                            label={isOutOfStock ? "Out of Stock" : "Add to Cart"}
+                        />
                     )}
                 </div>
             </div>

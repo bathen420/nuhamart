@@ -1,5 +1,8 @@
 import { Link } from "@inertiajs/react";
 import { navigationItems } from "@/data/navigation";
+import useCart from "@/hooks/useCart";
+import CartDrawer from "@/Components/Storefront/CartDrawer";
+
 import {
     ChevronDown,
     Heart,
@@ -13,16 +16,18 @@ import {
 import { useState } from "react";
 
 
-export default function Header({
-    auth = {},
-    canLogin = true,
-    canRegister = true,
-    cartCount = 0,
-    wishlistCount = 0,
-}) {
+    export default function Header({
+        auth = {},
+        canLogin = true,
+        canRegister = true,
+        wishlistCount = 0,
+    })  {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
     const [search, setSearch] = useState("");
 
+    const { totalItems } = useCart();
+    
     const handleSearch = (event) => {
         event.preventDefault();
 
@@ -157,14 +162,17 @@ export default function Header({
 
                             <button
                                 type="button"
-                                aria-label="Open shopping cart"
+                                onClick={() => setCartDrawerOpen(true)}
+                                aria-label={`Open shopping cart with ${totalItems} items`}
                                 className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-indigo-700 transition hover:bg-indigo-100"
                             >
                                 <ShoppingCart className="h-5 w-5" />
 
-                                <span className="absolute right-0.5 top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-indigo-600 px-1 text-[10px] font-bold text-white">
-                                    {cartCount}
-                                </span>
+                                {totalItems > 0 && (
+                                    <span className="absolute right-0.5 top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-indigo-600 px-1 text-[10px] font-bold text-white">
+                                        {totalItems > 99 ? "99+" : totalItems}
+                                    </span>
+                                )}
                             </button>
                         </nav>
                     </div>
@@ -341,6 +349,12 @@ export default function Header({
                     </aside>
                 </div>
             )}
+
+            <CartDrawer
+                open={cartDrawerOpen}
+                onClose={() => setCartDrawerOpen(false)}
+            />
+
         </>
     );
 }
