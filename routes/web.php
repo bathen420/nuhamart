@@ -5,7 +5,8 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\CustomerController;
+
+use App\Http\Controllers\Admin\CustomerController;
 
 use App\Http\Controllers\Checkout\OrderController as CheckoutOrderController;
 
@@ -19,6 +20,7 @@ use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\StockHistoryController;
 use App\Http\Controllers\Admin\SaleController;
 use App\Http\Controllers\Admin\POSController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -91,7 +93,8 @@ Route::middleware(['auth', 'verified'])
 
         Route::resource('suppliers', SupplierController::class);
 
-        Route::resource('customers', CustomerController::class);
+        Route::resource('customers', CustomerController::class)
+            ->except(['show']);
 
         /*
         |--------------------------------------------------------------------------
@@ -177,6 +180,7 @@ Route::middleware(['auth', 'verified'])
 */
 
 Route::middleware('auth')->group(function () {
+
     Route::get('/profile', [ProfileController::class, 'edit'])
         ->name('profile.edit');
 
@@ -185,6 +189,7 @@ Route::middleware('auth')->group(function () {
 
     Route::delete('/profile', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
+
 });
 
 /*

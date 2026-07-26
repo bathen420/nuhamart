@@ -295,7 +295,7 @@ export default function CustomerForm({
 
             <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                 <Link
-                    href={route("customers.index")}
+                    href={route("admin.customers.index")}
                     className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
                 >
                     <X size={18} />
