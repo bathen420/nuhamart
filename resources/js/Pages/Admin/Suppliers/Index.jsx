@@ -7,7 +7,7 @@ export default function Index({ auth, suppliers }) {
 
         if (confirm("Are you sure you want to delete this supplier?")) {
 
-            router.delete(route("suppliers.destroy", id));
+            router.delete(route("admin.suppliers.destroy", id));
 
         }
 
@@ -33,7 +33,7 @@ export default function Index({ auth, suppliers }) {
                     </h1>
 
                     <Link
-                        href={route("suppliers.create")}
+                        href={route("admin.suppliers.create")}
                         className="rounded-lg bg-blue-600 px-5 py-2 text-white hover:bg-blue-700"
                     >
                         + Add Supplier
@@ -137,7 +137,7 @@ export default function Index({ auth, suppliers }) {
 
                                             <Link
                                                 href={route(
-                                                    "suppliers.edit",
+                                                    "admin.suppliers.edit",
                                                     supplier.id
                                                 )}
                                                 className="rounded bg-yellow-500 px-3 py-1 text-white"

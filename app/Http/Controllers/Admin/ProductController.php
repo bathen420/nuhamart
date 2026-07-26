@@ -11,6 +11,7 @@ use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Throwable;
@@ -34,12 +35,26 @@ class ProductController extends Controller
                     $subQuery
                         ->where('name', 'like', "%{$search}%")
                         ->orWhere('sku', 'like', "%{$search}%")
-                        ->orWhereHas('category', function ($categoryQuery) use ($search) {
-                            $categoryQuery->where('name', 'like', "%{$search}%");
-                        })
-                        ->orWhereHas('brand', function ($brandQuery) use ($search) {
-                            $brandQuery->where('name', 'like', "%{$search}%");
-                        });
+                        ->orWhereHas(
+                            'category',
+                            function ($categoryQuery) use ($search) {
+                                $categoryQuery->where(
+                                    'name',
+                                    'like',
+                                    "%{$search}%"
+                                );
+                            }
+                        )
+                        ->orWhereHas(
+                            'brand',
+                            function ($brandQuery) use ($search) {
+                                $brandQuery->where(
+                                    'name',
+                                    'like',
+                                    "%{$search}%"
+                                );
+                            }
+                        );
                 });
             })
             ->latest()
@@ -64,34 +79,39 @@ class ProductController extends Controller
      */
     public function create(): Response
     {
+        $categories = Category::query()
+            ->where('status', true)
+            ->orderBy('name')
+            ->get([
+                'id',
+                'name',
+            ]);
+
+        $brands = Brand::query()
+            ->where('status', true)
+            ->orderBy('name')
+            ->get([
+                'id',
+                'name',
+            ]);
+
         return Inertia::render('Admin/Products/Create', [
             'auth' => [
                 'user' => auth()->user(),
             ],
 
-            'categories' => Category::query()
-                ->where('status', true)
-                ->orderBy('name')
-                ->get([
-                    'id',
-                    'name',
-                ]),
+            'categories' => $categories,
 
-            'brands' => Brand::query()
-                ->where('status', true)
-                ->orderBy('name')
-                ->get([
-                    'id',
-                    'name',
-                ]),
+            'brands' => $brands,
         ]);
     }
 
     /**
      * Store a newly created product.
      */
-    public function store(StoreProductRequest $request): RedirectResponse
-    {
+    public function store(
+        StoreProductRequest $request
+    ): RedirectResponse {
         try {
             $data = $request->validated();
 
@@ -101,11 +121,16 @@ class ProductController extends Controller
                     ->store('products', 'public');
             }
 
+            $data['slug'] = $this->generateUniqueSlug($data['name']);
+
             Product::create($data);
 
             return redirect()
-                ->route('products.index')
-                ->with('success', 'Product created successfully.');
+                ->route('admin.products.index')
+                ->with(
+                    'success',
+                    'Product created successfully.'
+                );
         } catch (Throwable $exception) {
             report($exception);
 
@@ -146,6 +171,22 @@ class ProductController extends Controller
             'brand:id,name',
         ]);
 
+        $categories = Category::query()
+            ->where('status', true)
+            ->orderBy('name')
+            ->get([
+                'id',
+                'name',
+            ]);
+
+        $brands = Brand::query()
+            ->where('status', true)
+            ->orderBy('name')
+            ->get([
+                'id',
+                'name',
+            ]);
+
         return Inertia::render('Admin/Products/Edit', [
             'auth' => [
                 'user' => auth()->user(),
@@ -153,21 +194,9 @@ class ProductController extends Controller
 
             'product' => $product,
 
-            'categories' => Category::query()
-                ->where('status', true)
-                ->orderBy('name')
-                ->get([
-                    'id',
-                    'name',
-                ]),
+            'categories' => $categories,
 
-            'brands' => Brand::query()
-                ->where('status', true)
-                ->orderBy('name')
-                ->get([
-                    'id',
-                    'name',
-                ]),
+            'brands' => $brands,
         ]);
     }
 
@@ -196,11 +225,29 @@ class ProductController extends Controller
                 unset($data['image']);
             }
 
+            if (
+                isset($data['name'])
+                && $data['name'] !== $product->name
+            ) {
+                $data['slug'] = $this->generateUniqueSlug(
+                    $data['name'],
+                    $product->id
+                );
+            } elseif (empty($product->slug)) {
+                $data['slug'] = $this->generateUniqueSlug(
+                    $product->name,
+                    $product->id
+                );
+            }
+
             $product->update($data);
 
             return redirect()
-                ->route('products.index')
-                ->with('success', 'Product updated successfully.');
+                ->route('admin.products.index')
+                ->with(
+                    'success',
+                    'Product updated successfully.'
+                );
         } catch (Throwable $exception) {
             report($exception);
 
@@ -210,6 +257,38 @@ class ProductController extends Controller
                     'error' => 'Product could not be updated. Please try again.',
                 ]);
         }
+    }
+
+    /**
+     * Generate a unique product slug.
+     */
+    private function generateUniqueSlug(
+        string $name,
+        ?int $ignoreProductId = null
+    ): string {
+        $baseSlug = Str::slug($name);
+
+        if ($baseSlug === '') {
+            $baseSlug = 'product';
+        }
+
+        $slug = $baseSlug;
+        $counter = 2;
+
+        while (
+            Product::query()
+                ->when(
+                    $ignoreProductId !== null,
+                    fn ($query) => $query->whereKeyNot($ignoreProductId)
+                )
+                ->where('slug', $slug)
+                ->exists()
+        ) {
+            $slug = $baseSlug.'-'.$counter;
+            $counter++;
+        }
+
+        return $slug;
     }
 
     /**
@@ -228,8 +307,11 @@ class ProductController extends Controller
             $product->delete();
 
             return redirect()
-                ->route('products.index')
-                ->with('success', 'Product deleted successfully.');
+                ->route('admin.products.index')
+                ->with(
+                    'success',
+                    'Product deleted successfully.'
+                );
         } catch (Throwable $exception) {
             report($exception);
 

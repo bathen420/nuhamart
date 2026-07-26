@@ -19,6 +19,7 @@ class CategoryController extends Controller
         $categories = Category::latest()->paginate(10);
 
         return Inertia::render('Admin/Categories/Index', [
+            'auth' => ['user' => auth()->user()],
             'categories' => $categories,
         ]);
     }
@@ -28,7 +29,9 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Admin/Categories/Create');
+        return Inertia::render('Admin/Categories/Create', [
+            'auth' => ['user' => auth()->user()],
+        ]);
     }
 
     /**
@@ -45,7 +48,7 @@ class CategoryController extends Controller
         ]);
 
         return redirect()
-            ->route('categories.index')
+            ->route('admin.categories.index')
             ->with('success', 'Category created successfully.');
     }
 
@@ -55,6 +58,7 @@ class CategoryController extends Controller
     public function edit(Category $category)
     {
         return Inertia::render('Admin/Categories/Edit', [
+            'auth' => ['user' => auth()->user()],
             'category' => $category,
         ]);
     }
@@ -73,7 +77,7 @@ class CategoryController extends Controller
         ]);
 
         return redirect()
-            ->route('categories.index')
+            ->route('admin.categories.index')
             ->with('success', 'Category updated successfully.');
     }
 
@@ -85,7 +89,7 @@ class CategoryController extends Controller
         $category->delete();
 
         return redirect()
-            ->route('categories.index')
+            ->route('admin.categories.index')
             ->with('success', 'Category deleted successfully.');
     }
 }

@@ -14,7 +14,7 @@ export default function Create({ auth }) {
 
     const submit = (e) => {
         e.preventDefault();
-        post(route("suppliers.store"));
+        post(route("admin.suppliers.store"));
     };
 
     return (
@@ -37,7 +37,7 @@ export default function Create({ auth }) {
                     </h1>
 
                     <Link
-                        href={route("suppliers.index")}
+                        href={route("admin.suppliers.index")}
                         className="rounded-lg bg-gray-700 px-5 py-2 text-white"
                     >
                         Back

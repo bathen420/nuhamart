@@ -23,7 +23,7 @@ export default function RecentPurchases({ purchases = [] }) {
                 </div>
 
                 <Link
-                    href={route("purchases.index")}
+                    href={route("admin.purchases.index")}
                     className="text-sm font-semibold text-indigo-600 transition hover:text-indigo-800"
                 >
                     View all
@@ -37,15 +37,12 @@ export default function RecentPurchases({ purchases = [] }) {
                             <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                                 Purchase
                             </th>
-
                             <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                                 Supplier
                             </th>
-
                             <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                                 Total
                             </th>
-
                             <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                                 Date
                             </th>
@@ -55,47 +52,37 @@ export default function RecentPurchases({ purchases = [] }) {
                     <tbody className="divide-y divide-gray-100 bg-white">
                         {purchases.length > 0 ? (
                             purchases.map((purchase) => (
-                                <tr
-                                    key={purchase.id}
-                                    className="transition hover:bg-gray-50"
-                                >
+                                <tr key={purchase.id} className="transition hover:bg-gray-50">
                                     <td className="whitespace-nowrap px-6 py-4">
                                         <Link
-                                            href={route(
-                                                "purchases.show",
-                                                purchase.id,
-                                            )}
+                                            href={route("admin.purchases.show", purchase.id)}
                                             className="font-semibold text-indigo-600 hover:text-indigo-800"
                                         >
-                                            {purchase.purchase_number}
+                                            {purchase.purchase_number ?? `Purchase #${purchase.id}`}
                                         </Link>
                                     </td>
 
                                     <td className="px-6 py-4">
                                         <p className="font-medium text-gray-900">
-                                            {purchase.supplier_name}
+                                            {purchase.supplier_name ?? purchase.supplier?.name ?? "N/A"}
                                         </p>
                                     </td>
 
                                     <td className="whitespace-nowrap px-6 py-4 font-semibold text-gray-900">
-                                        {formatCurrency(purchase.total)}
+                                        {formatCurrency(purchase.total ?? purchase.grand_total ?? purchase.total_amount)}
                                     </td>
 
                                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                                        {purchase.created_at}
+                                        {purchase.created_at ?? ""}
                                     </td>
                                 </tr>
                             ))
                         ) : (
                             <tr>
-                                <td
-                                    colSpan="4"
-                                    className="px-6 py-10 text-center"
-                                >
+                                <td colSpan="4" className="px-6 py-10 text-center">
                                     <p className="font-medium text-gray-700">
                                         No recent purchases found
                                     </p>
-
                                     <p className="mt-1 text-sm text-gray-500">
                                         নতুন Purchase তৈরি হলে এখানে দেখা যাবে।
                                     </p>

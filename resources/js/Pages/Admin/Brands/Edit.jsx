@@ -21,7 +21,7 @@ export default function Edit({ auth, brand }) {
 
         e.preventDefault();
 
-        put(route("brands.update", brand.id));
+        put(route("admin.brands.update", brand.id));
 
     };
 
@@ -30,7 +30,7 @@ export default function Edit({ auth, brand }) {
     return (
 
         <AuthenticatedLayout
-            user={auth.user}
+            user={auth?.user}
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800">
                     Edit Brand

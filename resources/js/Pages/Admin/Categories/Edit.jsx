@@ -15,13 +15,13 @@ export default function Edit({ auth, category }) {
     const submit = (e) => {
         e.preventDefault();
 
-        put(route("categories.update", category.id));
+        put(route("admin.categories.update", category.id));
     };
 
 
     return (
         <AuthenticatedLayout
-            user={auth.user}
+            user={auth?.user}
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800">
                     Edit Category

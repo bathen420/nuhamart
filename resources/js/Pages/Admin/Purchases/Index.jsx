@@ -15,7 +15,7 @@ export default function Index({
         event.preventDefault();
 
         router.get(
-            route("purchases.index"),
+            route("admin.purchases.index"),
             {
                 search,
             },
@@ -31,7 +31,7 @@ export default function Index({
         setSearch("");
 
         router.get(
-            route("purchases.index"),
+            route("admin.purchases.index"),
             {},
             {
                 preserveState: true,
@@ -51,7 +51,7 @@ export default function Index({
         }
 
         router.delete(
-            route("purchases.destroy", purchase.id),
+            route("admin.purchases.destroy", purchase.id),
             {
                 preserveScroll: true,
             }
@@ -79,7 +79,7 @@ export default function Index({
 
     return (
         <AuthenticatedLayout
-            user={auth.user}
+            user={auth?.user}
             header={
                 <h2 className="text-xl font-semibold text-gray-800">
                     Purchases
@@ -117,7 +117,7 @@ export default function Index({
                         </div>
 
                         <Link
-                            href={route("purchases.create")}
+                            href={route("admin.purchases.create")}
                             className="inline-flex justify-center rounded-lg bg-blue-600 px-5 py-2.5 font-semibold text-white hover:bg-blue-700"
                         >
                             + New Purchase
@@ -230,7 +230,7 @@ export default function Index({
                                                     <div className="flex items-center justify-center gap-2">
                                                         <Link
                                                             href={route(
-                                                                "purchases.show",
+                                                                "admin.purchases.show",
                                                                 purchase.id
                                                             )}
                                                             className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"

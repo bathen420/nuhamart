@@ -8,31 +8,47 @@ export default function Edit({
     categories,
     brands,
 }) {
-    const { data, setData, put, processing, errors } = useForm({
-        category_id: product.category_id,
-        brand_id: product.brand_id,
-        name: product.name,
-        sku: product.sku,
-        price: product.price,
+    const {
+        data,
+        setData,
+        post,
+        processing,
+        errors,
+        transform,
+    } = useForm({
+        category_id: product.category_id ?? "",
+        brand_id: product.brand_id ?? "",
+        name: product.name ?? "",
+        sku: product.sku ?? "",
+        price: product.price ?? "",
         discount_price: product.discount_price ?? "",
-        stock_quantity: product.stock_quantity,
+        stock_quantity: product.stock_quantity ?? 0,
         short_description: product.short_description ?? "",
         description: product.description ?? "",
         status: product.status ? 1 : 0,
-        sort_order: product.sort_order,
+        sort_order: product.sort_order ?? 0,
         image: null,
     });
 
-    const submit = (e) => {
-        e.preventDefault();
-        put(route("products.update", product.id), {
+    const submit = (event) => {
+        event.preventDefault();
+
+        // PHP does not reliably parse multipart/form-data sent directly with PUT.
+        // Send POST and spoof the method so text fields and image are both received.
+        transform((formData) => ({
+            ...formData,
+            _method: "put",
+        }));
+
+        post(route("admin.products.update", product.id), {
             forceFormData: true,
+            preserveScroll: true,
         });
     };
 
     return (
         <AuthenticatedLayout
-            user={auth.user}
+            user={auth?.user}
             header={
                 <h2 className="text-xl font-semibold">
                     Edit Product
@@ -43,11 +59,8 @@ export default function Edit({
 
             <div className="py-8">
                 <div className="mx-auto max-w-5xl sm:px-6 lg:px-8">
-
-                    <div className="bg-white shadow rounded-lg">
-
+                    <div className="rounded-lg bg-white shadow">
                         <div className="p-6">
-
                             <Form
                                 data={data}
                                 setData={setData}
@@ -59,14 +72,10 @@ export default function Edit({
                                 buttonText="Update Product"
                                 product={product}
                             />
-
                         </div>
-
                     </div>
-
                 </div>
             </div>
-
         </AuthenticatedLayout>
     );
 }

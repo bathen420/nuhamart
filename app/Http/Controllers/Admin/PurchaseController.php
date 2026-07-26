@@ -121,7 +121,7 @@ class PurchaseController extends Controller
             });
 
             return redirect()
-                ->route('purchases.index')
+                ->route('admin.purchases.index')
                 ->with('success', 'Purchase created successfully.');
         } catch (Throwable $exception) {
             report($exception);
@@ -170,7 +170,7 @@ class PurchaseController extends Controller
     public function edit(Purchase $purchase): RedirectResponse
     {
         return redirect()
-            ->route('purchases.show', $purchase)
+            ->route('admin.purchases.show', $purchase)
             ->withErrors([
                 'error' => 'Purchase editing is not available yet.',
             ]);
@@ -179,7 +179,7 @@ class PurchaseController extends Controller
     public function update(Request $request, Purchase $purchase): RedirectResponse
     {
         return redirect()
-            ->route('purchases.show', $purchase)
+            ->route('admin.purchases.show', $purchase)
             ->withErrors([
                 'error' => 'Purchase updating is not available yet.',
             ]);
@@ -227,7 +227,7 @@ class PurchaseController extends Controller
             });
 
             return redirect()
-                ->route('purchases.index')
+                ->route('admin.purchases.index')
                 ->with('success', 'Purchase deleted and stock reversed successfully.');
         } catch (RuntimeException $exception) {
             return back()->withErrors([

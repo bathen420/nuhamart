@@ -21,14 +21,14 @@ export default function Create({ auth, categories, brands }) {
     const submit = (e) => {
         e.preventDefault();
 
-        post(route("products.store"), {
+        post(route("admin.products.store"), {
             forceFormData: true,
         });
     };
 
     return (
         <AuthenticatedLayout
-            user={auth.user}
+            user={auth?.user}
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800">
                     Add Product
@@ -41,6 +41,12 @@ export default function Create({ auth, categories, brands }) {
                 <div className="mx-auto max-w-5xl sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                         <div className="p-6">
+                            {errors.error && (
+                                <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+                                    {errors.error}
+                                </div>
+                            )}
+
                             <Form
                                 data={data}
                                 setData={setData}

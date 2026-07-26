@@ -13,12 +13,12 @@ export default function Create({ auth }) {
     const submit = (e) => {
         e.preventDefault();
 
-        post(route("categories.store"));
+        post(route("admin.categories.store"));
     };
 
     return (
         <AuthenticatedLayout
-            user={auth.user}
+            user={auth?.user}
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800">
                     Create Category

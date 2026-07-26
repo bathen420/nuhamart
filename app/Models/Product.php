@@ -64,7 +64,16 @@ class Product extends Model
     }
 
     public function stockHistories()
-{
-    return $this->hasMany(StockHistory::class);
-}
+    {
+        return $this->hasMany(StockHistory::class);
+    }
+
+    /**
+ * Sale Items Relationship
+ */
+    public function saleItems()
+    {
+        return $this->hasMany(SaleItem::class);
+    }
+    
 }

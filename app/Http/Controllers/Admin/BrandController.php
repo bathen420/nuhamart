@@ -19,6 +19,7 @@ class BrandController extends Controller
         $brands = Brand::latest()->paginate(10);
 
         return Inertia::render('Admin/Brands/Index', [
+            'auth' => ['user' => auth()->user()],
             'brands' => $brands,
         ]);
     }
@@ -29,7 +30,9 @@ class BrandController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Admin/Brands/Create');
+        return Inertia::render('Admin/Brands/Create', [
+            'auth' => ['user' => auth()->user()],
+        ]);
     }
 
 
@@ -54,7 +57,7 @@ class BrandController extends Controller
 
 
         return redirect()
-            ->route('brands.index')
+            ->route('admin.brands.index')
             ->with('success', 'Brand created successfully.');
     }
 
@@ -65,6 +68,7 @@ class BrandController extends Controller
     public function edit(Brand $brand)
     {
         return Inertia::render('Admin/Brands/Edit', [
+            'auth' => ['user' => auth()->user()],
             'brand' => $brand,
         ]);
     }
@@ -91,7 +95,7 @@ class BrandController extends Controller
 
 
         return redirect()
-            ->route('brands.index')
+            ->route('admin.brands.index')
             ->with('success', 'Brand updated successfully.');
     }
 
@@ -105,7 +109,7 @@ class BrandController extends Controller
 
 
         return redirect()
-            ->route('brands.index')
+            ->route('admin.brands.index')
             ->with('success', 'Brand deleted successfully.');
     }
 }

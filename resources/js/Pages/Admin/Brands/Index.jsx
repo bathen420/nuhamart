@@ -10,7 +10,7 @@ export default function Index({ auth, brands }) {
 
         if (confirm("Are you sure you want to delete this brand?")) {
 
-            router.delete(route("brands.destroy", id));
+            router.delete(route("admin.brands.destroy", id));
 
         }
 
@@ -20,7 +20,7 @@ export default function Index({ auth, brands }) {
     return (
 
         <AuthenticatedLayout
-            user={auth.user}
+            user={auth?.user}
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800">
                     Brands
@@ -39,7 +39,7 @@ export default function Index({ auth, brands }) {
                     <div className="mb-4 flex justify-end">
 
                         <Link
-                            href={route("brands.create")}
+                            href={route("admin.brands.create")}
                             className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
                         >
                             + Add Brand
@@ -132,7 +132,7 @@ export default function Index({ auth, brands }) {
 
                                                 <Link
                                                     href={route(
-                                                        "brands.edit",
+                                                        "admin.brands.edit",
                                                         brand.id
                                                     )}
                                                     className="rounded bg-yellow-500 px-3 py-1 text-white"

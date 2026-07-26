@@ -20,22 +20,20 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request->search;
+        $search = $request->get('search');
 
-       $orders = Order::with('user')
-    ->when($search, function ($query) use ($search) {
-
-            $query->where('order_number', 'like', "%{$search}%")
-                ->orWhere('customer_name', 'like', "%{$search}%")
-                ->orWhere('customer_phone', 'like', "%{$search}%");
-
-        })
-        ->latest()
-        ->paginate(10)
-        ->withQueryString();
+        $orders = Order::query()
+            ->when($search, function ($query) use ($search) {
+                $query->where('order_no', 'like', "%{$search}%")
+                    ->orWhere('customer_name', 'like', "%{$search}%")
+                    ->orWhere('customer_phone', 'like', "%{$search}%");
+            })
+            ->withCount('items')
+            ->latest('id')
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('Admin/Orders/Index', [
-
             'auth' => [
                 'user' => auth()->user(),
             ],
@@ -45,9 +43,9 @@ class OrderController extends Controller
             'filters' => [
                 'search' => $search,
             ],
-
         ]);
     }
+    
 
     /**
      * Show the form for creating a new resource.
@@ -84,71 +82,75 @@ class OrderController extends Controller
             DB::transaction(function () use ($data) {
 
                 $order = Order::create([
-                    'order_number'     => $data['order_number'],
-                    'user_id'          => auth()->id(),
+
+                    'order_no'         => $data['order_no'],
+                    'customer_id'      => auth()->id(),
                     'customer_name'    => $data['customer_name'],
                     'customer_phone'   => $data['customer_phone'],
                     'customer_email'   => $data['customer_email'] ?? null,
-                    'customer_address' => $data['customer_address'],
+
+                    'division'         => $data['division'] ?? null,
+                    'district'         => $data['district'] ?? null,
+                    'area'             => $data['area'] ?? null,
+                    'address'          => $data['address'],
+
+                    'note'             => $data['note'] ?? null,
+
                     'subtotal'         => $data['subtotal'],
+                    'shipping_charge'  => $data['shipping_charge'] ?? 0,
                     'discount'         => $data['discount'] ?? 0,
-                    'shipping'         => $data['shipping'] ?? 0,
                     'total'            => $data['total'],
+
                     'payment_method'   => $data['payment_method'],
                     'payment_status'   => $data['payment_status'],
-                    'order_status'     => $data['order_status'],
-                    'note'             => $data['note'] ?? null,
+
+                    'status'           => $data['status'],
+
+                    'ordered_at'       => now(),
+
                 ]);
 
                 foreach ($data['items'] as $item) {
 
-                    // Product বের করি
                     $product = Product::findOrFail($item['product_id']);
 
                     $stockBefore = $product->stock_quantity;
 
-                    // পর্যাপ্ত Stock আছে কিনা
                     if ($stockBefore < $item['quantity']) {
                         throw new \Exception(
                             "Insufficient stock for {$product->name}"
                         );
                     }
 
-                    // নতুন Stock
                     $stockAfter = $stockBefore - $item['quantity'];
 
-                    // Order Item Save
                     $order->items()->create([
-                        'product_id' => $item['product_id'],
-                        'quantity'   => $item['quantity'],
-                        'price'      => $item['price'],
-                        'subtotal'   => $item['subtotal'],
+
+                        'product_id'   => $product->id,
+                        'product_name' => $product->name,
+                        'sku'          => $product->sku,
+                        'unit_price'   => $item['unit_price'],
+                        'quantity'     => $item['quantity'],
+                        'subtotal'     => $item['subtotal'],
+
                     ]);
 
-                    // Product Stock Update
                     $product->update([
                         'stock_quantity' => $stockAfter,
                     ]);
 
-                    // Stock History Save
-                    try {
+                    StockHistory::create([
 
-                        StockHistory::create([
-                            'product_id'   => $product->id,
-                            'user_id'      => auth()->id(),
-                            'type'         => 'OUT',
-                            'quantity'     => $item['quantity'],
-                            'stock_before' => $stockBefore,
-                            'stock_after'  => $stockAfter,
-                            'reference'    => $order->order_number,
-                            'note'         => 'Order Sale',
-                        ]);
+                        'product_id'   => $product->id,
+                        'user_id'      => auth()->id(),
+                        'type'         => 'OUT',
+                        'quantity'     => $item['quantity'],
+                        'stock_before' => $stockBefore,
+                        'stock_after'  => $stockAfter,
+                        'reference'    => $order->order_no,
+                        'note'         => 'Order Sale',
 
-                    } catch (\Throwable $e) {
-
-                        dd($e->getMessage(), $e->getTraceAsString());
-
-                    };
+                    ]);
                 }
 
             });
@@ -157,10 +159,13 @@ class OrderController extends Controller
                 ->route('orders.index')
                 ->with('success', 'Order created successfully.');
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
 
-            dd($e->getMessage());
-
+            return back()
+                ->withErrors([
+                    'error' => $e->getMessage(),
+                ])
+                ->withInput();
         }
     }
 
@@ -169,19 +174,14 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        $order->load([
-            'user',
-            'items.product',
-        ]);
+        $order->load('items.product');
 
         return Inertia::render('Admin/Orders/Show', [
-
             'auth' => [
                 'user' => auth()->user(),
             ],
 
             'order' => $order,
-
         ]);
     }
 
@@ -190,9 +190,11 @@ class OrderController extends Controller
      */
     public function edit(Order $order)
     {
-        $order->load('user');
-
         return Inertia::render('Admin/Orders/Edit', [
+            'auth' => [
+                'user' => auth()->user(),
+            ],
+
             'order' => $order,
         ]);
     }
@@ -226,13 +228,15 @@ class OrderController extends Controller
 
     public function download(Order $order)
     {
-        $order->load('items.product', 'user');
+        $order->load('items.product');
 
         $pdf = Pdf::loadView('pdf.invoice', [
             'order' => $order,
         ]);
 
-        return $pdf->download('Invoice-'.$order->order_number.'.pdf');
+        return $pdf->download(
+            'Invoice-' . $order->order_no . '.pdf'
+        );
     }
 
     

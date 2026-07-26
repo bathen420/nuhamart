@@ -1,6 +1,9 @@
+import InputError from "@/Components/InputError";
+
 export default function PaymentMethod({
     data,
     setData,
+    errors = {},
 }) {
     const methods = [
         {
@@ -22,21 +25,17 @@ export default function PaymentMethod({
     ];
 
     return (
-        <div className="mt-8 rounded-2xl bg-white p-8 shadow-sm">
-
-            <h2 className="mb-6 text-2xl font-bold">
+        <div className="rounded-2xl bg-white p-8 shadow-sm">
+            <h2 className="mb-6 text-2xl font-bold text-slate-900">
                 Payment Method
             </h2>
 
             <div className="space-y-4">
-
                 {methods.map((method) => (
-
                     <label
                         key={method.value}
-                        className="flex cursor-pointer items-center gap-3 rounded-lg border p-4 hover:bg-gray-50"
+                        className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 p-4 transition hover:bg-slate-50"
                     >
-
                         <input
                             type="radio"
                             name="payment_method"
@@ -44,24 +43,25 @@ export default function PaymentMethod({
                             checked={
                                 data.payment_method === method.value
                             }
-                            onChange={(e) =>
+                            onChange={(event) =>
                                 setData(
                                     "payment_method",
-                                    e.target.value,
+                                    event.target.value,
                                 )
                             }
                         />
 
-                        <span>
+                        <span className="font-medium text-slate-800">
                             {method.label}
                         </span>
-
                     </label>
-
                 ))}
-
             </div>
 
+            <InputError
+                message={errors.payment_method}
+                className="mt-2"
+            />
         </div>
     );
 }

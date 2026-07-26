@@ -15,7 +15,7 @@ export default function Edit({ auth, supplier }) {
     const submit = (e) => {
         e.preventDefault();
 
-        put(route("suppliers.update", supplier.id));
+        put(route("admin.suppliers.update", supplier.id));
     };
 
     return (
@@ -38,7 +38,7 @@ export default function Edit({ auth, supplier }) {
                     </h1>
 
                     <Link
-                        href={route("suppliers.index")}
+                        href={route("admin.suppliers.index")}
                         className="rounded-lg bg-gray-700 px-5 py-2 text-white"
                     >
                         Back

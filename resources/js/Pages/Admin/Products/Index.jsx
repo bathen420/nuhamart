@@ -11,7 +11,7 @@ export default function Index({ auth, products, filters }) {
     const searchProduct = (e) => {
         e.preventDefault();
 
-        get(route("products.index"), {
+        get(route("admin.products.index"), {
             preserveState: true,
             preserveScroll: true,
         });
@@ -19,7 +19,7 @@ export default function Index({ auth, products, filters }) {
 
     const deleteProduct = (id) => {
         if (confirm("Are you sure you want to delete this product?")) {
-            router.delete(route("products.destroy", id));
+            router.delete(route("admin.products.destroy", id));
         }
     };
 
@@ -59,7 +59,7 @@ export default function Index({ auth, products, filters }) {
                             </button>
 
                             <Link
-                                href={route("products.index")}
+                                href={route("admin.products.index")}
                                 className="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
                             >
                                 Reset
@@ -67,7 +67,7 @@ export default function Index({ auth, products, filters }) {
                         </form>
 
                         <Link
-                            href={route("products.create")}
+                            href={route("admin.products.create")}
                             className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
                         >
                             + Add Product
@@ -158,7 +158,7 @@ export default function Index({ auth, products, filters }) {
                                             <td className="space-x-2 px-4 py-3">
 
                                                 <Link
-                                                    href={route("products.edit", product.id)}
+                                                    href={route("admin.products.edit", product.id)}
                                                     className="rounded bg-yellow-500 px-3 py-1 text-white"
                                                 >
                                                     Edit

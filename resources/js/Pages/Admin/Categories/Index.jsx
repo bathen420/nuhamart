@@ -9,7 +9,7 @@ export default function Index({ auth, categories }) {
 
         if (confirm("Are you sure you want to delete this category?")) {
 
-            router.delete(route("categories.destroy", id));
+            router.delete(route("admin.categories.destroy", id));
         }
     };
 
@@ -17,7 +17,7 @@ export default function Index({ auth, categories }) {
     return (
 
         <AuthenticatedLayout
-            user={auth.user}
+            user={auth?.user}
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800">
                     Categories
@@ -36,7 +36,7 @@ export default function Index({ auth, categories }) {
                     <div className="mb-4 flex justify-end">
 
                         <Link
-                            href={route("categories.create")}
+                            href={route("admin.categories.create")}
                             className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
                         >
                             + Add Category
@@ -120,7 +120,7 @@ export default function Index({ auth, categories }) {
 
                                                 <Link
                                                     href={route(
-                                                        "categories.edit",
+                                                        "admin.categories.edit",
                                                         category.id
                                                     )}
                                                     className="rounded bg-yellow-500 px-3 py-1 text-white"

@@ -6,77 +6,99 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreOrderRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     */
     public function rules(): array
     {
         return [
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+            ],
 
-            'order_number' => 'required|string|max:255|unique:orders,order_number',
+            'phone' => [
+                'required',
+                'string',
+                'max:20',
+            ],
 
-            'customer_name' => 'required|string|max:255',
+            'email' => [
+                'nullable',
+                'email',
+                'max:255',
+            ],
 
-            'customer_phone' => 'required|string|max:30',
+            'division' => [
+                'required',
+                'string',
+                'max:100',
+            ],
 
-            'customer_email' => 'nullable|email|max:255',
+            'district' => [
+                'required',
+                'string',
+                'max:100',
+            ],
 
-            'customer_address' => 'required|string',
+            'area' => [
+                'required',
+                'string',
+                'max:100',
+            ],
 
-            'subtotal' => 'required|numeric|min:0',
+            'address' => [
+                'required',
+                'string',
+                'max:1000',
+            ],
 
-            'discount' => 'nullable|numeric|min:0',
+            'note' => [
+                'nullable',
+                'string',
+                'max:2000',
+            ],
 
-            'shipping' => 'nullable|numeric|min:0',
+            'payment_method' => [
+                'required',
+                'in:cod,sslcommerz,bkash,nagad',
+            ],
 
-            'total' => 'required|numeric|min:0',
+            'items' => [
+                'required',
+                'array',
+                'min:1',
+            ],
 
-            'payment_method' => 'required|string|max:255',
+            'items.*.product_id' => [
+                'required',
+                'integer',
+                'exists:products,id',
+            ],
 
-            'payment_status' => 'required|in:Pending,Paid,Failed',
-
-            'order_status' => 'required|in:Pending,Processing,Shipped,Delivered,Cancelled',
-
-            'note' => 'nullable|string',
-
-            'items' => 'required|array|min:1',
-
-            'items.*.product_id' => 'required|exists:products,id',
-
-            'items.*.quantity' => 'required|integer|min:1',
-
-            'items.*.price' => 'required|numeric|min:0',
-
-            'items.*.subtotal' => 'required|numeric|min:0',
-
+            'items.*.quantity' => [
+                'required',
+                'integer',
+                'min:1',
+            ],
         ];
     }
 
-    /**
-     * Custom validation messages.
-     */
     public function messages(): array
     {
         return [
-
-            'items.required' => 'Please add at least one product.',
-
-            'items.*.product_id.required' => 'Please select a product.',
-
-            'items.*.product_id.exists' => 'Selected product does not exist.',
-
-            'items.*.quantity.required' => 'Quantity is required.',
-
-            'items.*.quantity.min' => 'Quantity must be at least 1.',
-
+            'name.required' => 'Customer name is required.',
+            'phone.required' => 'Customer phone number is required.',
+            'division.required' => 'Division is required.',
+            'district.required' => 'District is required.',
+            'area.required' => 'Area is required.',
+            'address.required' => 'Full address is required.',
+            'payment_method.required' => 'Please select a payment method.',
+            'items.required' => 'Your cart is empty.',
+            'items.min' => 'Your cart is empty.',
         ];
     }
 }

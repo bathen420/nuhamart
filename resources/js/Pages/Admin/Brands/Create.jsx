@@ -22,7 +22,7 @@ export default function Create({ auth }) {
         e.preventDefault();
 
 
-        post(route("brands.store"));
+        post(route("admin.brands.store"));
 
     };
 
@@ -31,7 +31,7 @@ export default function Create({ auth }) {
     return (
 
         <AuthenticatedLayout
-            user={auth.user}
+            user={auth?.user}
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800">
                     Create Brand

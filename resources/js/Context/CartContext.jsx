@@ -167,6 +167,8 @@ export function CartProvider({ children }) {
 
     const value = useMemo(
         () => ({
+            items: cartItems,
+            
             cartItems,
             totalItems,
             subtotal,

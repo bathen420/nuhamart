@@ -26,10 +26,7 @@ function StockBadge({ quantity }) {
     );
 }
 
-export default function LowStockTable({
-    products = [],
-    lowStockLimit = 5,
-}) {
+export default function LowStockTable({ products = [], lowStockLimit = 5 }) {
     return (
         <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-200">
             <div className="flex flex-col gap-3 border-b border-gray-200 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
@@ -44,7 +41,7 @@ export default function LowStockTable({
                 </div>
 
                 <Link
-                    href={route("products.index")}
+                    href={route("admin.products.index")}
                     className="text-sm font-semibold text-indigo-600 transition hover:text-indigo-800"
                 >
                     View all products
@@ -58,19 +55,15 @@ export default function LowStockTable({
                             <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                                 Product
                             </th>
-
                             <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                                 Category
                             </th>
-
                             <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                                 Brand
                             </th>
-
                             <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                                 Price
                             </th>
-
                             <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                                 Stock
                             </th>
@@ -80,16 +73,10 @@ export default function LowStockTable({
                     <tbody className="divide-y divide-gray-100 bg-white">
                         {products.length > 0 ? (
                             products.map((product) => (
-                                <tr
-                                    key={product.id}
-                                    className="transition hover:bg-gray-50"
-                                >
+                                <tr key={product.id} className="transition hover:bg-gray-50">
                                     <td className="px-6 py-4">
                                         <Link
-                                            href={route(
-                                                "products.show",
-                                                product.id,
-                                            )}
+                                            href={route("admin.products.show", product.id)}
                                             className="font-semibold text-indigo-600 hover:text-indigo-800"
                                         >
                                             {product.name}
@@ -101,11 +88,11 @@ export default function LowStockTable({
                                     </td>
 
                                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
-                                        {product.category}
+                                        {product.category?.name ?? product.category ?? "N/A"}
                                     </td>
 
                                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
-                                        {product.brand}
+                                        {product.brand?.name ?? product.brand ?? "N/A"}
                                     </td>
 
                                     <td className="whitespace-nowrap px-6 py-4 font-semibold text-gray-900">
@@ -113,22 +100,16 @@ export default function LowStockTable({
                                     </td>
 
                                     <td className="whitespace-nowrap px-6 py-4">
-                                        <StockBadge
-                                            quantity={product.stock_quantity}
-                                        />
+                                        <StockBadge quantity={product.stock_quantity} />
                                     </td>
                                 </tr>
                             ))
                         ) : (
                             <tr>
-                                <td
-                                    colSpan="5"
-                                    className="px-6 py-10 text-center"
-                                >
+                                <td colSpan="5" className="px-6 py-10 text-center">
                                     <p className="font-medium text-gray-700">
                                         No low stock products found
                                     </p>
-
                                     <p className="mt-1 text-sm text-gray-500">
                                         বর্তমানে সব পণ্যের Stock পর্যাপ্ত আছে।
                                     </p>

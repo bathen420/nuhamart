@@ -1,8 +1,14 @@
 import useCart from "@/hooks/useCart";
 import CartSummaryItem from "./CartSummaryItem";
 
-export default function OrderSummary() {
-    const { cartItems = [], subtotal = 0 } = useCart();
+export default function OrderSummary({
+    processing = false,
+    formId = "checkout-form",
+}) {
+    const {
+        cartItems = [],
+        subtotal = 0,
+    } = useCart();
 
     const safeSubtotal = Number(subtotal) || 0;
     const shipping = safeSubtotal >= 1500 ? 0 : 80;
@@ -32,6 +38,7 @@ export default function OrderSummary() {
             <div className="mt-6 space-y-3 border-t border-slate-200 pt-5">
                 <div className="flex justify-between text-sm text-slate-600">
                     <span>Subtotal</span>
+
                     <span className="font-semibold text-slate-900">
                         BDT {safeSubtotal.toLocaleString()}
                     </span>
@@ -39,6 +46,7 @@ export default function OrderSummary() {
 
                 <div className="flex justify-between text-sm text-slate-600">
                     <span>Shipping</span>
+
                     <span className="font-semibold text-slate-900">
                         {shipping === 0
                             ? "Free"
@@ -48,7 +56,10 @@ export default function OrderSummary() {
 
                 <div className="flex justify-between border-t border-slate-200 pt-4 text-xl font-black text-slate-900">
                     <span>Total</span>
-                    <span>BDT {total.toLocaleString()}</span>
+
+                    <span>
+                        BDT {total.toLocaleString()}
+                    </span>
                 </div>
             </div>
 
@@ -58,7 +69,9 @@ export default function OrderSummary() {
                 disabled={cartItems.length === 0 || processing}
                 className="mt-6 w-full rounded-xl bg-indigo-600 px-5 py-4 font-bold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-300"
             >
-                {processing ? "Placing Order..." : "Place Order"}
+                {processing
+                    ? "Placing Order..."
+                    : "Place Order"}
             </button>
         </div>
     );
