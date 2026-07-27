@@ -1,583 +1,160 @@
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import StatCard from "@/Components/Dashboard/StatCard";
-import SalesChart from "@/Components/Dashboard/SalesChart";
-import PurchaseChart from "@/Components/Dashboard/PurchaseChart";
-import RecentOrders from "@/Components/Dashboard/RecentOrders";
-import RecentPurchases from "@/Components/Dashboard/RecentPurchases";
-import LowStockTable from "@/Components/Dashboard/LowStockTable";
 import { Head, Link, usePage } from "@inertiajs/react";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import AnalyticsCard from "@/Components/Dashboard/AnalyticsCard";
+import RevenueChart from "@/Components/Dashboard/RevenueChart";
+import RecentSales from "@/Components/Dashboard/RecentSales";
+import BestSellingProducts from "@/Components/Dashboard/BestSellingProducts";
+import LowStockAlert from "@/Components/Dashboard/LowStockAlert";
+import { ArrowRight, PackagePlus, ShoppingCart, UserPlus } from "lucide-react";
 
-const icons = {
-    plus: (
-        <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 4.5v15m7.5-7.5h-15"
-        />
-    ),
-
-    cart: (
-        <>
-            <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M2.25 3h1.386a1.5 1.5 0 0 1 1.451 1.113l.383 1.437m0 0L7.5 13.5h9.75l2.25-7.95H5.47Z"
-            />
-            <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M7.5 18.75h.008v.008H7.5v-.008Zm9.75 0h.008v.008h-.008v-.008Z"
-            />
-        </>
-    ),
-
-    purchase: (
-        <>
-            <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5"
-            />
-            <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M4.5 15.75v3A2.25 2.25 0 0 0 6.75 21h10.5a2.25 2.25 0 0 0 2.25-2.25v-3"
-            />
-        </>
-    ),
-
-    supplier: (
-        <>
-            <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 6.75a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"
-            />
-            <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M4.501 20.118a7.5 7.5 0 0 1 14.998 0"
-            />
-        </>
-    ),
-
-    sales: (
-        <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M3 13.5 9 7.5l4.5 4.5L21 4.5M15 4.5h6v6"
-        />
-    ),
-
-    expense: (
-        <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M3 10.5 9 16.5l4.5-4.5L21 19.5M15 19.5h6v-6"
-        />
-    ),
-
-    pending: (
-        <>
-            <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 6v6l4 2"
-            />
-            <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-            />
-        </>
-    ),
-
-    wallet: (
-        <>
-            <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M2.25 6.75A2.25 2.25 0 0 1 4.5 4.5h13.5a2.25 2.25 0 0 1 2.25 2.25v10.5A2.25 2.25 0 0 1 18 19.5H4.5a2.25 2.25 0 0 1-2.25-2.25V6.75Z"
-            />
-            <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 10.5h4.5v3h-4.5a1.5 1.5 0 0 1 0-3Z"
-            />
-        </>
-    ),
-};
-
-function Icon({ name, className = "h-5 w-5" }) {
-    return (
-        <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            className={className}
-            aria-hidden="true"
-        >
-            {icons[name]}
-        </svg>
-    );
-}
-
-function formatCurrency(value) {
-    const number = Number(value ?? 0);
-
-    return new Intl.NumberFormat("en-BD", {
+const money = (value) =>
+    new Intl.NumberFormat("en-GB", {
         style: "currency",
         currency: "BDT",
-        minimumFractionDigits: 0,
         maximumFractionDigits: 2,
-    }).format(number);
-}
-
-function getGreeting() {
-    const currentHour = new Date().getHours();
-
-    if (currentHour < 12) {
-        return "Good Morning";
-    }
-
-    if (currentHour < 17) {
-        return "Good Afternoon";
-    }
-
-    return "Good Evening";
-}
-
-function QuickAction({ href, title, description, icon, theme = "blue" }) {
-    const themes = {
-        blue: {
-            icon: "bg-blue-100 text-blue-600",
-            hover: "hover:border-blue-200 hover:bg-blue-50/60",
-        },
-
-        emerald: {
-            icon: "bg-emerald-100 text-emerald-600",
-            hover: "hover:border-emerald-200 hover:bg-emerald-50/60",
-        },
-
-        violet: {
-            icon: "bg-violet-100 text-violet-600",
-            hover: "hover:border-violet-200 hover:bg-violet-50/60",
-        },
-
-        orange: {
-            icon: "bg-orange-100 text-orange-600",
-            hover: "hover:border-orange-200 hover:bg-orange-50/60",
-        },
-    };
-
-    const selectedTheme = themes[theme] ?? themes.blue;
-
-    return (
-        <Link
-            href={href}
-            className={`group flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md ${selectedTheme.hover}`}
-        >
-            <div
-                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${selectedTheme.icon}`}
-            >
-                <Icon name={icon} />
-            </div>
-
-            <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-gray-900">
-                    {title}
-                </p>
-
-                <p className="mt-0.5 truncate text-xs text-gray-500">
-                    {description}
-                </p>
-            </div>
-
-            <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                className="ml-auto h-4 w-4 shrink-0 text-gray-300 transition group-hover:translate-x-1 group-hover:text-gray-500"
-                aria-hidden="true"
-            >
-                <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="m9 18 6-6-6-6"
-                />
-            </svg>
-        </Link>
-    );
-}
-
-function FinancialCard({
-    title,
-    value,
-    description,
-    icon,
-    iconClass,
-    backgroundClass,
-    valueType = "currency",
-    suffix = "",
-}) {
-    const displayValue =
-        valueType === "currency"
-            ? formatCurrency(value)
-            : `${Number(value ?? 0).toLocaleString("en-BD")}${suffix}`;
-
-    return (
-        <div
-            className={`relative overflow-hidden rounded-2xl border border-gray-100 p-5 shadow-sm ${backgroundClass}`}
-        >
-            <div className="relative z-10 flex items-start justify-between gap-4">
-                <div>
-                    <p className="text-sm font-medium text-gray-600">
-                        {title}
-                    </p>
-
-                    <p className="mt-3 text-2xl font-bold tracking-tight text-gray-900">
-                        {displayValue}
-                    </p>
-
-                    <p className="mt-2 text-xs text-gray-500">
-                        {description}
-                    </p>
-                </div>
-
-                <div
-                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${iconClass}`}
-                >
-                    <Icon name={icon} />
-                </div>
-            </div>
-
-            <div className="absolute -bottom-10 -right-8 h-32 w-32 rounded-full bg-white/40" />
-        </div>
-    );
-}
+    }).format(Number(value || 0));
 
 export default function Dashboard({
     stats = {},
-    recentOrders = [],
-    recentPurchases = [],
+    chartData = {},
+    recentSales = [],
     lowStockProducts = [],
-    recentProducts = [],
-    monthlyChartData = {},
-    salesChartData = [],
-    purchaseChartData = [],
+    bestSellingProducts = [],
+    lowStockLimit = 5,
 }) {
     const { auth } = usePage().props;
+    const userName = auth?.user?.name || "Administrator";
 
-    const userName =
-        auth?.user?.name?.trim() ||
-        auth?.user?.email?.split("@")[0] ||
-        "Admin";
-
-    /*
-     * এই fallback-এর কারণে Controller থেকে chart data-এর নাম সামান্য
-     * ভিন্ন হলেও Dashboard crash করবে না।
-     */
-    const salesData =
-        monthlyChartData?.sales ??
-        monthlyChartData?.salesData ??
-        salesChartData ??
-        [];
-
-    const purchaseData =
-        monthlyChartData?.purchases ??
-        monthlyChartData?.purchaseData ??
-        purchaseChartData ??
-        [];
+    const quickActions = [
+        {
+            title: "New Sale / POS",
+            description: "Create a sales invoice",
+            href: route("admin.pos.create"),
+            icon: ShoppingCart,
+        },
+        {
+            title: "New Purchase",
+            description: "Receive supplier stock",
+            href: route("admin.purchases.create"),
+            icon: PackagePlus,
+        },
+        {
+            title: "Add Product",
+            description: "Create inventory item",
+            href: route("admin.products.create"),
+            icon: PackagePlus,
+        },
+        {
+            title: "Add Customer",
+            description: "Register a customer",
+            href: route("admin.customers.create"),
+            icon: UserPlus,
+        },
+    ];
 
     return (
         <AuthenticatedLayout>
-            <Head title="Admin Dashboard" />
+            <Head title="Dashboard Analytics" />
 
-            <div className="min-h-screen bg-gray-50/70">
-                <div className="mx-auto max-w-[1600px] space-y-7 p-4 sm:p-6 lg:p-8">
-                    {/* Dashboard header */}
-                    <section className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-blue-950 to-indigo-950 px-6 py-7 text-white shadow-xl sm:px-8">
-                        <div className="absolute -right-20 -top-24 h-64 w-64 rounded-full bg-blue-500/20 blur-3xl" />
-                        <div className="absolute -bottom-24 left-1/3 h-56 w-56 rounded-full bg-violet-500/20 blur-3xl" />
-
-                        <div className="relative z-10 flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
+            <div className="min-h-screen bg-slate-100">
+                <div className="mx-auto max-w-[1600px] space-y-6 p-4 sm:p-6 lg:p-8">
+                    <section className="overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-blue-950 to-indigo-950 p-6 text-white shadow-xl sm:p-8">
+                        <p className="text-sm font-semibold text-blue-200">
+                            Welcome back, {userName}
+                        </p>
+                        <div className="mt-2 flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
                             <div>
-                                <p className="text-sm font-medium text-blue-200">
-                                    {getGreeting()}, {userName} 👋
-                                </p>
-
-                                <h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
-                                    Welcome back to NuhaMart ERP
+                                <h1 className="text-3xl font-black tracking-tight">
+                                    NuhaMart Business Dashboard
                                 </h1>
-
                                 <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">
-                                    Monitor sales, purchases, orders and inventory
-                                    from one central dashboard.
+                                    Monitor POS sales, purchases, customer dues and inventory health.
                                 </p>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 xl:min-w-[610px]">
-                                <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
-                                    <p className="text-xs text-slate-300">
-                                        Today&apos;s Sales
-                                    </p>
-                                    <p className="mt-2 text-base font-bold">
-                                        {formatCurrency(stats.today_sales)}
-                                    </p>
-                                </div>
-
-                                <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
-                                    <p className="text-xs text-slate-300">
-                                        Today&apos;s Purchase
-                                    </p>
-                                    <p className="mt-2 text-base font-bold">
-                                        {formatCurrency(stats.today_purchase)}
-                                    </p>
-                                </div>
-
-                                <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
-                                    <p className="text-xs text-slate-300">
-                                        Pending Orders
-                                    </p>
-                                    <p className="mt-2 text-base font-bold">
-                                        {stats.pending_orders ?? 0}
-                                    </p>
-                                </div>
-
-                                <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
-                                    <p className="text-xs text-slate-300">
-                                        Low Stock
-                                    </p>
-                                    <p className="mt-2 text-base font-bold">
-                                        {stats.low_stock ?? 0}
-                                    </p>
-                                </div>
-                            </div>
+                            <Link
+                                href={route("admin.pos.create")}
+                                className="inline-flex w-fit items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-black text-blue-700 shadow"
+                            >
+                                Open POS <ArrowRight className="h-4 w-4" />
+                            </Link>
                         </div>
                     </section>
 
-                    {/* Quick actions */}
-                    <section>
-                        <div className="mb-4">
-                            <h2 className="text-lg font-bold text-gray-900">
-                                Quick Actions
-                            </h2>
-
-                            <p className="mt-1 text-sm text-gray-500">
-                                Access commonly used ERP operations.
-                            </p>
-                        </div>
-
-                        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                            <QuickAction
-                                href="/admin/products/create"
-                                title="Add Product"
-                                description="Create a new inventory item"
-                                icon="plus"
-                                theme="blue"
-                            />
-
-                            <QuickAction
-                                href="/admin/orders"
-                                title="View Orders"
-                                description="Manage customer sales orders"
-                                icon="cart"
-                                theme="emerald"
-                            />
-
-                            <QuickAction
-                                href="/admin/purchases/create"
-                                title="New Purchase"
-                                description="Record supplier stock purchase"
-                                icon="purchase"
-                                theme="violet"
-                            />
-
-                            <QuickAction
-                                href="/admin/suppliers/create"
-                                title="Add Supplier"
-                                description="Create a supplier profile"
-                                icon="supplier"
-                                theme="orange"
-                            />
-                        </div>
-                    </section>
-
-                    {/* Main statistics */}
-                    <section>
-                        <div className="mb-4">
-                            <h2 className="text-lg font-bold text-gray-900">
-                                Business Overview
-                            </h2>
-
-                            <p className="mt-1 text-sm text-gray-500">
-                                Current operational information for NuhaMart.
-                            </p>
-                        </div>
-
-                        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                            <StatCard
-                                title="Total Products"
-                                value={stats.products ?? 0}
-                                icon="products"
-                                accent="blue"
-                                description="Products in inventory"
-                            />
-
-                            <StatCard
-                                title="Total Categories"
-                                value={stats.categories ?? 0}
-                                icon="categories"
-                                accent="violet"
-                                description="Active product categories"
-                            />
-
-                            <StatCard
-                                title="Total Brands"
-                                value={stats.brands ?? 0}
-                                icon="brands"
-                                accent="pink"
-                                description="Registered product brands"
-                            />
-
-                            <StatCard
-                                title="Total Suppliers"
-                                value={stats.suppliers ?? 0}
-                                icon="suppliers"
-                                accent="cyan"
-                                description="Registered suppliers"
-                            />
-
-                            <StatCard
-                                title="Total Customers"
-                                value={stats.customers ?? 0}
-                                icon="customers"
-                                accent="emerald"
-                                description="Unique customers served"
-                            />
-
-                            <StatCard
-                                title="Total Orders"
-                                value={stats.orders ?? 0}
-                                icon="orders"
-                                accent="orange"
-                                description="All sales orders"
-                            />
-
-                            <StatCard
-                                title="Total Purchases"
-                                value={stats.purchases ?? 0}
-                                icon="purchases"
-                                accent="indigo"
-                                description="All stock purchases"
-                            />
-
-                            <StatCard
-                                title="Stock Alerts"
-                                value={
-                                    (Number(stats.low_stock) || 0) +
-                                    (Number(stats.out_of_stock) || 0)
-                                }
-                                icon="warning"
-                                accent="red"
-                                description={`${stats.out_of_stock ?? 0} products out of stock`}
-                            />
-                        </div>
-                    </section>
-
-                    {/* Financial summary */}
-                    <section>
-                        <div className="mb-4">
-                            <h2 className="text-lg font-bold text-gray-900">
-                                Financial Summary
-                            </h2>
-
-                            <p className="mt-1 text-sm text-gray-500">
-                                Sales, purchasing and pending payment overview.
-                            </p>
-                        </div>
-
-                        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                            <FinancialCard
-                                title="Total Sales"
-                                value={stats.total_sales}
-                                description="Lifetime recorded revenue"
-                                icon="sales"
-                                iconClass="bg-emerald-100 text-emerald-600"
-                                backgroundClass="bg-gradient-to-br from-white to-emerald-50"
-                            />
-
-                            <FinancialCard
-                                title="Total Purchase"
-                                value={stats.total_purchase}
-                                description="Lifetime inventory expense"
-                                icon="expense"
-                                iconClass="bg-violet-100 text-violet-600"
-                                backgroundClass="bg-gradient-to-br from-white to-violet-50"
-                            />
-
-                            <FinancialCard
-                                title="Pending Orders"
-                                value={stats.pending_orders}
-                                valueType="number"
-                                suffix=" Orders"
-                                description="Orders waiting for completion"
-                                icon="pending"
-                                iconClass="bg-orange-100 text-orange-600"
-                                backgroundClass="bg-gradient-to-br from-white to-orange-50"
-                            />
-
-                            <FinancialCard
-                                title="Pending Payments"
-                                value={stats.pending_payments}
-                                description="Payments awaiting confirmation"
-                                icon="wallet"
-                                iconClass="bg-red-100 text-red-600"
-                                backgroundClass="bg-gradient-to-br from-white to-red-50"
-                            />
-                        </div>
-                    </section>
-
-                    {/* Charts */}
-                    <section className="grid gap-6 xl:grid-cols-2">
-                        <div className="min-w-0">
-                            <SalesChart
-                                labels={salesData.labels ?? []}
-                                values={salesData.values ?? []}
-                            />
-                        </div>
-
-                        <div className="min-w-0">
-
-                            <PurchaseChart
-                                labels={purchaseData.labels ?? []}
-                                values={purchaseData.values ?? []}
-                            />
-                            
-                        </div>
-                    </section>
-
-                    {/* Recent orders and purchases */}
-                    <section className="grid gap-6 xl:grid-cols-2">
-                        <div className="min-w-0">
-                            <RecentOrders orders={recentOrders ?? []} />
-                        </div>
-
-                        <div className="min-w-0">
-                            <RecentPurchases
-                                purchases={recentPurchases ?? []}
-                            />
-                        </div>
-                    </section>
-
-                    {/* Stock warning */}
-                    <section>
-                        <LowStockTable
-                            products={lowStockProducts ?? []}
-                            recentProducts={recentProducts ?? []}
+                    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                        <AnalyticsCard
+                            title="Today's Sales"
+                            value={money(stats.today_sales)}
+                            description={`${stats.today_sales_count || 0} completed transaction(s)`}
+                            icon="sales"
+                            tone="emerald"
                         />
+                        <AnalyticsCard
+                            title="This Month Sales"
+                            value={money(stats.month_sales)}
+                            description={`${stats.month_sales_count || 0} transaction(s) this month`}
+                            icon="orders"
+                            tone="blue"
+                        />
+                        <AnalyticsCard
+                            title="Today's Purchase"
+                            value={money(stats.today_purchase)}
+                            description={`Monthly purchase ${money(stats.month_purchase)}`}
+                            icon="purchase"
+                            tone="amber"
+                        />
+                        <AnalyticsCard
+                            title="Customer Due"
+                            value={money(stats.total_due)}
+                            description="Outstanding balance from completed sales"
+                            icon="due"
+                            tone="rose"
+                        />
+                    </section>
+
+                    <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                        <AnalyticsCard title="Products" value={stats.products || 0} description="Inventory products" icon="products" />
+                        <AnalyticsCard title="Customers" value={stats.customers || 0} description="Registered customers" icon="customers" tone="violet" />
+                        <AnalyticsCard title="Suppliers" value={stats.suppliers || 0} description="Active supplier records" icon="suppliers" tone="cyan" />
+                        <AnalyticsCard title="Total Sales" value={stats.sales || 0} description={money(stats.total_sales)} icon="orders" tone="emerald" />
+                        <AnalyticsCard title="Low Stock" value={stats.low_stock || 0} description={`Threshold: ${lowStockLimit}`} icon="stock" tone="amber" />
+                        <AnalyticsCard title="Out of Stock" value={stats.out_of_stock || 0} description="Requires restocking" icon="stock" tone="rose" />
+                    </section>
+
+                    <section>
+                        <h2 className="mb-3 text-lg font-black text-slate-900">Quick Actions</h2>
+                        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                            {quickActions.map(({ title, description, href, icon: Icon }) => (
+                                <Link
+                                    key={title}
+                                    href={href}
+                                    className="group flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
+                                >
+                                    <div className="rounded-xl bg-blue-50 p-3 text-blue-600">
+                                        <Icon className="h-5 w-5" />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="font-bold text-slate-900">{title}</p>
+                                        <p className="truncate text-xs text-slate-500">{description}</p>
+                                    </div>
+                                    <ArrowRight className="ml-auto h-4 w-4 text-slate-300 transition group-hover:translate-x-1" />
+                                </Link>
+                            ))}
+                        </div>
+                    </section>
+
+                    <section className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]">
+                        <RevenueChart
+                            labels={chartData.labels || []}
+                            sales={chartData.sales || []}
+                            purchases={chartData.purchases || []}
+                        />
+                        <BestSellingProducts products={bestSellingProducts} />
+                    </section>
+
+                    <section className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]">
+                        <RecentSales sales={recentSales} />
+                        <LowStockAlert products={lowStockProducts} limit={lowStockLimit} />
                     </section>
                 </div>
             </div>
