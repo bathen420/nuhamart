@@ -35,7 +35,6 @@ class SaleController extends Controller
             ->withQueryString();
 
         return Inertia::render('Admin/Sales/Index', [
-            'auth' => ['user' => auth()->user()],
             'sales' => $sales,
             'filters' => [
                 'search' => $request->search,
@@ -83,7 +82,6 @@ class SaleController extends Controller
         ]);
 
         return Inertia::render('Admin/Sales/Show', [
-            'auth' => ['user' => auth()->user()],
             'sale' => $sale,
         ]);
     }

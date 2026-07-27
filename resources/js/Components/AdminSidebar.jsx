@@ -90,7 +90,7 @@ export default function AdminSidebar() {
                 </AdminMenuItem>
 
                 <AdminMenuItem
-                    href={route("admin.pos.index")}
+                    href={route("admin.pos.create")}
                     active={page.url.startsWith("/admin/pos")}
                     icon={MonitorSmartphone}
                 >

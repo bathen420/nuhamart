@@ -19,7 +19,7 @@ export default function Index({ auth, sales, filters = {} }) {
                         <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search sale number or customer" className="w-full rounded-lg border-gray-300" />
                         <button className="rounded-lg bg-blue-600 px-5 py-2 font-semibold text-white">Search</button>
                     </form>
-                    <Link href={route("admin.pos.index")} className="rounded-lg bg-green-600 px-5 py-2 text-center font-semibold text-white">New Sale / POS</Link>
+                    <Link href={route("admin.pos.create")} className="rounded-lg bg-green-600 px-5 py-2 text-center font-semibold text-white">New Sale / POS</Link>
                 </div>
                 <div className="overflow-hidden rounded-xl bg-white shadow">
                     <div className="overflow-x-auto">

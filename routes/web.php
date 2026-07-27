@@ -205,3 +205,5 @@ Route::middleware(['auth', 'verified'])
     ->name('dashboard');
 
 require __DIR__ . '/auth.php';
+
+require __DIR__.'/pos.php';
