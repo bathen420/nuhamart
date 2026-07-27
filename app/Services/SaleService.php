@@ -3,11 +3,12 @@
 namespace App\Services;
 
 use App\Models\Product;
+use App\Models\Sale;
 use App\Models\StockHistory;
 use App\Repositories\SaleRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use RuntimeException;
+use Illuminate\Validation\ValidationException;
 
 class SaleService
 {
@@ -16,74 +17,98 @@ class SaleService
     ) {
     }
 
-    /**
-     * Process Sale
-     */
-    public function store(array $data)
+    public function store(array $data): Sale
     {
-        return DB::transaction(function () use ($data) {
+        return DB::transaction(function () use ($data): Sale {
+            $products = Product::query()
+                ->whereIn('id', collect($data['items'])->pluck('product_id')->all())
+                ->lockForUpdate()
+                ->get()
+                ->keyBy('id');
 
-            // Generate Invoice Number
-            $saleNumber = $this->saleRepository->generateSaleNumber();
+            $items = [];
+            $subtotal = 0.0;
 
-            // Calculate Due
-            $dueAmount = $data['total'] - $data['paid_amount'];
+            foreach ($data['items'] as $row) {
+                $product = $products->get((int) $row['product_id']);
 
-            // Payment Status
-            $paymentStatus = $dueAmount <= 0
-                ? 'Paid'
-                : ($data['paid_amount'] > 0 ? 'Partial' : 'Due');
-
-            // Create Sale
-            $sale = $this->saleRepository->create([
-                'sale_number'     => $saleNumber,
-                'customer_id'     => $data['customer_id'] ?? null,
-                'user_id'         => Auth::id(),
-                'subtotal'        => $data['subtotal'],
-                'discount'        => $data['discount'] ?? 0,
-                'tax'             => $data['tax'] ?? 0,
-                'shipping'        => $data['shipping'] ?? 0,
-                'total'           => $data['total'],
-                'paid_amount'     => $data['paid_amount'],
-                'due_amount'      => max($dueAmount, 0),
-                'payment_method'  => $data['payment_method'],
-                'payment_status'  => $paymentStatus,
-                'sale_status'     => 'Completed',
-                'note'            => $data['note'] ?? null,
-            ]);
-
-            // Save Sale Items
-            $this->saleRepository->createItems($sale, $data['items']);
-
-            // Update Stock
-            foreach ($data['items'] as $item) {
-
-                $product = Product::lockForUpdate()->findOrFail($item['product_id']);
-
-                if ($product->stock_quantity < $item['quantity']) {
-                    throw new RuntimeException(
-                        "{$product->name} does not have enough stock."
-                    );
+                if (! $product) {
+                    throw ValidationException::withMessages([
+                        'items' => 'One or more selected products were not found.',
+                    ]);
                 }
 
-                $before = $product->stock_quantity;
+                $quantity = (int) $row['quantity'];
+                $available = (int) $product->stock_quantity;
 
-                $product->decrement('stock_quantity', $item['quantity']);
+                if ($quantity > $available) {
+                    throw ValidationException::withMessages([
+                        'items' => "Insufficient stock for {$product->name}. Available: {$available}.",
+                    ]);
+                }
+
+                $price = $product->discount_price !== null && (float) $product->discount_price > 0
+                    ? (float) $product->discount_price
+                    : (float) $product->price;
+
+                $lineSubtotal = round($price * $quantity, 2);
+                $subtotal += $lineSubtotal;
+
+                $items[] = [
+                    'product_id' => $product->id,
+                    'quantity' => $quantity,
+                    'price' => $price,
+                    'subtotal' => $lineSubtotal,
+                ];
+            }
+
+            $discount = max(0, (float) ($data['discount'] ?? 0));
+            $tax = max(0, (float) ($data['tax'] ?? 0));
+            $shipping = max(0, (float) ($data['shipping'] ?? 0));
+            $total = max(0, round($subtotal - $discount + $tax + $shipping, 2));
+            $paid = min(max(0, (float) ($data['paid_amount'] ?? 0)), $total);
+            $due = round($total - $paid, 2);
+
+            $sale = $this->saleRepository->create([
+                'sale_number' => $this->saleRepository->generateSaleNumber(),
+                'customer_id' => $data['customer_id'] ?? null,
+                'user_id' => Auth::id(),
+                'subtotal' => round($subtotal, 2),
+                'discount' => round($discount, 2),
+                'tax' => round($tax, 2),
+                'shipping' => round($shipping, 2),
+                'total' => $total,
+                'paid_amount' => round($paid, 2),
+                'due_amount' => $due,
+                'payment_method' => $data['payment_method'],
+                'payment_status' => $due <= 0 ? 'Paid' : ($paid > 0 ? 'Partial' : 'Due'),
+                'sale_status' => 'Completed',
+                'note' => $data['note'] ?? null,
+            ]);
+
+            $this->saleRepository->createItems($sale, $items);
+
+            foreach ($items as $item) {
+                /** @var Product $product */
+                $product = $products->get($item['product_id']);
+                $before = (int) $product->stock_quantity;
+                $after = $before - $item['quantity'];
+
+                $product->update(['stock_quantity' => $after]);
 
                 StockHistory::create([
                     'product_id' => $product->id,
                     'user_id' => Auth::id(),
                     'type' => 'OUT',
                     'quantity' => $item['quantity'],
-                    'before_stock' => $before,
-                    'after_stock' => $before - $item['quantity'],
-                    'reference_type' => 'Sale',
-                    'reference_id' => $sale->id,
-                    'remarks' => 'Product Sold',
+                    'stock_before' => $before,
+                    'stock_after' => $after,
+                    'reference' => $sale->sale_number,
+                    'note' => 'Product sold through POS.',
                 ]);
             }
 
-            return $sale;
+            return $sale->load(['customer', 'user', 'items.product']);
         });
     }
 }

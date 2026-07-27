@@ -103,7 +103,7 @@ Route::middleware(['auth', 'verified'])
         */
 
         Route::get('/pos', [POSController::class, 'index'])
-            ->name('pos.index');
+            ->name('pos.create');
 
         Route::get(
             '/pos/search-products',
@@ -205,5 +205,3 @@ Route::middleware(['auth', 'verified'])
     ->name('dashboard');
 
 require __DIR__ . '/auth.php';
-
-require __DIR__.'/pos.php';
