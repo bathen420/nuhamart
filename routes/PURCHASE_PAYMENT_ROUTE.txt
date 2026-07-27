@@ -1,0 +1,7 @@
+Add this route BEFORE Route::resource('purchases', PurchaseController::class)
+inside the existing admin route group:
+
+Route::post(
+    '/purchases/{purchase}/payments',
+    [PurchaseController::class, 'addPayment']
+)->name('purchases.payments.store');

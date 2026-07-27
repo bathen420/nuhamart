@@ -3,114 +3,52 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StorePurchaseRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized.
-     */
     public function authorize(): bool
     {
-        return true;
+        return auth()->check();
     }
 
-    /**
-     * Validation rules.
-     */
     public function rules(): array
     {
         return [
-
             'purchase_number' => [
                 'required',
                 'string',
                 'max:100',
-                'unique:purchases,purchase_number',
+                Rule::unique('purchases', 'purchase_number'),
             ],
-
-            'supplier_id' => [
+            'supplier_id' => ['required', 'integer', 'exists:suppliers,id'],
+            'purchase_date' => ['required', 'date'],
+            'discount' => ['nullable', 'numeric', 'min:0'],
+            'shipping' => ['nullable', 'numeric', 'min:0'],
+            'paid_amount' => ['required', 'numeric', 'min:0'],
+            'payment_method' => [
                 'required',
-                'exists:suppliers,id',
-            ],
-
-            'subtotal' => [
-                'required',
-                'numeric',
-                'min:0',
-            ],
-
-            'discount' => [
-                'nullable',
-                'numeric',
-                'min:0',
-            ],
-
-            'shipping' => [
-                'nullable',
-                'numeric',
-                'min:0',
-            ],
-
-            'total' => [
-                'required',
-                'numeric',
-                'min:0',
-            ],
-
-            'note' => [
-                'nullable',
                 'string',
+                Rule::in(['cash', 'card', 'mobile_banking', 'bank_transfer', 'due']),
             ],
-
-            'items' => [
-                'required',
-                'array',
-                'min:1',
-            ],
-
+            'note' => ['nullable', 'string', 'max:2000'],
+            'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => [
                 'required',
-                'exists:products,id',
-            ],
-
-            'items.*.quantity' => [
-                'required',
                 'integer',
-                'min:1',
+                'exists:products,id',
+                'distinct',
             ],
-
-            'items.*.price' => [
-                'required',
-                'numeric',
-                'min:0',
-            ],
-
-            'items.*.subtotal' => [
-                'required',
-                'numeric',
-                'min:0',
-            ],
-
+            'items.*.quantity' => ['required', 'integer', 'min:1'],
+            'items.*.price' => ['required', 'numeric', 'min:0'],
         ];
     }
 
-    /**
-     * Custom messages.
-     */
     public function messages(): array
     {
         return [
-
-            'supplier_id.required' => 'Please select a supplier.',
-
             'items.required' => 'Please add at least one product.',
-
-            'items.*.product_id.required' => 'Please select a product.',
-
-            'items.*.quantity.required' => 'Quantity is required.',
-
-            'items.*.price.required' => 'Price is required.',
-
+            'items.min' => 'Please add at least one product.',
         ];
     }
 }

@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Purchase extends Model
 {
@@ -10,34 +12,45 @@ class Purchase extends Model
         'purchase_number',
         'supplier_id',
         'user_id',
+        'purchase_date',
         'subtotal',
         'discount',
         'shipping',
         'total',
+        'paid_amount',
+        'due_amount',
+        'payment_method',
+        'payment_status',
         'note',
     ];
 
-    /**
-     * Supplier
-     */
-    public function supplier()
+    protected $casts = [
+        'purchase_date' => 'date',
+        'subtotal' => 'decimal:2',
+        'discount' => 'decimal:2',
+        'shipping' => 'decimal:2',
+        'total' => 'decimal:2',
+        'paid_amount' => 'decimal:2',
+        'due_amount' => 'decimal:2',
+    ];
+
+    public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
     }
 
-    /**
-     * User
-     */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Purchase Items
-     */
-    public function items()
+    public function items(): HasMany
     {
         return $this->hasMany(PurchaseItem::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(PurchasePayment::class);
     }
 }
