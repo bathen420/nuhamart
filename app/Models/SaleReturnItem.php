@@ -4,12 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class SaleItem extends Model
+class SaleReturnItem extends Model
 {
     protected $fillable = [
-        'sale_id',
+        'sale_return_id',
+        'sale_item_id',
         'product_id',
         'quantity',
         'price',
@@ -21,18 +21,18 @@ class SaleItem extends Model
         'subtotal' => 'decimal:2',
     ];
 
-    public function sale(): BelongsTo
+    public function saleReturn(): BelongsTo
     {
-        return $this->belongsTo(Sale::class);
+        return $this->belongsTo(SaleReturn::class);
+    }
+
+    public function saleItem(): BelongsTo
+    {
+        return $this->belongsTo(SaleItem::class);
     }
 
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
-    }
-
-    public function returnItems(): HasMany
-    {
-        return $this->hasMany(SaleReturnItem::class);
     }
 }

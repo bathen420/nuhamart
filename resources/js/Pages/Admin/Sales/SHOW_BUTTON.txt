@@ -1,0 +1,13 @@
+Add this button inside the action button area of:
+resources/js/Pages/Admin/Sales/Show.jsx
+
+<Link
+    href={route("admin.sales.returns.create", sale.id)}
+    className="rounded-lg bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700"
+>
+    Sales Return
+</Link>
+
+Make sure this import exists:
+
+import { Head, Link } from "@inertiajs/react";

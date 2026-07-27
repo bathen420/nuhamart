@@ -1,0 +1,25 @@
+1. Add import near other controller imports:
+
+use App\Http\Controllers\Admin\SaleReturnController;
+
+2. Add these routes inside the existing admin route group, AFTER the sales routes:
+
+Route::get(
+    '/sales/{sale}/returns/create',
+    [SaleReturnController::class, 'create']
+)->name('sales.returns.create');
+
+Route::post(
+    '/sales/{sale}/returns',
+    [SaleReturnController::class, 'store']
+)->name('sales.returns.store');
+
+Route::get(
+    '/sale-returns',
+    [SaleReturnController::class, 'index']
+)->name('sale-returns.index');
+
+Route::get(
+    '/sale-returns/{saleReturn}',
+    [SaleReturnController::class, 'show']
+)->name('sale-returns.show');
