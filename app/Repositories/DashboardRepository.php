@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\Sale;
 use App\Models\SaleItem;
+use App\Models\SaleReturn;
 use App\Models\Supplier;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -261,5 +262,29 @@ class DashboardRepository
         return Product::query()
             ->where('stock_quantity', '>', 0)
             ->count();
+    }
+
+    /**
+     * Get completed sales returns between two dates.
+     */
+    public function saleReturnsBetween(Carbon $from, Carbon $to): Collection
+    {
+        return SaleReturn::query()
+            ->where('status', 'completed')
+            ->whereBetween('return_date', [
+                $from->toDateString(),
+                $to->toDateString(),
+            ])
+            ->get(['id', 'subtotal', 'refund_amount', 'return_date']);
+    }
+
+    /**
+     * Get total completed sales-return amount.
+     */
+    public function totalSaleReturns(): float
+    {
+        return (float) SaleReturn::query()
+            ->where('status', 'completed')
+            ->sum('subtotal');
     }
 }

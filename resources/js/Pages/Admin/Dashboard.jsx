@@ -112,6 +112,31 @@ export default function Dashboard({
                         />
                     </section>
 
+
+                    <section className="grid gap-4 sm:grid-cols-3">
+                        <AnalyticsCard
+                            title="Today's Returns"
+                            value={money(stats.today_return)}
+                            description={`${stats.today_return_count || 0} return transaction(s)`}
+                            icon="orders"
+                            tone="rose"
+                        />
+                        <AnalyticsCard
+                            title="This Month Returns"
+                            value={money(stats.month_return)}
+                            description="Completed sales returns this month"
+                            icon="orders"
+                            tone="amber"
+                        />
+                        <AnalyticsCard
+                            title="Total Returns"
+                            value={money(stats.total_return)}
+                            description="Lifetime completed sales returns"
+                            icon="orders"
+                            tone="violet"
+                        />
+                    </section>
+
                     <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
                         <AnalyticsCard title="Products" value={stats.products || 0} description="Inventory products" icon="products" />
                         <AnalyticsCard title="Customers" value={stats.customers || 0} description="Registered customers" icon="customers" tone="violet" />

@@ -30,6 +30,9 @@ class DashboardService
         $monthPurchases = $this->repository->purchasesBetween($monthStart, $monthEnd);
         $chartPurchases = $this->repository->purchasesBetween($chartStart, $monthEnd);
 
+        $todayReturns = $this->repository->saleReturnsBetween($todayStart, $todayEnd);
+        $monthReturns = $this->repository->saleReturnsBetween($monthStart, $monthEnd);
+
         $counts = $this->repository->counts($lowStockLimit);
 
         return [
@@ -44,6 +47,10 @@ class DashboardService
                 'month_purchase' => (float) $monthPurchases->sum('total'),
                 'total_purchase' => $this->repository->totalPurchases(),
                 'total_due' => $this->repository->totalDue(),
+                'today_return' => (float) $todayReturns->sum('subtotal'),
+                'today_return_count' => $todayReturns->count(),
+                'month_return' => (float) $monthReturns->sum('subtotal'),
+                'total_return' => $this->repository->totalSaleReturns(),
             ],
             'chartData' => [
                 'labels' => $this->monthLabels($chartStart),

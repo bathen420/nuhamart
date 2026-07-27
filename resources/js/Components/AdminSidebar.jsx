@@ -11,6 +11,7 @@ import {
     History,
     Users,
     MonitorSmartphone,
+    RotateCcw,
 } from "lucide-react";
 
 import AdminMenuItem from "./AdminMenuItem";
@@ -111,6 +112,15 @@ export default function AdminSidebar() {
                     icon={ShoppingCart}
                 >
                     Sales
+                </AdminMenuItem>
+
+
+                <AdminMenuItem
+                    href={route("admin.sale-returns.index")}
+                    active={page.url.startsWith("/admin/sale-returns")}
+                    icon={RotateCcw}
+                >
+                    Sales Returns
                 </AdminMenuItem>
 
                 <AdminMenuItem

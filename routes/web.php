@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\StockHistoryController;
 use App\Http\Controllers\Admin\SaleController;
+use App\Http\Controllers\Admin\SaleReturnController;
 use App\Http\Controllers\Admin\POSController;
 
 
@@ -134,6 +135,28 @@ Route::middleware(['auth', 'verified'])
 
         Route::delete('/sales/{sale}', [SaleController::class, 'destroy'])
             ->name('sales.destroy');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Sales Returns
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get(
+            '/sales/{sale}/returns/create',
+            [SaleReturnController::class, 'create']
+        )->name('sales.returns.create');
+
+        Route::post(
+            '/sales/{sale}/returns',
+            [SaleReturnController::class, 'store']
+        )->name('sales.returns.store');
+
+        Route::get('/sale-returns', [SaleReturnController::class, 'index'])
+            ->name('sale-returns.index');
+
+        Route::get('/sale-returns/{saleReturn}', [SaleReturnController::class, 'show'])
+            ->name('sale-returns.show');
 
         /*
         |--------------------------------------------------------------------------

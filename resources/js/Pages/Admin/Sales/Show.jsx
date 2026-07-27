@@ -63,6 +63,16 @@ export default function Show({ auth, sale }) {
                                 </Link>
                             )}
 
+
+                        {sale?.id && sale?.sale_status !== 'Returned' && (
+                            <Link
+                                href={route('admin.sales.returns.create', sale.id)}
+                                className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-rose-700"
+                            >
+                                Sales Return
+                            </Link>
+                        )}
+
                         <button
                             type="button"
                             onClick={handlePrint}
