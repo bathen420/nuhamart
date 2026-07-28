@@ -1,0 +1,1 @@
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';import {Head} from '@inertiajs/react';import Form from './Form';export default function Edit({user,roles}){return <AuthenticatedLayout header={<h2 className='text-xl font-semibold'>Edit User</h2>}><Head title='Edit User'/><Form user={user} roles={roles}/></AuthenticatedLayout>}

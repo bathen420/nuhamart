@@ -13,6 +13,9 @@ import {
     MonitorSmartphone,
     RotateCcw,
     Settings,
+    ShieldCheck,
+    UserCog,
+    KeyRound,
 } from "lucide-react";
 
 import AdminMenuItem from "./AdminMenuItem";
@@ -20,6 +23,9 @@ import AdminMenuItem from "./AdminMenuItem";
 export default function AdminSidebar() {
     const page = usePage();
     const businessSettings = page.props.businessSettings || {};
+    const permissions = page.props.auth?.permissions || [];
+    const roles = page.props.auth?.roles || [];
+    const can = (permission) => roles.includes("Super Admin") || permissions.includes(permission);
 
     return (
         <aside className="w-64 min-h-screen border-r bg-white">
@@ -46,6 +52,7 @@ export default function AdminSidebar() {
 
             {/* Menu */}
             <nav className="space-y-2 p-4">
+                {can("dashboard.view") && (
                 <AdminMenuItem
                     href={route("admin.dashboard")}
                     active={page.url.startsWith("/admin/dashboard")}
@@ -53,6 +60,8 @@ export default function AdminSidebar() {
                 >
                     Dashboard
                 </AdminMenuItem>
+                )}
+                {can("categories.view") && (
 
                 <AdminMenuItem
                     href={route("admin.categories.index")}
@@ -61,6 +70,8 @@ export default function AdminSidebar() {
                 >
                     Categories
                 </AdminMenuItem>
+                )}
+                {can("brands.view") && (
 
                 <AdminMenuItem
                     href={route("admin.brands.index")}
@@ -69,6 +80,8 @@ export default function AdminSidebar() {
                 >
                     Brands
                 </AdminMenuItem>
+                )}
+                {can("products.view") && (
 
                 <AdminMenuItem
                     href={route("admin.products.index")}
@@ -77,6 +90,8 @@ export default function AdminSidebar() {
                 >
                     Products
                 </AdminMenuItem>
+                )}
+                {can("customers.view") && (
 
                 <AdminMenuItem
                     href={route("admin.customers.index")}
@@ -85,6 +100,8 @@ export default function AdminSidebar() {
                 >
                     Customers
                 </AdminMenuItem>
+                )}
+                {can("suppliers.view") && (
 
                 <AdminMenuItem
                     href={route("admin.suppliers.index")}
@@ -93,6 +110,8 @@ export default function AdminSidebar() {
                 >
                     Suppliers
                 </AdminMenuItem>
+                )}
+                {can("purchases.view") && (
 
                 <AdminMenuItem
                     href={route("admin.purchases.index")}
@@ -101,6 +120,8 @@ export default function AdminSidebar() {
                 >
                     Purchases
                 </AdminMenuItem>
+                )}
+                {can("purchase-returns.view") && (
 
                 <AdminMenuItem
                     href={route("admin.purchase-returns.index")}
@@ -109,6 +130,8 @@ export default function AdminSidebar() {
                 >
                     Purchase Returns
                 </AdminMenuItem>
+                )}
+                {can("pos.view") && (
 
                 <AdminMenuItem
                     href={route("admin.pos.create")}
@@ -117,6 +140,8 @@ export default function AdminSidebar() {
                 >
                     POS
                 </AdminMenuItem>
+                )}
+                {can("orders.view") && (
 
                 <AdminMenuItem
                     href={route("admin.orders.index")}
@@ -125,6 +150,8 @@ export default function AdminSidebar() {
                 >
                     Orders
                 </AdminMenuItem>
+                )}
+                {can("sales.view") && (
 
                 <AdminMenuItem
                     href={route("admin.sales.index")}
@@ -133,6 +160,8 @@ export default function AdminSidebar() {
                 >
                     Sales
                 </AdminMenuItem>
+                )}
+                {can("sale-returns.view") && (
 
 
                 <AdminMenuItem
@@ -142,6 +171,8 @@ export default function AdminSidebar() {
                 >
                     Sales Returns
                 </AdminMenuItem>
+                )}
+                {can("stock-history.view") && (
 
                 <AdminMenuItem
                     href={route("admin.stock-history.index")}
@@ -150,6 +181,8 @@ export default function AdminSidebar() {
                 >
                     Stock History
                 </AdminMenuItem>
+                )}
+                {can("settings.view") && (
 
                 <AdminMenuItem
                     href={route("admin.settings.edit")}
@@ -158,6 +191,16 @@ export default function AdminSidebar() {
                 >
                     Settings
                 </AdminMenuItem>
+                )}
+
+                {(can("users.view") || can("roles.view") || can("permissions.view")) && (
+                    <div className="mt-5 border-t pt-4">
+                        <p className="mb-2 px-3 text-xs font-bold uppercase tracking-wider text-gray-400">Administration</p>
+                        {can("users.view") && <AdminMenuItem href={route("admin.users.index")} active={page.url.startsWith("/admin/users")} icon={UserCog}>Users</AdminMenuItem>}
+                        {can("roles.view") && <AdminMenuItem href={route("admin.roles.index")} active={page.url.startsWith("/admin/roles")} icon={ShieldCheck}>Roles</AdminMenuItem>}
+                        {can("permissions.view") && <AdminMenuItem href={route("admin.permissions.index")} active={page.url.startsWith("/admin/permissions")} icon={KeyRound}>Permissions</AdminMenuItem>}
+                    </div>
+                )}
             </nav>
         </aside>
     );

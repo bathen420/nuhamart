@@ -23,6 +23,9 @@ use App\Http\Controllers\Admin\SaleReturnController;
 use App\Http\Controllers\Admin\PurchaseReturnController;
 use App\Http\Controllers\Admin\POSController;
 use App\Http\Controllers\Admin\BusinessSettingController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\PermissionController;
 
 
 /*
@@ -62,7 +65,7 @@ Route::post('/checkout/place-order', [CheckoutOrderController::class, 'store'])
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'verified'])
+Route::middleware(['auth', 'verified', 'active'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
@@ -213,6 +216,10 @@ Route::middleware(['auth', 'verified'])
 
         Route::patch('/settings', [BusinessSettingController::class, 'update'])
             ->name('settings.update');
+
+        Route::resource('users', UserController::class)->except(['show'])->middleware('permission:users.view');
+        Route::resource('roles', RoleController::class)->except(['show'])->middleware('permission:roles.view');
+        Route::get('/permissions', [PermissionController::class, 'index'])->middleware('permission:permissions.view')->name('permissions.index');
     });
 
 /*

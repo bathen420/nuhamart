@@ -1,0 +1,1 @@
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';import {Head} from '@inertiajs/react';import Form from './Form';export default function Create({roles}){return <AuthenticatedLayout header={<h2 className='text-xl font-semibold'>Create User</h2>}><Head title='Create User'/><Form roles={roles}/></AuthenticatedLayout>}
