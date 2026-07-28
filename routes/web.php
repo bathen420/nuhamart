@@ -28,6 +28,9 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Controllers\Admin\WarehouseController;
+use App\Http\Controllers\Admin\CustomerGroupController;
+use App\Http\Controllers\Admin\SupplierGroupController;
 
 
 /*
@@ -90,6 +93,12 @@ Route::middleware(['auth', 'verified', 'active', 'activity'])
         Route::resource('categories', CategoryController::class);
 
         Route::resource('brands', BrandController::class);
+
+        Route::resource('warehouses', WarehouseController::class)
+            ->except(['show']);
+
+        Route::resource('customer-groups', CustomerGroupController::class)->except(['show']);
+        Route::resource('supplier-groups', SupplierGroupController::class)->except(['show']);
 
         Route::resource('products', ProductController::class);
 

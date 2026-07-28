@@ -18,6 +18,7 @@ import {
     KeyRound,
     ScrollText,
     Bell,
+    Warehouse,
 } from "lucide-react";
 
 import AdminMenuItem from "./AdminMenuItem";
@@ -82,6 +83,21 @@ export default function AdminSidebar() {
                 >
                     Brands
                 </AdminMenuItem>
+                )}
+                {can("warehouses.view") && (
+                <AdminMenuItem
+                    href={route("admin.warehouses.index")}
+                    active={page.url.startsWith("/admin/warehouses")}
+                    icon={Warehouse}
+                >
+                    Warehouses
+                </AdminMenuItem>
+                )}
+                {can("customer-groups.view") && (
+                <AdminMenuItem href={route("admin.customer-groups.index")} active={page.url.startsWith("/admin/customer-groups")} icon={Users}>Customer Groups</AdminMenuItem>
+                )}
+                {can("supplier-groups.view") && (
+                <AdminMenuItem href={route("admin.supplier-groups.index")} active={page.url.startsWith("/admin/supplier-groups")} icon={Truck}>Supplier Groups</AdminMenuItem>
                 )}
                 {can("products.view") && (
 

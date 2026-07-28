@@ -11,6 +11,12 @@ use App\Services\ActivityLogService;
 use Illuminate\Support\ServiceProvider;
 use App\Repositories\Notification\NotificationRepository;
 use App\Repositories\Notification\NotificationRepositoryInterface;
+use App\Repositories\Warehouse\WarehouseRepository;
+use App\Repositories\Warehouse\WarehouseRepositoryInterface;
+use App\Repositories\CustomerGroup\CustomerGroupRepository;
+use App\Repositories\CustomerGroup\CustomerGroupRepositoryInterface;
+use App\Repositories\SupplierGroup\SupplierGroupRepository;
+use App\Repositories\SupplierGroup\SupplierGroupRepositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,6 +26,9 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(NotificationRepositoryInterface::class, NotificationRepository::class);
+        $this->app->bind(WarehouseRepositoryInterface::class, WarehouseRepository::class);
+        $this->app->bind(CustomerGroupRepositoryInterface::class, CustomerGroupRepository::class);
+        $this->app->bind(SupplierGroupRepositoryInterface::class, SupplierGroupRepository::class);
     }
 
     /**
