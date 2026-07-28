@@ -16,6 +16,7 @@ import {
     ShieldCheck,
     UserCog,
     KeyRound,
+    ScrollText,
 } from "lucide-react";
 
 import AdminMenuItem from "./AdminMenuItem";
@@ -193,12 +194,13 @@ export default function AdminSidebar() {
                 </AdminMenuItem>
                 )}
 
-                {(can("users.view") || can("roles.view") || can("permissions.view")) && (
+                {(can("users.view") || can("roles.view") || can("permissions.view") || can("activity-logs.view")) && (
                     <div className="mt-5 border-t pt-4">
                         <p className="mb-2 px-3 text-xs font-bold uppercase tracking-wider text-gray-400">Administration</p>
                         {can("users.view") && <AdminMenuItem href={route("admin.users.index")} active={page.url.startsWith("/admin/users")} icon={UserCog}>Users</AdminMenuItem>}
                         {can("roles.view") && <AdminMenuItem href={route("admin.roles.index")} active={page.url.startsWith("/admin/roles")} icon={ShieldCheck}>Roles</AdminMenuItem>}
                         {can("permissions.view") && <AdminMenuItem href={route("admin.permissions.index")} active={page.url.startsWith("/admin/permissions")} icon={KeyRound}>Permissions</AdminMenuItem>}
+                        {can("activity-logs.view") && <AdminMenuItem href={route("admin.activity-logs.index")} active={page.url.startsWith("/admin/activity-logs")} icon={ScrollText}>Activity Logs</AdminMenuItem>}
                     </div>
                 )}
             </nav>

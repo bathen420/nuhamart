@@ -14,3 +14,6 @@
 - Laravel 12
 - React + Inertia
 - SQLite and MySQL
+
+## v3.3.1 Print Patch
+- Fixed blank print preview on Administration > Activity Logs.

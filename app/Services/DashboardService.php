@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Repositories\DashboardRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
+use App\Models\ActivityLog;
 
 class DashboardService
 {
@@ -90,6 +92,16 @@ class DashboardService
                     'quantity_sold' => (int) $item->quantity_sold,
                     'revenue' => (float) $item->revenue,
                 ])->values(),
+            'recentActivities' => Schema::hasTable('activity_logs')
+                ? ActivityLog::query()->with('user:id,name')->latest('id')->limit(8)->get()->map(fn ($log) => [
+                    'id' => $log->id,
+                    'user' => $log->user?->name ?? 'System',
+                    'module' => $log->module,
+                    'action' => $log->action,
+                    'description' => $log->description,
+                    'created_at' => $log->created_at?->diffForHumans(),
+                ])->values()
+                : [],
             'lowStockLimit' => $lowStockLimit,
         ];
     }

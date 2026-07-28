@@ -26,6 +26,7 @@ use App\Http\Controllers\Admin\BusinessSettingController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\ActivityLogController;
 
 
 /*
@@ -65,7 +66,7 @@ Route::post('/checkout/place-order', [CheckoutOrderController::class, 'store'])
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'verified', 'active'])
+Route::middleware(['auth', 'verified', 'active', 'activity'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
@@ -220,6 +221,9 @@ Route::middleware(['auth', 'verified', 'active'])
         Route::resource('users', UserController::class)->except(['show'])->middleware('permission:users.view');
         Route::resource('roles', RoleController::class)->except(['show'])->middleware('permission:roles.view');
         Route::get('/permissions', [PermissionController::class, 'index'])->middleware('permission:permissions.view')->name('permissions.index');
+
+        Route::get('/activity-logs', [ActivityLogController::class, 'index'])->middleware('permission:activity-logs.view')->name('activity-logs.index');
+        Route::get('/activity-logs/export', [ActivityLogController::class, 'export'])->middleware('permission:activity-logs.export')->name('activity-logs.export');
     });
 
 /*

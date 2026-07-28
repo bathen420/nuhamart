@@ -14,6 +14,7 @@ export default function Dashboard({
     lowStockProducts = [],
     bestSellingProducts = [],
     lowStockLimit = 5,
+    recentActivities = [],
 }) {
     const { auth, businessSettings = {} } = usePage().props;
     const userName = auth?.user?.name || "Administrator";
@@ -176,6 +177,19 @@ export default function Dashboard({
                         />
                         <BestSellingProducts products={bestSellingProducts} />
                     </section>
+
+
+                    {recentActivities.length > 0 && (
+                        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                            <div className="mb-4 flex items-center justify-between">
+                                <div><h2 className="text-lg font-black text-slate-900">Recent Activity</h2><p className="text-xs text-slate-500">Latest security and system actions</p></div>
+                                {(auth?.roles || []).includes("Super Admin") || (auth?.permissions || []).includes("activity-logs.view") ? <Link href={route("admin.activity-logs.index")} className="text-sm font-bold text-blue-600">View all</Link> : null}
+                            </div>
+                            <div className="divide-y divide-slate-100">
+                                {recentActivities.map(activity => <div key={activity.id} className="flex items-start gap-3 py-3"><div className="mt-1 h-2.5 w-2.5 rounded-full bg-blue-500"/><div className="min-w-0 flex-1"><p className="text-sm font-semibold text-slate-800">{activity.description}</p><p className="mt-1 text-xs capitalize text-slate-500">{activity.user} · {activity.module} · {activity.created_at}</p></div><span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase text-slate-600">{activity.action}</span></div>)}
+                            </div>
+                        </section>
+                    )}
 
                     <section className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]">
                         <RecentSales sales={recentSales} />
