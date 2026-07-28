@@ -10,11 +10,8 @@ import { CartProvider } from "@/Context/CartContext";
 // import { ThemeProvider } from "@/Context/ThemeContext";
 // import { ToastProvider } from "@/Context/ToastContext";
 
-const appName =
-    import.meta.env.VITE_APP_NAME || "NuhaMart";
-
 createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
+    title: (title) => title,
 
     resolve: (name) =>
         resolvePageComponent(
@@ -24,6 +21,9 @@ createInertiaApp({
 
     setup({ el, App, props }) {
         const root = createRoot(el);
+        const companyName = props.initialPage.props?.businessSettings?.company_name || import.meta.env.VITE_APP_NAME || "NuhaMart";
+        const pageTitle = props.initialPage.props?.title;
+        document.title = pageTitle ? `${pageTitle} - ${companyName}` : companyName;
 
         root.render(
             <CartProvider>

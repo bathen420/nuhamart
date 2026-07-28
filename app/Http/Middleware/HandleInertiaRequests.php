@@ -40,6 +40,42 @@ class HandleInertiaRequests extends Middleware
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
             ],
+
+            'businessSettings' => function () {
+                if (!\Illuminate\Support\Facades\Schema::hasTable('business_settings')) {
+                    return [
+                        'company_name' => 'NuhaMart',
+                        'company_tagline' => 'Inventory & POS System',
+                        'logo' => null,
+                        'address' => null,
+                        'phone' => null,
+                        'email' => null,
+                        'website' => null,
+                        'currency_code' => 'BDT',
+                        'currency_symbol' => '৳',
+                    ];
+                }
+
+                return \App\Models\BusinessSetting::current()->only([
+                    'company_name',
+                    'company_tagline',
+                    'logo',
+                    'address',
+                    'phone',
+                    'email',
+                    'website',
+                    'currency_code',
+                    'currency_symbol',
+                    'timezone',
+                    'tax_rate',
+                    'default_payment_method',
+                    'sales_prefix',
+                    'purchase_prefix',
+                    'sales_return_prefix',
+                    'purchase_return_prefix',
+                    'invoice_footer',
+                ]);
+            },
         ];
     }
 }

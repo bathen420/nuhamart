@@ -286,18 +286,19 @@
 </head>
 
 <body>
+@php($businessSetting = \App\Models\BusinessSetting::current())
     <div class="invoice-wrapper">
 
         <table class="header-table">
             <tr>
                 <td style="width: 55%;">
-                    <h1 class="brand-name">NuhaMart</h1>
+                    <h1 class="brand-name">{{ $businessSetting->company_name }}</h1>
                     <div class="brand-subtitle">Inventory &amp; POS System</div>
 
                     <div class="company-details">
-                        Dhaka, Bangladesh<br>
-                        Email: support@nuhamart.com<br>
-                        Phone: +8801700000000
+                        {{ $businessSetting->address }}<br>
+                        Email: {{ $businessSetting->email }}<br>
+                        Phone: {{ $businessSetting->phone }}
                     </div>
                 </td>
 
@@ -483,7 +484,7 @@
         </table>
 
         <div class="footer">
-            This purchase document was generated automatically by NuhaMart.
+            {{ $businessSetting->invoice_footer ?: "This purchase document was generated automatically by " . $businessSetting->company_name . "." }}
         </div>
 
     </div>

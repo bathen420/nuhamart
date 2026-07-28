@@ -1,13 +1,7 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
-const money = (value) =>
-    new Intl.NumberFormat('en-GB', {
-        style: 'currency',
-        currency: 'BDT',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-    }).format(Number(value || 0));
+const formatNumber = (value) => new Intl.NumberFormat('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(value || 0));
 
 const formatDate = (date) => {
     if (!date) {
@@ -24,6 +18,10 @@ const formatDate = (date) => {
 };
 
 export default function Show({ auth, sale }) {
+    const { businessSettings = {} } = usePage().props;
+    const companyName = businessSettings.company_name || "NuhaMart";
+    const currencySymbol = businessSettings.currency_symbol || "৳";
+    const money = (value) => `${currencySymbol}${formatNumber(value)}`;
     const saleItems = Array.isArray(sale?.items) ? sale.items : [];
 
     const handlePrint = () => {
@@ -112,12 +110,17 @@ export default function Show({ auth, sale }) {
                         <header className="flex flex-col gap-5 border-b border-slate-200 pb-7 sm:flex-row sm:items-start sm:justify-between">
                             <div>
                                 <h1 className="text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
-                                    NuhaMart
+                                    {companyName}
                                 </h1>
 
                                 <p className="mt-2 text-base text-slate-500">
-                                    Inventory & POS System
+                                    {businessSettings.company_tagline || "Inventory & POS System"}
                                 </p>
+                                {(businessSettings.address || businessSettings.phone || businessSettings.email) && (
+                                    <p className="mt-2 max-w-md text-xs leading-5 text-slate-500">
+                                        {[businessSettings.address, businessSettings.phone, businessSettings.email].filter(Boolean).join(" · ")}
+                                    </p>
+                                )}
 
                                 <p className="mt-1 text-sm text-slate-400">
                                     Sales Invoice
@@ -287,7 +290,7 @@ export default function Show({ auth, sale }) {
 
                                 <div className="mt-8 hidden print:block">
                                     <p className="text-sm text-slate-500">
-                                        Thank you for shopping with NuhaMart.
+                                        {businessSettings.invoice_footer || `Thank you for shopping with ${companyName}.`}
                                     </p>
                                 </div>
                             </div>
@@ -338,7 +341,7 @@ export default function Show({ auth, sale }) {
 
                         <footer className="mt-10 border-t border-slate-200 pt-6 text-center">
                             <p className="font-semibold text-slate-700">
-                                Thank you for shopping with NuhaMart.
+                                {businessSettings.invoice_footer || `Thank you for shopping with ${companyName}.`}
                             </p>
 
                             <p className="mt-1 text-xs text-slate-400">

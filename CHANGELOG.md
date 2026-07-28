@@ -1,30 +1,16 @@
-# NuhaMart v3.0 Changelog
+# NuhaMart v3.2.1 Changelog
 
-## Added
+## Settings Integration
+- Dynamic company logo, name and tagline in sidebar and login page
+- Dynamic business identity on dashboard
+- Dynamic company address, phone, email and website on invoices
+- Dynamic currency symbol on dashboard and core invoices
+- Dynamic invoice footer
+- Dynamic business information in Sales, Purchase, Sales Return and Purchase Return print views
+- Dynamic company name in browser title
+- Expanded globally shared business settings
 
-- Complete Sales Return module
-- Full and partial return support
-- Validation against over-return and duplicate-return quantities
-- Automatic returned-stock increase
-- Stock History `IN` record for every returned product
-- Automatic sale total, paid amount, due amount, payment status and sale status adjustment
-- Sales Return history, filters and details page
-- Printable Sales Return invoice
-- Sales Return routes preconfigured in `routes/web.php`
-- Sales Returns item preconfigured in the admin sidebar
-- Sales Return button added to the sales invoice page
-- Dashboard cards for today, current month and lifetime returns
-
-## Architecture
-
-- Controller
-- FormRequest
-- Service
-- Repository
-- Eloquent Models
-- Inertia React pages
-
-## Database
-
-- `sale_returns`
-- `sale_return_items`
+## Compatibility
+- Laravel 12
+- React + Inertia
+- SQLite and MySQL

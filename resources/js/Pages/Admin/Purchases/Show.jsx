@@ -2,7 +2,9 @@ import { Head, Link, router, usePage } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 
 export default function Show({ auth, purchase }) {
-    const { flash = {}, errors = {} } = usePage().props;
+    const { flash = {}, errors = {}, businessSettings = {} } = usePage().props;
+    const companyName = businessSettings.company_name || "NuhaMart";
+    const currencySymbol = businessSettings.currency_symbol || "৳";
 
     const formatMoney = (amount) =>
         Number(amount || 0).toLocaleString("en-BD", {
@@ -196,6 +198,13 @@ export default function Show({ auth, purchase }) {
                                     Download PDF
                                 </a>
 
+                                <Link
+                                    href={route("admin.purchases.returns.create", purchase.id)}
+                                    className="rounded-lg bg-orange-600 px-4 py-2 font-semibold text-white hover:bg-orange-700"
+                                >
+                                    Purchase Return
+                                </Link>
+
                                 <button
                                     type="button"
                                     onClick={deletePurchase}
@@ -221,15 +230,15 @@ export default function Show({ auth, purchase }) {
                             <div className="avoid-break flex items-start justify-between border-b-2 border-blue-600 pb-5">
                                 <div>
                                     <h1 className="text-3xl font-black text-blue-600">
-                                        NuhaMart
+                                        {companyName}
                                     </h1>
                                     <p className="mt-1 text-sm text-gray-500">
-                                        Inventory & POS System
+                                        {businessSettings.company_tagline || "Inventory & POS System"}
                                     </p>
                                     <div className="mt-3 space-y-1 text-xs text-gray-600">
-                                        <p>Dhaka, Bangladesh</p>
-                                        <p>Email: support@nuhamart.com</p>
-                                        <p>Phone: +8801700000000</p>
+                                        {businessSettings.address && <p>{businessSettings.address}</p>}
+                                        {businessSettings.email && <p>Email: {businessSettings.email}</p>}
+                                        {businessSettings.phone && <p>Phone: {businessSettings.phone}</p>}
                                     </div>
                                 </div>
 
@@ -337,10 +346,10 @@ export default function Show({ auth, purchase }) {
                                                         {item.quantity}
                                                     </td>
                                                     <td className="border px-3 py-3 text-right text-sm">
-                                                        BDT {formatMoney(item.price)}
+                                                        {currencySymbol} {formatMoney(item.price)}
                                                     </td>
                                                     <td className="border px-3 py-3 text-right text-sm font-bold">
-                                                        BDT{" "}
+                                                        {currencySymbol}{" "}
                                                         {formatMoney(
                                                             item.subtotal
                                                         )}
@@ -365,38 +374,38 @@ export default function Show({ auth, purchase }) {
                                 <div className="w-full max-w-md overflow-hidden border border-gray-200">
                                     <SummaryRow
                                         label="Subtotal"
-                                        value={`BDT ${formatMoney(
+                                        value={`${currencySymbol} ${formatMoney(
                                             purchase.subtotal
                                         )}`}
                                     />
                                     <SummaryRow
                                         label="Discount"
-                                        value={`BDT ${formatMoney(
+                                        value={`${currencySymbol} ${formatMoney(
                                             purchase.discount
                                         )}`}
                                     />
                                     <SummaryRow
                                         label="Shipping"
-                                        value={`BDT ${formatMoney(
+                                        value={`${currencySymbol} ${formatMoney(
                                             purchase.shipping
                                         )}`}
                                     />
                                     <SummaryRow
                                         label="Grand Total"
-                                        value={`BDT ${formatMoney(
+                                        value={`${currencySymbol} ${formatMoney(
                                             purchase.total
                                         )}`}
                                         strong
                                     />
                                     <SummaryRow
                                         label="Paid Amount"
-                                        value={`BDT ${formatMoney(
+                                        value={`${currencySymbol} ${formatMoney(
                                             purchase.paid_amount
                                         )}`}
                                     />
                                     <SummaryRow
                                         label="Due Amount"
-                                        value={`BDT ${formatMoney(
+                                        value={`${currencySymbol} ${formatMoney(
                                             purchase.due_amount
                                         )}`}
                                     />
@@ -435,7 +444,7 @@ export default function Show({ auth, purchase }) {
 
                             <div className="avoid-break mt-8 border-t pt-4 text-center text-[10px] text-gray-400">
                                 This purchase document was generated automatically
-                                by NuhaMart.
+                                by {companyName}.
                             </div>
                         </div>
                     </section>

@@ -12,24 +12,36 @@ import {
     Users,
     MonitorSmartphone,
     RotateCcw,
+    Settings,
 } from "lucide-react";
 
 import AdminMenuItem from "./AdminMenuItem";
 
 export default function AdminSidebar() {
     const page = usePage();
+    const businessSettings = page.props.businessSettings || {};
 
     return (
         <aside className="w-64 min-h-screen border-r bg-white">
             {/* Logo */}
-            <div className="border-b p-6">
-                <h1 className="text-2xl font-bold text-blue-700">
-                    NuhaMart
-                </h1>
-
-                <p className="mt-1 text-sm text-gray-500">
-                    Inventory & POS System
-                </p>
+            <div className="border-b p-5">
+                <div className="flex items-center gap-3">
+                    {businessSettings.logo ? (
+                        <img src={businessSettings.logo} alt={businessSettings.company_name || "Company logo"} className="h-12 w-12 rounded-xl border bg-white object-contain p-1" />
+                    ) : (
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-xl font-black text-white">
+                            {(businessSettings.company_name || "N").charAt(0).toUpperCase()}
+                        </div>
+                    )}
+                    <div className="min-w-0">
+                        <h1 className="truncate text-xl font-bold text-blue-700">
+                            {businessSettings.company_name || "NuhaMart"}
+                        </h1>
+                        <p className="truncate text-xs text-gray-500">
+                            {businessSettings.company_tagline || "Inventory & POS System"}
+                        </p>
+                    </div>
+                </div>
             </div>
 
             {/* Menu */}
@@ -91,6 +103,14 @@ export default function AdminSidebar() {
                 </AdminMenuItem>
 
                 <AdminMenuItem
+                    href={route("admin.purchase-returns.index")}
+                    active={page.url.startsWith("/admin/purchase-returns")}
+                    icon={RotateCcw}
+                >
+                    Purchase Returns
+                </AdminMenuItem>
+
+                <AdminMenuItem
                     href={route("admin.pos.create")}
                     active={page.url.startsWith("/admin/pos")}
                     icon={MonitorSmartphone}
@@ -129,6 +149,14 @@ export default function AdminSidebar() {
                     icon={History}
                 >
                     Stock History
+                </AdminMenuItem>
+
+                <AdminMenuItem
+                    href={route("admin.settings.edit")}
+                    active={page.url.startsWith("/admin/settings")}
+                    icon={Settings}
+                >
+                    Settings
                 </AdminMenuItem>
             </nav>
         </aside>

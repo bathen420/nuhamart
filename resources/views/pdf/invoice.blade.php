@@ -215,6 +215,7 @@
 </head>
 
 <body>
+@php($businessSetting = \App\Models\BusinessSetting::current())
 
 <div class="container">
 
@@ -224,7 +225,7 @@
 
 <div class="logo">
 
-NuhaMart
+{{ $businessSetting->company_name }}
 
 </div>
 
@@ -236,15 +237,15 @@ Professional Inventory & POS System
 
 <div class="address">
 
-Dhaka, Bangladesh
+{{ $businessSetting->address }}
 
 <br>
 
-support@nuhamart.com
+{{ $businessSetting->email }}
 
 <br>
 
-+8801700000000
+{{ $businessSetting->phone }}
 
 </div>
 
@@ -458,13 +459,13 @@ Total
 
 <td class="text-right">
 
-৳ {{ number_format($item->price,2) }}
+{{ $businessSetting->currency_symbol }} {{ number_format($item->price,2) }}
 
 </td>
 
 <td class="text-right">
 
-৳ {{ number_format($item->subtotal,2) }}
+{{ $businessSetting->currency_symbol }} {{ number_format($item->subtotal,2) }}
 
 </td>
 

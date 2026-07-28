@@ -22,6 +22,7 @@ class Purchase extends Model
         'payment_method',
         'payment_status',
         'note',
+        'purchase_status',
     ];
 
     protected $casts = [
@@ -47,6 +48,11 @@ class Purchase extends Model
     public function items(): HasMany
     {
         return $this->hasMany(PurchaseItem::class);
+    }
+
+    public function returns(): HasMany
+    {
+        return $this->hasMany(PurchaseReturn::class);
     }
 
     public function payments(): HasMany

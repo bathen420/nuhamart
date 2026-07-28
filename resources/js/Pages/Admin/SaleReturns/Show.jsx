@@ -40,7 +40,7 @@ export default function Show({ auth, saleReturn }) {
                     <section id="print-invoice" className="rounded-xl bg-white p-8 shadow">
                         <div className="flex justify-between border-b-2 border-red-600 pb-5">
                             <div>
-                                <h2 className="text-3xl font-black text-red-600">NuhaMart</h2>
+                                <h2 className="text-3xl font-black text-red-600">{companyName}</h2>
                                 <p className="text-sm text-gray-500">Sales Return Invoice</p>
                             </div>
                             <div className="text-right">
@@ -72,9 +72,9 @@ export default function Show({ auth, saleReturn }) {
                                         <td className="border p-3">{index + 1}</td>
                                         <td className="border p-3">{item.product?.name}</td>
                                         <td className="border p-3 text-center">{item.quantity}</td>
-                                        <td className="border p-3 text-right">BDT {money(item.price)}</td>
+                                        <td className="border p-3 text-right">{currencySymbol}{money(item.price)}</td>
                                         <td className="border p-3 text-right font-bold">
-                                            BDT {money(item.subtotal)}
+                                            {currencySymbol}{money(item.subtotal)}
                                         </td>
                                     </tr>
                                 ))}

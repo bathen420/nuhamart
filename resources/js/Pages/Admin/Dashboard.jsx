@@ -7,13 +7,6 @@ import BestSellingProducts from "@/Components/Dashboard/BestSellingProducts";
 import LowStockAlert from "@/Components/Dashboard/LowStockAlert";
 import { ArrowRight, PackagePlus, ShoppingCart, UserPlus } from "lucide-react";
 
-const money = (value) =>
-    new Intl.NumberFormat("en-GB", {
-        style: "currency",
-        currency: "BDT",
-        maximumFractionDigits: 2,
-    }).format(Number(value || 0));
-
 export default function Dashboard({
     stats = {},
     chartData = {},
@@ -22,8 +15,11 @@ export default function Dashboard({
     bestSellingProducts = [],
     lowStockLimit = 5,
 }) {
-    const { auth } = usePage().props;
+    const { auth, businessSettings = {} } = usePage().props;
     const userName = auth?.user?.name || "Administrator";
+    const companyName = businessSettings.company_name || "NuhaMart";
+    const currencySymbol = businessSettings.currency_symbol || "৳";
+    const money = (value) => `${currencySymbol}${new Intl.NumberFormat("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(value || 0))}`;
 
     const quickActions = [
         {
@@ -63,13 +59,17 @@ export default function Dashboard({
                             Welcome back, {userName}
                         </p>
                         <div className="mt-2 flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-                            <div>
+                            <div className="flex items-center gap-4">
+                                {businessSettings.logo && <img src={businessSettings.logo} alt={companyName} className="h-16 w-16 rounded-2xl bg-white object-contain p-2" />}
+                                <div>
                                 <h1 className="text-3xl font-black tracking-tight">
-                                    NuhaMart Business Dashboard
+                                    {companyName} Business Dashboard
                                 </h1>
                                 <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">
-                                    Monitor POS sales, purchases, customer dues and inventory health.
+                                    {businessSettings.company_tagline || "Monitor POS sales, purchases, customer dues and inventory health."}
                                 </p>
+                                {(businessSettings.address || businessSettings.phone) && <p className="mt-1 text-xs text-slate-400">{[businessSettings.address, businessSettings.phone].filter(Boolean).join(" · ")}</p>}
+                                </div>
                             </div>
 
                             <Link

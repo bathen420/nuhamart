@@ -20,7 +20,9 @@ use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\StockHistoryController;
 use App\Http\Controllers\Admin\SaleController;
 use App\Http\Controllers\Admin\SaleReturnController;
+use App\Http\Controllers\Admin\PurchaseReturnController;
 use App\Http\Controllers\Admin\POSController;
+use App\Http\Controllers\Admin\BusinessSettingController;
 
 
 /*
@@ -182,6 +184,11 @@ Route::middleware(['auth', 'verified'])
             [PurchaseController::class, 'downloadPdf']
         )->name('purchases.pdf');
 
+        Route::get('/purchases/{purchase}/returns/create', [PurchaseReturnController::class, 'create'])->name('purchases.returns.create');
+        Route::post('/purchases/{purchase}/returns', [PurchaseReturnController::class, 'store'])->name('purchases.returns.store');
+        Route::get('/purchase-returns', [PurchaseReturnController::class, 'index'])->name('purchase-returns.index');
+        Route::get('/purchase-returns/{purchaseReturn}', [PurchaseReturnController::class, 'show'])->name('purchase-returns.show');
+
         Route::resource('purchases', PurchaseController::class);
 
         /*
@@ -194,6 +201,18 @@ Route::middleware(['auth', 'verified'])
             '/stock-history',
             [StockHistoryController::class, 'index']
         )->name('stock-history.index');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Business Settings
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/settings', [BusinessSettingController::class, 'edit'])
+            ->name('settings.edit');
+
+        Route::patch('/settings', [BusinessSettingController::class, 'update'])
+            ->name('settings.update');
     });
 
 /*

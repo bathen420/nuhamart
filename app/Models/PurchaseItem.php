@@ -22,6 +22,11 @@ class PurchaseItem extends Model
         return $this->belongsTo(Purchase::class);
     }
 
+    public function returnItems()
+    {
+        return $this->hasMany(PurchaseReturnItem::class);
+    }
+
     /**
      * Product
      */
