@@ -6,6 +6,7 @@ use App\Repositories\DashboardRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Cache;
 use App\Models\ActivityLog;
 
 class DashboardService
@@ -16,6 +17,18 @@ class DashboardService
     }
 
     public function data(): array
+    {
+        return Cache::remember('dashboard.analytics.v3.3.2', now()->addSeconds(60), function (): array {
+            return $this->buildData();
+        });
+    }
+
+    public function clearCache(): void
+    {
+        Cache::forget('dashboard.analytics.v3.3.2');
+    }
+
+    private function buildData(): array
     {
         $lowStockLimit = 5;
         $todayStart = now()->startOfDay();

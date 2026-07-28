@@ -38,6 +38,23 @@ class HandleInertiaRequests extends Middleware
                 'roles' => $request->user() ? $request->user()->getRoleNames()->values() : [],
             ],
 
+            'notificationsSummary' => function () use ($request) {
+                $user = $request->user();
+
+                if (!$user || !\Illuminate\Support\Facades\Schema::hasTable('notifications')) {
+                    return ['unread_count' => 0, 'items' => []];
+                }
+
+                $query = \App\Models\Notification::query()
+                    ->where('user_id', $user->getKey())
+                    ->where('is_read', false);
+
+                return [
+                    'unread_count' => (clone $query)->count(),
+                    'items' => $query->latest('id')->limit(8)->get(),
+                ];
+            },
+
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),

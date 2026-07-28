@@ -23,9 +23,37 @@ class ProductController extends Controller
      */
     public function index(Request $request): Response
     {
-        $search = trim((string) $request->input('search', ''));
+        $validated = $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+            'status' => ['nullable', 'in:0,1'],
+            'category' => ['nullable', 'integer', 'exists:categories,id'],
+            'brand' => ['nullable', 'integer', 'exists:brands,id'],
+            'sort' => ['nullable', 'in:id,name,price,stock_quantity,created_at'],
+            'direction' => ['nullable', 'in:asc,desc'],
+            'per_page' => ['nullable', 'integer', 'in:10,25,50,100'],
+        ]);
+
+        $search = trim((string) ($validated['search'] ?? ''));
+        $status = $validated['status'] ?? null;
+        $categoryId = $validated['category'] ?? null;
+        $brandId = $validated['brand'] ?? null;
+        $sort = $validated['sort'] ?? 'created_at';
+        $direction = $validated['direction'] ?? 'desc';
+        $perPage = (int) ($validated['per_page'] ?? 10);
 
         $products = Product::query()
+            ->select([
+                'id',
+                'category_id',
+                'brand_id',
+                'name',
+                'sku',
+                'price',
+                'stock_quantity',
+                'image',
+                'status',
+                'created_at',
+            ])
             ->with([
                 'category:id,name',
                 'brand:id,name',
@@ -35,41 +63,44 @@ class ProductController extends Controller
                     $subQuery
                         ->where('name', 'like', "%{$search}%")
                         ->orWhere('sku', 'like', "%{$search}%")
-                        ->orWhereHas(
-                            'category',
-                            function ($categoryQuery) use ($search) {
-                                $categoryQuery->where(
-                                    'name',
-                                    'like',
-                                    "%{$search}%"
-                                );
-                            }
-                        )
-                        ->orWhereHas(
-                            'brand',
-                            function ($brandQuery) use ($search) {
-                                $brandQuery->where(
-                                    'name',
-                                    'like',
-                                    "%{$search}%"
-                                );
-                            }
-                        );
+                        ->orWhereHas('category', function ($categoryQuery) use ($search) {
+                            $categoryQuery->where('name', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('brand', function ($brandQuery) use ($search) {
+                            $brandQuery->where('name', 'like', "%{$search}%");
+                        });
                 });
             })
-            ->latest()
-            ->paginate(10)
+            ->when($status !== null, fn ($query) => $query->where('status', (bool) $status))
+            ->when($categoryId, fn ($query) => $query->where('category_id', $categoryId))
+            ->when($brandId, fn ($query) => $query->where('brand_id', $brandId))
+            ->orderBy($sort, $direction)
+            ->paginate($perPage)
             ->withQueryString();
 
         return Inertia::render('Admin/Products/Index', [
             'auth' => [
                 'user' => auth()->user(),
             ],
-
             'products' => $products,
-
             'filters' => [
                 'search' => $search,
+                'status' => $status,
+                'category' => $categoryId,
+                'brand' => $brandId,
+                'sort' => $sort,
+                'direction' => $direction,
+                'per_page' => $perPage,
+            ],
+            'filterOptions' => [
+                'categories' => Category::query()
+                    ->where('status', true)
+                    ->orderBy('name')
+                    ->get(['id', 'name']),
+                'brands' => Brand::query()
+                    ->where('status', true)
+                    ->orderBy('name')
+                    ->get(['id', 'name']),
             ],
         ]);
     }

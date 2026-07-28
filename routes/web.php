@@ -27,6 +27,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\NotificationController;
 
 
 /*
@@ -224,6 +225,26 @@ Route::middleware(['auth', 'verified', 'active', 'activity'])
 
         Route::get('/activity-logs', [ActivityLogController::class, 'index'])->middleware('permission:activity-logs.view')->name('activity-logs.index');
         Route::get('/activity-logs/export', [ActivityLogController::class, 'export'])->middleware('permission:activity-logs.export')->name('activity-logs.export');
+
+
+        Route::get('/notifications', [NotificationController::class, 'index'])
+            ->middleware('permission:notifications.view')
+            ->name('notifications.index');
+        Route::patch('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])
+            ->middleware('permission:notifications.view')
+            ->name('notifications.read-all');
+        Route::delete('/notifications/read', [NotificationController::class, 'destroyRead'])
+            ->middleware('permission:notifications.delete')
+            ->name('notifications.destroy-read');
+        Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])
+            ->middleware('permission:notifications.view')
+            ->name('notifications.read');
+        Route::patch('/notifications/{notification}/unread', [NotificationController::class, 'markAsUnread'])
+            ->middleware('permission:notifications.view')
+            ->name('notifications.unread');
+        Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])
+            ->middleware('permission:notifications.delete')
+            ->name('notifications.destroy');
     });
 
 /*

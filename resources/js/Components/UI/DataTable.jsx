@@ -5,7 +5,7 @@ import {
 } from "lucide-react";
 
 import EmptyState from "@/Components/UI/EmptyState";
-import LoadingSpinner from "@/Components/UI/LoadingSpinner";
+import TableSkeleton from "@/Components/UI/TableSkeleton";
 
 export default function DataTable({
     columns = [],
@@ -110,16 +110,7 @@ export default function DataTable({
     };
 
     if (loading) {
-        return (
-            <div
-                className={`flex min-h-72 items-center justify-center rounded-2xl border border-slate-200 bg-white shadow-sm ${className}`}
-            >
-                <LoadingSpinner
-                    size="lg"
-                    text="Loading data..."
-                />
-            </div>
-        );
+        return <TableSkeleton columns={Math.max(columns.length, 1)} />;
     }
 
     if (!data.length) {

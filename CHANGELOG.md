@@ -1,19 +1,17 @@
-# NuhaMart v3.2.1 Changelog
+# Changelog
 
-## Settings Integration
-- Dynamic company logo, name and tagline in sidebar and login page
-- Dynamic business identity on dashboard
-- Dynamic company address, phone, email and website on invoices
-- Dynamic currency symbol on dashboard and core invoices
-- Dynamic invoice footer
-- Dynamic business information in Sales, Purchase, Sales Return and Purchase Return print views
-- Dynamic company name in browser title
-- Expanded globally shared business settings
+## v3.3.2 — Enterprise Foundation
 
-## Compatibility
-- Laravel 12
-- React + Inertia
-- SQLite and MySQL
+- Added a complete per-user Notification Centre.
+- Added notification bell, unread counter and dropdown to the admin navbar.
+- Added notification search, filters, pagination, mark-read, mark-unread and delete actions.
+- Added repository and service layers for notifications.
+- Added permission checks for viewing and deleting notifications.
+- Added activity logging for the mark-all-read action.
+- Added demo notification seeder and feature tests.
 
-## v3.3.1 Print Patch
-- Fixed blank print preview on Administration > Activity Logs.
+## v3.3.2 Performance Foundation
+
+- Added a 60-second cache for dashboard analytics.
+- Added `dashboard:clear-cache` Artisan command.
+- Reduced repeated dashboard database work.

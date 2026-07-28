@@ -9,6 +9,8 @@ use Illuminate\Auth\Events\Logout;
 use Illuminate\Support\Facades\Event;
 use App\Services\ActivityLogService;
 use Illuminate\Support\ServiceProvider;
+use App\Repositories\Notification\NotificationRepository;
+use App\Repositories\Notification\NotificationRepositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -17,7 +19,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(NotificationRepositoryInterface::class, NotificationRepository::class);
     }
 
     /**
