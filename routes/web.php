@@ -37,6 +37,10 @@ use App\Http\Controllers\Admin\StockTransferController;
 use App\Http\Controllers\Admin\StockLedgerController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\InvoiceController;
+use App\Http\Controllers\Admin\AccountController;
+use App\Http\Controllers\Admin\JournalEntryController;
+use App\Http\Controllers\Admin\GeneralLedgerController;
+use App\Http\Controllers\Admin\FinancialStatementController;
 
 
 /*
@@ -121,6 +125,35 @@ Route::middleware(['auth', 'verified', 'active', 'activity'])
         Route::patch('stock-transfers/{stockTransfer}/dispatch', [StockTransferController::class, 'dispatch'])->name('stock-transfers.dispatch');
         Route::patch('stock-transfers/{stockTransfer}/receive', [StockTransferController::class, 'receive'])->name('stock-transfers.receive');
         Route::get('stock-ledger', [StockLedgerController::class, 'index'])->name('stock-ledger.index');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Accounts Core
+        |--------------------------------------------------------------------------
+        */
+
+        Route::resource('accounts', AccountController::class)->except(['show']);
+        Route::resource('journals', JournalEntryController::class)->only(['index', 'create', 'store', 'show']);
+        Route::get('general-ledger', [GeneralLedgerController::class, 'index'])->name('ledger.index');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Financial Statements
+        |--------------------------------------------------------------------------
+        */
+        Route::get('financial-statements', [FinancialStatementController::class, 'dashboard'])
+            ->middleware('permission:financial-statements.view')->name('financial-statements.dashboard');
+        Route::get('financial-statements/trial-balance', [FinancialStatementController::class, 'trialBalance'])
+            ->middleware('permission:financial-statements.view')->name('financial-statements.trial-balance');
+        Route::get('financial-statements/profit-loss', [FinancialStatementController::class, 'profitLoss'])
+            ->middleware('permission:financial-statements.view')->name('financial-statements.profit-loss');
+        Route::get('financial-statements/balance-sheet', [FinancialStatementController::class, 'balanceSheet'])
+            ->middleware('permission:financial-statements.view')->name('financial-statements.balance-sheet');
+        Route::get('financial-statements/cash-flow', [FinancialStatementController::class, 'cashFlow'])
+            ->middleware('permission:financial-statements.view')->name('financial-statements.cash-flow');
+        Route::get('financial-statements/export/{statement}', [FinancialStatementController::class, 'export'])
+            ->middleware('permission:financial-statements.export')->name('financial-statements.export');
 
 
         /*

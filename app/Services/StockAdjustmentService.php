@@ -7,7 +7,7 @@ use App\Repositories\StockAdjustment\StockAdjustmentRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 class StockAdjustmentService {
-    public function __construct(private StockAdjustmentRepositoryInterface $repository, private StockLedgerService $ledger){}
+    public function __construct(private StockAdjustmentRepositoryInterface $repository, private StockLedgerService $ledger, private AccountingService $accounting){}
     public function paginate(array $filters=[]){ return $this->repository->paginate($filters); }
     public function show(StockAdjustment $adjustment){ return $this->repository->findWithRelations($adjustment); }
     public function create(array $data,?int $userId): StockAdjustment {
@@ -31,6 +31,8 @@ class StockAdjustmentService {
                 $this->ledger->record($product->id,$adjustment->warehouse_id,'ADJUSTMENT',$adjustment->reference,$delta>0?$qty:0,$delta<0?$qty:0,$stock->quantity,(float)$item->unit_cost,$item->reason,$userId);
             }
             $adjustment->update(['status'=>'approved','approved_by'=>$userId,'approved_at'=>now()]);
+            $adjustment->load('items');
+            $this->accounting->postStockAdjustment($adjustment, (int) $userId);
             return $this->repository->findWithRelations($adjustment);
         });
     }

@@ -14,7 +14,8 @@ use Illuminate\Validation\ValidationException;
 class SaleReturnService
 {
     public function __construct(
-        protected SaleReturnRepository $repository
+        protected SaleReturnRepository $repository,
+        protected AccountingService $accounting
     ) {
     }
 
@@ -130,6 +131,8 @@ class SaleReturnService
                 'payment_status' => $newDue <= 0 ? 'Paid' : ($newPaid > 0 ? 'Partial' : 'Due'),
                 'sale_status' => $allReturned ? 'Returned' : 'Partially Returned',
             ]);
+
+            $this->accounting->postSaleReturn($saleReturn, $userId);
 
             return $saleReturn->load([
                 'sale',

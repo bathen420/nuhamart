@@ -7,7 +7,7 @@ use App\Models\StockHistory;
 use App\Repositories\OpeningStock\OpeningStockRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 class OpeningStockService {
-    public function __construct(private OpeningStockRepositoryInterface $repository, private StockLedgerService $ledger) {}
+    public function __construct(private OpeningStockRepositoryInterface $repository, private StockLedgerService $ledger, private AccountingService $accounting) {}
     public function paginate(array $filters=[]){ return $this->repository->paginate($filters); }
     public function show(OpeningStock $openingStock){ return $this->repository->findWithRelations($openingStock); }
     public function create(array $data, ?int $userId): OpeningStock {
@@ -29,6 +29,7 @@ class OpeningStockService {
                 StockHistory::create(['product_id'=>$product->id,'user_id'=>$userId,'type'=>'OPENING','quantity'=>$qty,'stock_before'=>$before,'stock_after'=>$before+$qty,'reference'=>$opening->reference,'note'=>'Opening stock - warehouse #'.$data['warehouse_id']]);
                 $this->ledger->record($product->id,(int)$data['warehouse_id'],'OPENING',$opening->reference,$qty,0,$newQty,$cost,'Opening stock',$userId);
             }
+            $this->accounting->postOpeningStock($opening, (int) $userId);
             return $this->repository->findWithRelations($opening);
         });
     }

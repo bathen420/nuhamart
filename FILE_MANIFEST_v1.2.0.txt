@@ -1,0 +1,14 @@
+CHANGELOG_v1.2.0.md
+INSTALL_v1.2.0_FINANCIAL_STATEMENTS.md
+app/Http/Controllers/Admin/FinancialStatementController.php
+app/Services/FinancialStatementService.php
+database/seeders/RolesAndPermissionsSeeder.php
+resources/js/Components/AdminSidebar.jsx
+resources/js/Pages/Admin/FinancialStatements/BalanceSheet.jsx
+resources/js/Pages/Admin/FinancialStatements/CashFlow.jsx
+resources/js/Pages/Admin/FinancialStatements/Dashboard.jsx
+resources/js/Pages/Admin/FinancialStatements/ProfitLoss.jsx
+resources/js/Pages/Admin/FinancialStatements/TrialBalance.jsx
+resources/js/Pages/Admin/FinancialStatements/_Shared.jsx
+routes/web.php
+tests/Feature/FinancialStatementsTest.php

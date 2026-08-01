@@ -13,7 +13,8 @@ use Illuminate\Validation\ValidationException;
 class SaleService
 {
     public function __construct(
-        protected SaleRepository $saleRepository
+        protected SaleRepository $saleRepository,
+        protected AccountingService $accounting
     ) {
     }
 
@@ -107,6 +108,8 @@ class SaleService
                     'note' => 'Product sold through POS.',
                 ]);
             }
+
+            $this->accounting->postSale($sale, (int) Auth::id());
 
             return $sale->load(['customer', 'user', 'items.product']);
         });

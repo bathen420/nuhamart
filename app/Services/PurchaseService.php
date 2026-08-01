@@ -12,7 +12,8 @@ use Illuminate\Validation\ValidationException;
 class PurchaseService
 {
     public function __construct(
-        protected PurchaseRepository $repository
+        protected PurchaseRepository $repository,
+        protected AccountingService $accounting
     ) {
     }
 
@@ -84,8 +85,10 @@ class PurchaseService
                 ]);
             }
 
+            $initialPayment = null;
+
             if ($paid > 0) {
-                $purchase->payments()->create([
+                $initialPayment = $purchase->payments()->create([
                     'user_id' => $userId,
                     'amount' => $paid,
                     'payment_method' => $data['payment_method'],
@@ -94,6 +97,8 @@ class PurchaseService
                     'note' => 'Initial purchase payment',
                 ]);
             }
+
+            $this->accounting->postPurchase($purchase, $userId);
 
             return $purchase->load(['supplier', 'user', 'items.product', 'payments.user']);
         });
@@ -115,7 +120,7 @@ class PurchaseService
                 ]);
             }
 
-            $purchase->payments()->create([
+            $payment = $purchase->payments()->create([
                 'user_id' => $userId,
                 'amount' => $amount,
                 'payment_method' => $data['payment_method'],
@@ -132,6 +137,8 @@ class PurchaseService
                 'due_amount' => $remainingDue,
                 'payment_status' => $this->paymentStatus($paid, (float) $purchase->total),
             ]);
+
+            $this->accounting->postPurchasePayment($purchase, $payment, $userId);
 
             return $purchase->refresh()->load(['payments.user']);
         });
