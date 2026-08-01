@@ -17,6 +17,7 @@ class SaleReturnItem extends Model
     ];
 
     protected $casts = [
+        'quantity' => 'integer',
         'price' => 'decimal:2',
         'subtotal' => 'decimal:2',
     ];
