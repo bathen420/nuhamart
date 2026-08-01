@@ -99,7 +99,7 @@ export default function A4({ sale = {}, invoiceSettings = {}, generatedAt }) {
                     </button>
                 </div>
 
-                <article className="invoice-sheet mx-auto max-w-5xl rounded-2xl border border-slate-200 bg-white p-8 shadow-sm sm:p-10">
+                <article id="print-invoice" className="print-document invoice-sheet mx-auto max-w-5xl rounded-2xl border border-slate-200 bg-white p-8 shadow-sm sm:p-10">
                     <header className="flex items-start justify-between gap-8 border-b-2 border-blue-600 pb-7">
                         <div className="flex items-start gap-4">
                             {invoiceSettings.logo && <img src={invoiceSettings.logo} alt={companyName} className="h-16 w-16 rounded-xl object-contain" />}

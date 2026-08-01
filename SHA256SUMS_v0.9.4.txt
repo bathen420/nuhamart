@@ -1,0 +1,3 @@
+da5ca828021970e70c52387be380cf4d50355a1660f22b5c97fcc8865c27d5bc  resources/css/app.css
+66b1c4f0f08a90062735e36cae47acf807b5ef8cbeb2566cb8b6c5bec67c9000  resources/js/Pages/Admin/Invoices/A4.jsx
+78ad133e00a574e1424a069e0919d62c2319ba5405a18d5b933a358894171e83  resources/js/Pages/Admin/Invoices/Thermal.jsx

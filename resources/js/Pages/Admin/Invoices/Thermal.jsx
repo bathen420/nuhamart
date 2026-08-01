@@ -48,7 +48,7 @@ export default function Thermal({ sale = {}, invoiceSettings = {}, paperSize = 8
                     <button onClick={printReceipt} disabled={printing} className="rounded bg-emerald-600 px-4 py-2 font-sans text-white">{printing ? "Preparing…" : "Print Receipt"}</button>
                 </div>
 
-                <article className="receipt mx-auto bg-white p-2 text-[11px] leading-4 shadow" style={{ width }}>
+                <article id="print-invoice" className="print-document receipt mx-auto bg-white p-2 text-[11px] leading-4 shadow" style={{ width }}>
                     <header className="text-center">
                         {invoiceSettings.logo && <img src={invoiceSettings.logo} alt="Logo" className="mx-auto mb-1 h-10 max-w-[36mm] object-contain" />}
                         <h1 className="text-base font-black">{invoiceSettings.company_name || "NuhaMart"}</h1>

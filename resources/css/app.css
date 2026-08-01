@@ -105,11 +105,14 @@ img {
     }
 
     #print-invoice,
-    #print-invoice * {
+    #print-invoice *,
+    .print-document,
+    .print-document * {
         visibility: visible !important;
     }
 
-    #print-invoice {
+    #print-invoice,
+    .print-document {
         position: absolute !important;
         top: 0 !important;
         left: 0 !important;
@@ -263,7 +266,10 @@ img {
 
     #print-invoice header,
     #print-invoice section,
-    #print-invoice footer {
+    #print-invoice footer,
+    .print-document header,
+    .print-document section,
+    .print-document footer {
         break-inside: avoid !important;
         page-break-inside: avoid !important;
     }
