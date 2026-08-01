@@ -1,362 +1,382 @@
 import { usePage } from "@inertiajs/react";
-
 import {
-    LayoutDashboard,
+    Bell,
+    Boxes,
     FolderTree,
-    Tags,
-    Package,
-    ShoppingBag,
-    Truck,
-    ShoppingCart,
     History,
-    Users,
+    KeyRound,
+    LayoutDashboard,
     MonitorSmartphone,
+    Package,
     RotateCcw,
+    ScrollText,
     Settings,
     ShieldCheck,
+    ShoppingBag,
+    ShoppingCart,
+    Tags,
+    Truck,
     UserCog,
-    KeyRound,
-    ScrollText,
-    Bell,
+    Users,
     Warehouse,
-    Boxes,
 } from "lucide-react";
 
 import AdminMenuItem from "./AdminMenuItem";
 
+function normalizeNames(value) {
+    if (!Array.isArray(value)) {
+        return [];
+    }
+
+    return value
+        .map((item) => {
+            if (typeof item === "string") {
+                return item;
+            }
+
+            if (item && typeof item === "object") {
+                return item.name ?? item.slug ?? null;
+            }
+
+            return null;
+        })
+        .filter(Boolean);
+}
+
 export default function AdminSidebar() {
     const page = usePage();
-    const businessSettings = page.props.businessSettings || {};
-    const permissions = page.props.auth?.permissions || [];
-    const roles = page.props.auth?.roles || [];
+    const props = page.props ?? {};
 
-    const can = (permission) =>
-        roles.includes("Super Admin") || permissions.includes(permission);
+    const businessSettings = props.businessSettings ?? {};
+    const auth = props.auth ?? {};
+
+    const roleNames = normalizeNames(
+        auth.roles ??
+            auth.user?.roles ??
+            []
+    );
+
+    const permissionNames = normalizeNames(
+        auth.permissions ??
+            auth.user?.permissions ??
+            auth.user?.all_permissions ??
+            []
+    );
+
+    const isSuperAdmin = roleNames.some(
+        (role) =>
+            role.toLowerCase() === "super admin" ||
+            role.toLowerCase() === "super-admin"
+    );
+
+    const can = (permission) => {
+        /*
+         * যদি backend কোনো permission data না পাঠায়,
+         * sidebar সম্পূর্ণ লুকিয়ে না রেখে menu দেখানো হবে।
+         */
+        if (roleNames.length === 0 && permissionNames.length === 0) {
+            return true;
+        }
+
+        return (
+            isSuperAdmin ||
+            permissionNames.includes(permission)
+        );
+    };
+
+    const menuItems = [
+        {
+            label: "Dashboard",
+            routeName: "admin.dashboard",
+            urlPrefix: "/admin/dashboard",
+            permission: "dashboard.view",
+            icon: LayoutDashboard,
+        },
+        {
+            label: "Categories",
+            routeName: "admin.categories.index",
+            urlPrefix: "/admin/categories",
+            permission: "categories.view",
+            icon: FolderTree,
+        },
+        {
+            label: "Brands",
+            routeName: "admin.brands.index",
+            urlPrefix: "/admin/brands",
+            permission: "brands.view",
+            icon: Tags,
+        },
+        {
+            label: "Warehouses",
+            routeName: "admin.warehouses.index",
+            urlPrefix: "/admin/warehouses",
+            permission: "warehouses.view",
+            icon: Warehouse,
+        },
+        {
+            label: "Customer Groups",
+            routeName: "admin.customer-groups.index",
+            urlPrefix: "/admin/customer-groups",
+            permission: "customer-groups.view",
+            icon: Users,
+        },
+        {
+            label: "Supplier Groups",
+            routeName: "admin.supplier-groups.index",
+            urlPrefix: "/admin/supplier-groups",
+            permission: "supplier-groups.view",
+            icon: Truck,
+        },
+        {
+            label: "Products",
+            routeName: "admin.products.index",
+            urlPrefix: "/admin/products",
+            permission: "products.view",
+            icon: Package,
+        },
+        {
+            label: "Units",
+            routeName: "admin.units.index",
+            urlPrefix: "/admin/units",
+            permission: "units.view",
+            icon: Boxes,
+        },
+        {
+            label: "Product Variants",
+            routeName: "admin.product-variants.index",
+            urlPrefix: "/admin/product-variants",
+            permission: "product-variants.view",
+            icon: Boxes,
+        },
+        {
+            label: "Customers",
+            routeName: "admin.customers.index",
+            urlPrefix: "/admin/customers",
+            permission: "customers.view",
+            icon: Users,
+        },
+        {
+            label: "Suppliers",
+            routeName: "admin.suppliers.index",
+            urlPrefix: "/admin/suppliers",
+            permission: "suppliers.view",
+            icon: Truck,
+        },
+        {
+            label: "Purchases",
+            routeName: "admin.purchases.index",
+            urlPrefix: "/admin/purchases",
+            permission: "purchases.view",
+            icon: ShoppingCart,
+        },
+        {
+            label: "Purchase Returns",
+            routeName: "admin.purchase-returns.index",
+            urlPrefix: "/admin/purchase-returns",
+            permission: "purchase-returns.view",
+            icon: RotateCcw,
+        },
+        {
+            label: "POS",
+            routeName: "admin.pos.create",
+            urlPrefix: "/admin/pos",
+            permission: "pos.view",
+            icon: MonitorSmartphone,
+        },
+        {
+            label: "Orders",
+            routeName: "admin.orders.index",
+            urlPrefix: "/admin/orders",
+            permission: "orders.view",
+            icon: ShoppingBag,
+        },
+        {
+            label: "Sales",
+            routeName: "admin.sales.index",
+            urlPrefix: "/admin/sales",
+            permission: "sales.view",
+            icon: ShoppingCart,
+        },
+        {
+            label: "Sales Returns",
+            routeName: "admin.sale-returns.index",
+            urlPrefix: "/admin/sale-returns",
+            permission: "sale-returns.view",
+            icon: RotateCcw,
+        },
+        {
+            label: "Opening Stock",
+            routeName: "admin.opening-stocks.index",
+            urlPrefix: "/admin/opening-stocks",
+            permission: "opening-stocks.view",
+            icon: Boxes,
+        },
+        {
+            label: "Stock Adjustments",
+            routeName: "admin.stock-adjustments.index",
+            urlPrefix: "/admin/stock-adjustments",
+            permission: "stock-adjustments.view",
+            icon: Boxes,
+        },
+        {
+            label: "Stock Transfers",
+            routeName: "admin.stock-transfers.index",
+            urlPrefix: "/admin/stock-transfers",
+            permission: "stock-transfers.view",
+            icon: Truck,
+        },
+        {
+            label: "Stock Ledger",
+            routeName: "admin.stock-ledger.index",
+            urlPrefix: "/admin/stock-ledger",
+            permission: "stock-ledger.view",
+            icon: History,
+        },
+        {
+            label: "Stock History",
+            routeName: "admin.stock-history.index",
+            urlPrefix: "/admin/stock-history",
+            permission: "stock-history.view",
+            icon: History,
+        },
+        {
+            label: "Settings",
+            routeName: "admin.settings.edit",
+            urlPrefix: "/admin/settings",
+            permission: "settings.view",
+            icon: Settings,
+        },
+    ];
+
+    const administrationItems = [
+        {
+            label: "Users",
+            routeName: "admin.users.index",
+            urlPrefix: "/admin/users",
+            permission: "users.view",
+            icon: UserCog,
+        },
+        {
+            label: "Roles",
+            routeName: "admin.roles.index",
+            urlPrefix: "/admin/roles",
+            permission: "roles.view",
+            icon: ShieldCheck,
+        },
+        {
+            label: "Permissions",
+            routeName: "admin.permissions.index",
+            urlPrefix: "/admin/permissions",
+            permission: "permissions.view",
+            icon: KeyRound,
+        },
+        {
+            label: "Activity Logs",
+            routeName: "admin.activity-logs.index",
+            urlPrefix: "/admin/activity-logs",
+            permission: "activity-logs.view",
+            icon: ScrollText,
+        },
+        {
+            label: "Notifications",
+            routeName: "admin.notifications.index",
+            urlPrefix: "/admin/notifications",
+            permission: "notifications.view",
+            icon: Bell,
+        },
+    ];
+
+    const visibleAdministrationItems =
+        administrationItems.filter((item) =>
+            can(item.permission)
+        );
 
     return (
-        <aside className="min-h-screen w-64 border-r bg-white">
-            {/* Logo */}
-            <div className="border-b p-5">
+        <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col border-r border-gray-200 bg-white">
+            <div className="shrink-0 border-b border-gray-200 px-5 py-5">
                 <div className="flex items-center gap-3">
                     {businessSettings.logo ? (
                         <img
                             src={businessSettings.logo}
-                            alt={businessSettings.company_name || "Company logo"}
-                            className="h-12 w-12 rounded-xl border bg-white object-contain p-1"
+                            alt={
+                                businessSettings.company_name ??
+                                "Company logo"
+                            }
+                            className="h-11 w-11 rounded-xl border border-gray-200 bg-white object-contain p-1"
                         />
                     ) : (
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-xl font-black text-white">
-                            {(businessSettings.company_name || "N")
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-lg font-bold text-white">
+                            {(
+                                businessSettings.company_name ??
+                                "N"
+                            )
                                 .charAt(0)
                                 .toUpperCase()}
                         </div>
                     )}
 
                     <div className="min-w-0">
-                        <h1 className="truncate text-xl font-bold text-blue-700">
-                            {businessSettings.company_name || "NuhaMart"}
+                        <h1 className="truncate text-lg font-bold text-blue-700">
+                            {businessSettings.company_name ??
+                                "NuhaMart"}
                         </h1>
+
                         <p className="truncate text-xs text-gray-500">
-                            {businessSettings.company_tagline ||
+                            {businessSettings.company_tagline ??
                                 "Inventory & POS System"}
                         </p>
                     </div>
                 </div>
             </div>
 
-            {/* Menu */}
-            <nav className="space-y-2 p-4">
-                {can("dashboard.view") && (
-                    <AdminMenuItem
-                        href={route("admin.dashboard")}
-                        active={page.url.startsWith("/admin/dashboard")}
-                        icon={LayoutDashboard}
-                    >
-                        Dashboard
-                    </AdminMenuItem>
-                )}
+            <nav className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+                <div className="space-y-1">
+                    {menuItems
+                        .filter((item) =>
+                            can(item.permission)
+                        )
+                        .map((item) => (
+                            <AdminMenuItem
+                                key={item.routeName}
+                                href={route(item.routeName)}
+                                active={page.url.startsWith(
+                                    item.urlPrefix
+                                )}
+                                icon={item.icon}
+                            >
+                                {item.label}
+                            </AdminMenuItem>
+                        ))}
+                </div>
 
-                {can("categories.view") && (
-                    <AdminMenuItem
-                        href={route("admin.categories.index")}
-                        active={page.url.startsWith("/admin/categories")}
-                        icon={FolderTree}
-                    >
-                        Categories
-                    </AdminMenuItem>
-                )}
-
-                {can("brands.view") && (
-                    <AdminMenuItem
-                        href={route("admin.brands.index")}
-                        active={page.url.startsWith("/admin/brands")}
-                        icon={Tags}
-                    >
-                        Brands
-                    </AdminMenuItem>
-                )}
-
-                {can("warehouses.view") && (
-                    <AdminMenuItem
-                        href={route("admin.warehouses.index")}
-                        active={page.url.startsWith("/admin/warehouses")}
-                        icon={Warehouse}
-                    >
-                        Warehouses
-                    </AdminMenuItem>
-                )}
-
-                {can("customer-groups.view") && (
-                    <AdminMenuItem
-                        href={route("admin.customer-groups.index")}
-                        active={page.url.startsWith("/admin/customer-groups")}
-                        icon={Users}
-                    >
-                        Customer Groups
-                    </AdminMenuItem>
-                )}
-
-                {can("supplier-groups.view") && (
-                    <AdminMenuItem
-                        href={route("admin.supplier-groups.index")}
-                        active={page.url.startsWith("/admin/supplier-groups")}
-                        icon={Truck}
-                    >
-                        Supplier Groups
-                    </AdminMenuItem>
-                )}
-
-                {can("products.view") && (
-                    <AdminMenuItem
-                        href={route("admin.products.index")}
-                        active={page.url.startsWith("/admin/products")}
-                        icon={Package}
-                    >
-                        Products
-                    </AdminMenuItem>
-                )}
-
-                {can("units.view") && (
-                    <AdminMenuItem
-                        href={route("admin.units.index")}
-                        active={page.url.startsWith("/admin/units")}
-                        icon={Boxes}
-                    >
-                        Units
-                    </AdminMenuItem>
-                )}
-
-                {can("product-variants.view") && (
-                    <AdminMenuItem
-                        href={route("admin.product-variants.index")}
-                        active={page.url.startsWith("/admin/product-variants")}
-                        icon={Boxes}
-                    >
-                        Product Variants
-                    </AdminMenuItem>
-                )}
-
-                {can("customers.view") && (
-                    <AdminMenuItem
-                        href={route("admin.customers.index")}
-                        active={page.url.startsWith("/admin/customers")}
-                        icon={Users}
-                    >
-                        Customers
-                    </AdminMenuItem>
-                )}
-
-                {can("suppliers.view") && (
-                    <AdminMenuItem
-                        href={route("admin.suppliers.index")}
-                        active={page.url.startsWith("/admin/suppliers")}
-                        icon={Truck}
-                    >
-                        Suppliers
-                    </AdminMenuItem>
-                )}
-
-                {can("purchases.view") && (
-                    <AdminMenuItem
-                        href={route("admin.purchases.index")}
-                        active={page.url.startsWith("/admin/purchases")}
-                        icon={ShoppingCart}
-                    >
-                        Purchases
-                    </AdminMenuItem>
-                )}
-
-                {can("purchase-returns.view") && (
-                    <AdminMenuItem
-                        href={route("admin.purchase-returns.index")}
-                        active={page.url.startsWith("/admin/purchase-returns")}
-                        icon={RotateCcw}
-                    >
-                        Purchase Returns
-                    </AdminMenuItem>
-                )}
-
-                {can("pos.view") && (
-                    <AdminMenuItem
-                        href={route("admin.pos.create")}
-                        active={page.url.startsWith("/admin/pos")}
-                        icon={MonitorSmartphone}
-                    >
-                        POS
-                    </AdminMenuItem>
-                )}
-
-                {can("orders.view") && (
-                    <AdminMenuItem
-                        href={route("admin.orders.index")}
-                        active={page.url.startsWith("/admin/orders")}
-                        icon={ShoppingBag}
-                    >
-                        Orders
-                    </AdminMenuItem>
-                )}
-
-                {can("sales.view") && (
-                    <AdminMenuItem
-                        href={route("admin.sales.index")}
-                        active={page.url.startsWith("/admin/sales")}
-                        icon={ShoppingCart}
-                    >
-                        Sales
-                    </AdminMenuItem>
-                )}
-
-                {can("sale-returns.view") && (
-                    <AdminMenuItem
-                        href={route("admin.sale-returns.index")}
-                        active={page.url.startsWith("/admin/sale-returns")}
-                        icon={RotateCcw}
-                    >
-                        Sales Returns
-                    </AdminMenuItem>
-                )}
-
-                {can("opening-stocks.view") && (
-                    <AdminMenuItem
-                        href={route("admin.opening-stocks.index")}
-                        active={page.url.startsWith("/admin/opening-stocks")}
-                        icon={Boxes}
-                    >
-                        Opening Stock
-                    </AdminMenuItem>
-                )}
-
-                {can("stock-adjustments.view") && (
-                    <AdminMenuItem
-                        href={route("admin.stock-adjustments.index")}
-                        active={page.url.startsWith("/admin/stock-adjustments")}
-                        icon={Boxes}
-                    >
-                        Stock Adjustments
-                    </AdminMenuItem>
-                )}
-
-                {can("stock-transfers.view") && (
-                    <AdminMenuItem
-                        href={route("admin.stock-transfers.index")}
-                        active={page.url.startsWith("/admin/stock-transfers")}
-                        icon={Truck}
-                    >
-                        Stock Transfers
-                    </AdminMenuItem>
-                )}
-
-                {can("stock-ledger.view") && (
-                    <AdminMenuItem
-                        href={route("admin.stock-ledger.index")}
-                        active={page.url.startsWith("/admin/stock-ledger")}
-                        icon={History}
-                    >
-                        Stock Ledger
-                    </AdminMenuItem>
-                )}
-
-                {can("stock-history.view") && (
-                    <AdminMenuItem
-                        href={route("admin.stock-history.index")}
-                        active={page.url.startsWith("/admin/stock-history")}
-                        icon={History}
-                    >
-                        Stock History
-                    </AdminMenuItem>
-                )}
-
-                {can("settings.view") && (
-                    <AdminMenuItem
-                        href={route("admin.settings.edit")}
-                        active={page.url.startsWith("/admin/settings")}
-                        icon={Settings}
-                    >
-                        Settings
-                    </AdminMenuItem>
-                )}
-
-                {(can("users.view") ||
-                    can("roles.view") ||
-                    can("permissions.view") ||
-                    can("activity-logs.view") ||
-                    can("notifications.view")) && (
-                    <div className="mt-5 border-t pt-4">
-                        <p className="mb-2 px-3 text-xs font-bold uppercase tracking-wider text-gray-400">
+                {visibleAdministrationItems.length > 0 && (
+                    <div className="mt-5 border-t border-gray-200 pt-4">
+                        <p className="mb-2 px-4 text-xs font-semibold uppercase tracking-wider text-gray-400">
                             Administration
                         </p>
 
-                        {can("users.view") && (
-                            <AdminMenuItem
-                                href={route("admin.users.index")}
-                                active={page.url.startsWith("/admin/users")}
-                                icon={UserCog}
-                            >
-                                Users
-                            </AdminMenuItem>
-                        )}
-
-                        {can("roles.view") && (
-                            <AdminMenuItem
-                                href={route("admin.roles.index")}
-                                active={page.url.startsWith("/admin/roles")}
-                                icon={ShieldCheck}
-                            >
-                                Roles
-                            </AdminMenuItem>
-                        )}
-
-                        {can("permissions.view") && (
-                            <AdminMenuItem
-                                href={route("admin.permissions.index")}
-                                active={page.url.startsWith("/admin/permissions")}
-                                icon={KeyRound}
-                            >
-                                Permissions
-                            </AdminMenuItem>
-                        )}
-
-                        {can("activity-logs.view") && (
-                            <AdminMenuItem
-                                href={route("admin.activity-logs.index")}
-                                active={page.url.startsWith("/admin/activity-logs")}
-                                icon={ScrollText}
-                            >
-                                Activity Logs
-                            </AdminMenuItem>
-                        )}
-
-                        {can("notifications.view") && (
-                            <AdminMenuItem
-                                href={route("admin.notifications.index")}
-                                active={page.url.startsWith("/admin/notifications")}
-                                icon={Bell}
-                            >
-                                Notifications
-                            </AdminMenuItem>
-                        )}
+                        <div className="space-y-1">
+                            {visibleAdministrationItems.map(
+                                (item) => (
+                                    <AdminMenuItem
+                                        key={item.routeName}
+                                        href={route(
+                                            item.routeName
+                                        )}
+                                        active={page.url.startsWith(
+                                            item.urlPrefix
+                                        )}
+                                        icon={item.icon}
+                                    >
+                                        {item.label}
+                                    </AdminMenuItem>
+                                )
+                            )}
+                        </div>
                     </div>
                 )}
+
+                <div className="h-6" />
             </nav>
         </aside>
     );
