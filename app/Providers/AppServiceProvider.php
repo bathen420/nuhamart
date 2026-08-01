@@ -17,6 +17,18 @@ use App\Repositories\CustomerGroup\CustomerGroupRepository;
 use App\Repositories\CustomerGroup\CustomerGroupRepositoryInterface;
 use App\Repositories\SupplierGroup\SupplierGroupRepository;
 use App\Repositories\SupplierGroup\SupplierGroupRepositoryInterface;
+use App\Repositories\OpeningStock\OpeningStockRepository;
+use App\Repositories\OpeningStock\OpeningStockRepositoryInterface;
+use App\Repositories\StockAdjustment\StockAdjustmentRepository;
+use App\Repositories\StockAdjustment\StockAdjustmentRepositoryInterface;
+use App\Repositories\StockTransfer\StockTransferRepository;
+use App\Repositories\StockTransfer\StockTransferRepositoryInterface;
+use App\Repositories\StockLedger\StockLedgerRepository;
+use App\Repositories\StockLedger\StockLedgerRepositoryInterface;
+use App\Repositories\Unit\UnitRepository;
+use App\Repositories\Unit\UnitRepositoryInterface;
+use App\Repositories\ProductVariant\ProductVariantRepository;
+use App\Repositories\ProductVariant\ProductVariantRepositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,6 +41,12 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(WarehouseRepositoryInterface::class, WarehouseRepository::class);
         $this->app->bind(CustomerGroupRepositoryInterface::class, CustomerGroupRepository::class);
         $this->app->bind(SupplierGroupRepositoryInterface::class, SupplierGroupRepository::class);
+        $this->app->bind(OpeningStockRepositoryInterface::class, OpeningStockRepository::class);
+        $this->app->bind(StockAdjustmentRepositoryInterface::class, StockAdjustmentRepository::class);
+        $this->app->bind(StockTransferRepositoryInterface::class, StockTransferRepository::class);
+        $this->app->bind(StockLedgerRepositoryInterface::class, StockLedgerRepository::class);
+        $this->app->bind(UnitRepositoryInterface::class, UnitRepository::class);
+        $this->app->bind(ProductVariantRepositoryInterface::class, ProductVariantRepository::class);
     }
 
     /**

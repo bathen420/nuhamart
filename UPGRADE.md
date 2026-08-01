@@ -1,18 +1,27 @@
-# Upgrade to NuhaMart v3.3.2
+# Upgrade Instructions
 
-1. Back up the database and the current project.
-2. Replace the project files with this release.
-3. Run:
+1. Back up the current project and database.
+2. Replace the project with the fixed full-project package, or copy the patch files while preserving paths.
+3. Open a terminal in the project root and run:
 
 ```bash
 composer install
-npm install
+composer dump-autoload
 php artisan optimize:clear
-php artisan migrate
-php artisan db:seed --class=RolesAndPermissionsSeeder
-php artisan db:seed --class=NotificationSeeder
+php artisan storage:link
+npm install
 npm run build
 ```
 
-4. Sign out and sign in again so refreshed permissions are loaded.
-5. Open `/admin/notifications` or use the bell in the top navigation bar.
+For development:
+
+```bash
+php artisan serve
+npm run dev
+```
+
+Then hard-refresh the browser with `Ctrl + F5`.
+
+## Important
+
+Do not copy an old `public/hot` file into the project. Vite creates it automatically while `npm run dev` is running.

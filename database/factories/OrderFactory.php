@@ -3,19 +3,18 @@
 namespace Database\Factories;
 
 use App\Models\Order;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Order>
+ * @extends Factory<Order>
  */
 class OrderFactory extends Factory
 {
     /**
-     * The name of the model that this factory creates.
+     * The model associated with this factory.
      *
-     * @var string
+     * @var class-string<Order>
      */
     protected $model = Order::class;
 
@@ -27,50 +26,83 @@ class OrderFactory extends Factory
     public function definition(): array
     {
         $subtotal = fake()->numberBetween(500, 5000);
+        $shippingCharge = fake()->randomElement([
+            0,
+            60,
+            100,
+            120,
+        ]);
         $discount = fake()->numberBetween(0, 500);
-        $shipping = fake()->randomElement([0, 60, 100, 120]);
-        $total = $subtotal - $discount + $shipping;
+
+        $total = max(
+            0,
+            $subtotal + $shippingCharge - $discount
+        );
 
         return [
-            'order_number' => 'ORD-' . strtoupper(Str::random(8)),
+            'order_no' => 'ORD-' . strtoupper(Str::random(8)),
 
-            'user_id' => User::factory(),
+            'customer_id' => null,
 
             'customer_name' => fake()->name(),
-            'customer_phone' => fake()->phoneNumber(),
-            'customer_email' => fake()->safeEmail(),
-            'customer_address' => fake()->address(),
 
-            'subtotal' => $subtotal,
-            'discount' => $discount,
-            'shipping' => $shipping,
-            'total' => $total,
+            'customer_phone' => '01' . fake()->numerify('#########'),
 
-            'payment_method' => fake()->randomElement([
-                'Cash On Delivery',
-                'Bkash',
-                'Nagad',
-                'Rocket',
+            'customer_email' => fake()->optional()->safeEmail(),
+
+            'division' => fake()->randomElement([
+                'Dhaka',
+                'Chattogram',
+                'Rajshahi',
+                'Khulna',
+                'Barishal',
+                'Sylhet',
+                'Rangpur',
+                'Mymensingh',
             ]),
 
-            'payment_status' => fake()->randomElement([
-                'Pending',
-                'Paid',
-                'Failed',
-            ]),
+            'district' => fake()->city(),
 
-            'order_status' => fake()->randomElement([
-                'Pending',
-                'Processing',
-                'Shipped',
-                'Delivered',
-                'Cancelled',
-            ]),
+            'area' => fake()->streetName(),
+
+            'address' => fake()->address(),
 
             'note' => fake()->optional()->sentence(),
 
-            'created_at' => now(),
-            'updated_at' => now(),
+            'subtotal' => $subtotal,
+
+            'shipping_charge' => $shippingCharge,
+
+            'discount' => $discount,
+
+            'total' => $total,
+
+            'payment_method' => fake()->randomElement([
+                'cod',
+                'sslcommerz',
+                'bkash',
+                'nagad',
+            ]),
+
+            'payment_status' => fake()->randomElement([
+                'pending',
+                'paid',
+                'failed',
+            ]),
+
+            'status' => fake()->randomElement([
+                'pending',
+                'confirmed',
+                'processing',
+                'shipped',
+                'delivered',
+                'cancelled',
+            ]),
+
+            'ordered_at' => fake()->dateTimeBetween(
+                '-3 months',
+                'now'
+            ),
         ];
     }
 }

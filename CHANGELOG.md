@@ -1,5 +1,6 @@
-# v3.3.3 Customer & Supplier Groups
-- Added customer group and supplier group management.
-- Added permissions, migrations, services, repositories, requests, controllers, and React pages.
 
-# Changelog
+## v3.3.6 - Product Intelligence Core
+- Added Unit master-data CRUD.
+- Added product variants with independent SKU, barcode, price, conversion factor and stock.
+- Added automatic barcode generation.
+- Added permissions, navigation, migrations, services and repositories.

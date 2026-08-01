@@ -1,0 +1,1 @@
+<?php namespace App\Repositories\ProductVariant; use App\Models\ProductVariant; interface ProductVariantRepositoryInterface {public function paginate(array $filters); public function create(array $data):ProductVariant; public function update(ProductVariant $variant,array $data):ProductVariant; public function delete(ProductVariant $variant):void;}

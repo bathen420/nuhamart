@@ -1,0 +1,1 @@
+<?php namespace App\Repositories\Unit; use App\Models\Unit; interface UnitRepositoryInterface {public function paginate(array $filters); public function create(array $data):Unit; public function update(Unit $unit,array $data):Unit; public function delete(Unit $unit):void;}

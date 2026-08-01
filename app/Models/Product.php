@@ -68,6 +68,11 @@ class Product extends Model
         return $this->hasMany(StockHistory::class);
     }
 
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class);
+    }
+
     /**
  * Sale Items Relationship
  */

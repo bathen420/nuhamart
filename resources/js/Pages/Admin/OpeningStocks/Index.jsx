@@ -1,0 +1,12 @@
+import { Head, Link, router } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import Pagination from '@/Components/Pagination';
+export default function Index({ openingStocks, warehouses, filters={} }){
+ const [search,setSearch]=useState(filters.search||''); const [warehouseId,setWarehouseId]=useState(filters.warehouse_id||'');
+ useEffect(()=>{const t=setTimeout(()=>router.get(route('admin.opening-stocks.index'),{search,warehouse_id:warehouseId},{preserveState:true,replace:true}),350);return()=>clearTimeout(t)},[search,warehouseId]);
+ return <AuthenticatedLayout header={<h2 className="text-xl font-semibold">Opening Stock</h2>}><Head title="Opening Stock"/><div className="py-8"><div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+ <div className="mb-4 flex flex-col gap-3 md:flex-row md:justify-between"><div className="flex gap-3"><input className="rounded-md border-gray-300" placeholder="Search reference" value={search} onChange={e=>setSearch(e.target.value)}/><select className="rounded-md border-gray-300" value={warehouseId} onChange={e=>setWarehouseId(e.target.value)}><option value="">All warehouses</option>{warehouses.map(w=><option key={w.id} value={w.id}>{w.name}</option>)}</select></div><Link href={route('admin.opening-stocks.create')} className="rounded bg-blue-600 px-4 py-2 text-white">+ New Opening Stock</Link></div>
+ <div className="overflow-hidden rounded-lg bg-white shadow"><table className="min-w-full divide-y"><thead className="bg-gray-50"><tr><th className="px-6 py-3 text-left">Reference</th><th className="px-6 py-3 text-left">Warehouse</th><th className="px-6 py-3 text-left">Date</th><th className="px-6 py-3 text-left">Items</th><th className="px-6 py-3 text-right">Action</th></tr></thead><tbody className="divide-y">{openingStocks.data.length?openingStocks.data.map(o=><tr key={o.id}><td className="px-6 py-4 font-semibold">{o.reference}</td><td className="px-6 py-4">{o.warehouse?.name}</td><td className="px-6 py-4">{o.opening_date}</td><td className="px-6 py-4">{o.items_count}</td><td className="px-6 py-4 text-right"><Link className="rounded bg-slate-700 px-3 py-1 text-white" href={route('admin.opening-stocks.show',o.id)}>View</Link></td></tr>):<tr><td colSpan="5" className="p-10 text-center text-gray-500">No opening stock found.</td></tr>}</tbody></table><Pagination links={openingStocks.links}/></div>
+ </div></div></AuthenticatedLayout>
+}

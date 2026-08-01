@@ -31,6 +31,10 @@ use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\WarehouseController;
 use App\Http\Controllers\Admin\CustomerGroupController;
 use App\Http\Controllers\Admin\SupplierGroupController;
+use App\Http\Controllers\Admin\OpeningStockController;
+use App\Http\Controllers\Admin\StockAdjustmentController;
+use App\Http\Controllers\Admin\StockTransferController;
+use App\Http\Controllers\Admin\StockLedgerController;
 
 
 /*
@@ -38,6 +42,8 @@ use App\Http\Controllers\Admin\SupplierGroupController;
 | Frontend
 |--------------------------------------------------------------------------
 */
+use App\Http\Controllers\Admin\UnitController;
+use App\Http\Controllers\Admin\ProductVariantController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -101,6 +107,19 @@ Route::middleware(['auth', 'verified', 'active', 'activity'])
         Route::resource('supplier-groups', SupplierGroupController::class)->except(['show']);
 
         Route::resource('products', ProductController::class);
+        Route::resource('units', UnitController::class)->except(['show']);
+        Route::resource('product-variants', ProductVariantController::class)->except(['show']);
+        Route::post('product-variants/labels', [ProductVariantController::class, 'labels'])->name('product-variants.labels');
+
+        Route::resource('opening-stocks', OpeningStockController::class)->only(['index','create','store','show'])->middleware('permission:opening-stocks.view');
+
+        Route::resource('stock-adjustments', StockAdjustmentController::class)->only(['index','create','store','show']);
+        Route::patch('stock-adjustments/{stockAdjustment}/approve', [StockAdjustmentController::class, 'approve'])->name('stock-adjustments.approve');
+        Route::resource('stock-transfers', StockTransferController::class)->only(['index','create','store','show']);
+        Route::patch('stock-transfers/{stockTransfer}/dispatch', [StockTransferController::class, 'dispatch'])->name('stock-transfers.dispatch');
+        Route::patch('stock-transfers/{stockTransfer}/receive', [StockTransferController::class, 'receive'])->name('stock-transfers.receive');
+        Route::get('stock-ledger', [StockLedgerController::class, 'index'])->name('stock-ledger.index');
+
 
         /*
         |--------------------------------------------------------------------------
