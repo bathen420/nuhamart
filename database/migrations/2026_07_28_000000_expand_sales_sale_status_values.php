@@ -5,7 +5,14 @@ use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
-    public bool $withinTransaction = false;
+    /**
+     * SQLite table rebuilds and PRAGMA statements must control their own
+     * transaction boundary. Keep this property untyped to match Laravel's
+     * base Migration class on the installed framework version.
+     *
+     * @var bool
+     */
+    public $withinTransaction = false;
 
     public function up(): void
     {
@@ -64,7 +71,7 @@ return new class extends Migration
                 DB::statement('CREATE INDEX "sales_sale_status_index" ON "sales" ("sale_status")');
                 DB::statement('CREATE INDEX "sales_created_at_index" ON "sales" ("created_at")');
                 DB::commit();
-            } catch (Throwable $exception) {
+            } catch (\Throwable $exception) {
                 if (DB::transactionLevel() > 0) {
                     DB::rollBack();
                 }
@@ -78,12 +85,15 @@ return new class extends Migration
         }
 
         if ($driver === 'mysql') {
-            DB::statement("ALTER TABLE `sales` MODIFY `sale_status` ENUM('Completed','Pending','Cancelled','Returned','Partially Returned') NOT NULL DEFAULT 'Completed'");
+            DB::statement(
+                "ALTER TABLE `sales` MODIFY `sale_status` ENUM('Completed','Pending','Cancelled','Returned','Partially Returned') NOT NULL DEFAULT 'Completed'"
+            );
         }
     }
 
     public function down(): void
     {
-        // Do not remove return statuses because existing sales may already use them.
+        // Return statuses are intentionally preserved because existing sales
+        // may already reference them.
     }
 };

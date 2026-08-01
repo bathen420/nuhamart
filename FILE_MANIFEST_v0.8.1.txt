@@ -1,0 +1,8 @@
+CHANGELOG_v0.8.1_PROFESSIONAL_REPORTS.md
+FILE_MANIFEST_v0.8.1.txt
+INSTALL_v0.8.1_PROFESSIONAL_REPORTS.md
+app/Http/Controllers/Admin/ReportController.php
+resources/js/Pages/Admin/Reports/Sales/Index.jsx
+resources/js/Pages/Admin/Reports/Sales/Print.jsx
+routes/web.php
+tests/Feature/ReportsRoutesTest.php

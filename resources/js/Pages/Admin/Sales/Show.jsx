@@ -71,13 +71,26 @@ export default function Show({ auth, sale }) {
                             </Link>
                         )}
 
-                        <button
-                            type="button"
-                            onClick={handlePrint}
-                            className="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+                        <Link
+                            href={route('admin.invoices.a4', sale.id)}
+                            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
                         >
-                            Print Invoice
-                        </button>
+                            A4 Invoice
+                        </Link>
+
+                        <Link
+                            href={route('admin.invoices.thermal', sale.id, { size: 80 })}
+                            className="rounded-lg bg-slate-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
+                        >
+                            80mm Receipt
+                        </Link>
+
+                        <a
+                            href={route('admin.invoices.pdf', sale.id)}
+                            className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
+                        >
+                            Download PDF
+                        </a>
                     </div>
                 </div>
             }
@@ -94,13 +107,12 @@ export default function Show({ auth, sale }) {
                             New Sale
                         </Link>
 
-                        <button
-                            type="button"
-                            onClick={handlePrint}
-                            className="rounded-lg bg-indigo-600 px-5 py-2 font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+                        <Link
+                            href={route('admin.invoices.a4', sale.id)}
+                            className="rounded-lg bg-blue-600 px-5 py-2 font-semibold text-white shadow-sm transition hover:bg-blue-700"
                         >
-                            Print Invoice
-                        </button>
+                            Professional Invoice
+                        </Link>
                     </div>
 
                     <article

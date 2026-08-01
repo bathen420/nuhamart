@@ -1,5 +1,6 @@
 import { usePage } from "@inertiajs/react";
 import {
+    BarChart3,
     Bell,
     Boxes,
     FolderTree,
@@ -238,6 +239,13 @@ export default function AdminSidebar() {
             urlPrefix: "/admin/stock-history",
             permission: "stock-history.view",
             icon: History,
+        },
+        {
+            label: "Reports",
+            routeName: "admin.reports.index",
+            urlPrefix: "/admin/reports",
+            permission: "reports.view",
+            icon: BarChart3,
         },
         {
             label: "Settings",

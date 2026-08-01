@@ -35,6 +35,8 @@ use App\Http\Controllers\Admin\OpeningStockController;
 use App\Http\Controllers\Admin\StockAdjustmentController;
 use App\Http\Controllers\Admin\StockTransferController;
 use App\Http\Controllers\Admin\StockLedgerController;
+use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\InvoiceController;
 
 
 /*
@@ -165,6 +167,15 @@ Route::middleware(['auth', 'verified', 'active', 'activity'])
         Route::get('/sales', [SaleController::class, 'index'])
             ->name('sales.index');
 
+        Route::get('/sales/{sale}/invoice', [InvoiceController::class, 'a4'])
+            ->name('invoices.a4');
+
+        Route::get('/sales/{sale}/invoice/thermal', [InvoiceController::class, 'thermal'])
+            ->name('invoices.thermal');
+
+        Route::get('/sales/{sale}/invoice/pdf', [InvoiceController::class, 'pdf'])
+            ->name('invoices.pdf');
+
         Route::get('/sales/{sale}', [SaleController::class, 'show'])
             ->name('sales.show');
 
@@ -223,6 +234,33 @@ Route::middleware(['auth', 'verified', 'active', 'activity'])
         Route::get('/purchase-returns/{purchaseReturn}', [PurchaseReturnController::class, 'show'])->name('purchase-returns.show');
 
         Route::resource('purchases', PurchaseController::class);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Reports
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/reports', [ReportController::class, 'index'])
+            ->middleware('permission:reports.view')
+            ->name('reports.index');
+
+        Route::get('/reports/sales', [ReportController::class, 'sales'])
+            ->middleware('permission:reports.view')
+            ->name('reports.sales');
+
+        Route::get('/reports/sales/print', [ReportController::class, 'salesPrint'])
+            ->middleware('permission:reports.view')
+            ->name('reports.sales.print');
+
+        Route::get('/reports/sales/export', [ReportController::class, 'salesExport'])
+            ->middleware('permission:reports.export')
+            ->name('reports.sales.export');
+
+        Route::get('/reports/sales/export-excel', [ReportController::class, 'salesExcelExport'])
+            ->middleware('permission:reports.export')
+            ->name('reports.sales.export-excel');
 
         /*
         |--------------------------------------------------------------------------

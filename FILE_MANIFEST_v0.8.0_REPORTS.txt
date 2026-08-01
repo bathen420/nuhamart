@@ -1,0 +1,10 @@
+app/Http/Controllers/Admin/ReportController.php
+resources/js/Pages/Admin/Reports/Dashboard.jsx
+resources/js/Pages/Admin/Reports/Sales/Index.jsx
+resources/js/Components/AdminSidebar.jsx
+routes/web.php
+database/seeders/RolesAndPermissionsSeeder.php
+tests/Feature/ReportsRoutesTest.php
+INSTALL_v0.8.0_REPORTS.md
+CHANGELOG_v0.8.0_REPORTS.md
+FILE_MANIFEST_v0.8.0_REPORTS.txt
