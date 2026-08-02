@@ -7,17 +7,20 @@ use App\Http\Requests\Checkout\StoreOrderRequest;
 use App\Models\BusinessSetting;
 use App\Models\Order;
 use App\Services\OrderService;
+use App\Services\SslCommerzService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 use Throwable;
 
 class OrderController extends Controller
 {
-    public function __construct(private readonly OrderService $orderService)
-    {
-    }
+    public function __construct(
+        private readonly OrderService $orderService,
+        private readonly SslCommerzService $sslCommerzService,
+    ) {}
 
     public function create(Request $request): Response
     {
@@ -50,7 +53,7 @@ class OrderController extends Controller
         ]);
     }
 
-    public function store(StoreOrderRequest $request): RedirectResponse
+    public function store(StoreOrderRequest $request): RedirectResponse|SymfonyResponse
     {
         try {
             $payload = $request->validated();
@@ -74,6 +77,11 @@ class OrderController extends Controller
                 ]);
             }
             $request->session()->put('recent_order_id', $order->id);
+
+            if ($order->payment_method === 'sslcommerz') {
+                $transaction = $this->sslCommerzService->initiate($order);
+                return Inertia::location($transaction->gateway_url);
+            }
 
             return redirect()->route('checkout.success', $order->order_no);
         } catch (Throwable $exception) {

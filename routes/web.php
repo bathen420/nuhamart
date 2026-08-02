@@ -60,6 +60,7 @@ use App\Http\Controllers\Customer\AddressController as CustomerAddressController
 use App\Http\Controllers\Storefront\TrackOrderController;
 use App\Http\Controllers\Admin\OrderWorkflowController;
 use App\Http\Controllers\Storefront\SeoController;
+use App\Http\Controllers\Payment\SslCommerzController;
 
 
 /*
@@ -104,6 +105,12 @@ Route::post('/checkout/place-order', [CheckoutOrderController::class, 'store'])
 
 Route::get('/checkout/success/{orderNo}', [CheckoutOrderController::class, 'success'])
     ->name('checkout.success');
+
+Route::post('/payments/sslcommerz/success', [SslCommerzController::class, 'success'])->name('payments.sslcommerz.success');
+Route::post('/payments/sslcommerz/fail', [SslCommerzController::class, 'fail'])->name('payments.sslcommerz.fail');
+Route::post('/payments/sslcommerz/cancel', [SslCommerzController::class, 'cancel'])->name('payments.sslcommerz.cancel');
+Route::post('/payments/sslcommerz/ipn', [SslCommerzController::class, 'ipn'])->name('payments.sslcommerz.ipn');
+Route::post('/payments/sslcommerz/retry/{order}', [SslCommerzController::class, 'retry'])->middleware('auth')->name('payments.sslcommerz.retry');
 
 
 /*
