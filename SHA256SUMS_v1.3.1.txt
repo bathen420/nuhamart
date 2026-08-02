@@ -1,0 +1,5 @@
+070947ccdc2528c6fb4bd10d1f65711b7f7a42e91e46fda8dc1d2fc76bb3fdb6  ./CHANGELOG_v1.3.1.md
+b5301f72da9a62b74c2488a5a1ec0cbd2758d564581df44593a60ef0ef93a818  ./FILE_MANIFEST_v1.3.1.txt
+84e0b51afff2e37d3997e79c01eaf8a1bd774e253c18f218afe9c704b028a221  ./INSTALL_v1.3.1_TEST_STABILITY_FIX.md
+0eed63bb0899a85a0d9645ddb7e52ed2591848afc8f4c8f8ff676bedbdf804fc  ./app/Services/FinancialStatementService.php
+5754159ad855028627bcee3034044e94c20cd565236377b9956cca0cc82ce4b0  ./tests/Feature/PurchaseManagementProTest.php

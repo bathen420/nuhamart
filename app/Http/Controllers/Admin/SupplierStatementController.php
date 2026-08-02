@@ -1,0 +1,3 @@
+<?php
+namespace App\Http\Controllers\Admin; use App\Http\Controllers\Controller; use App\Models\Supplier; use Illuminate\Http\Request; use Inertia\{Inertia,Response};
+class SupplierStatementController extends Controller { public function index(Request $r):Response{$suppliers=Supplier::query()->withSum('purchases as purchase_total','total')->withSum('purchases as purchase_due','due_amount')->orderBy('name')->paginate(20);return Inertia::render('Admin/SupplierStatements/Index',['suppliers'=>$suppliers]);} public function show(Supplier $supplier):Response{$supplier->load(['purchases'=>fn($q)=>$q->with('payments')->latest()]);return Inertia::render('Admin/SupplierStatements/Show',['supplier'=>$supplier]);}}

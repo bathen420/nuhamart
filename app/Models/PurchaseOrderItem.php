@@ -1,0 +1,3 @@
+<?php
+namespace App\Models; use Illuminate\Database\Eloquent\Model; use Illuminate\Database\Eloquent\Relations\BelongsTo;
+class PurchaseOrderItem extends Model { protected $fillable=['product_id','ordered_quantity','received_quantity','unit_price','subtotal']; protected $casts=['unit_price'=>'decimal:2','subtotal'=>'decimal:2']; public function purchaseOrder():BelongsTo{return $this->belongsTo(PurchaseOrder::class);} public function product():BelongsTo{return $this->belongsTo(Product::class);} public function getRemainingQuantityAttribute():int{return max(0,(int)$this->ordered_quantity-(int)$this->received_quantity);} }

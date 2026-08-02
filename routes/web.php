@@ -41,6 +41,10 @@ use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\JournalEntryController;
 use App\Http\Controllers\Admin\GeneralLedgerController;
 use App\Http\Controllers\Admin\FinancialStatementController;
+use App\Http\Controllers\Admin\PurchaseRequisitionController;
+use App\Http\Controllers\Admin\PurchaseOrderController;
+use App\Http\Controllers\Admin\GoodsReceiptController;
+use App\Http\Controllers\Admin\SupplierStatementController;
 
 
 /*
@@ -249,6 +253,19 @@ Route::middleware(['auth', 'verified', 'active', 'activity'])
         )->name('orders.pdf');
 
         Route::resource('orders', AdminOrderController::class);
+
+
+        /* Purchase Management Pro */
+        Route::resource('purchase-requisitions', PurchaseRequisitionController::class)->only(['index','create','store','show']);
+        Route::post('/purchase-requisitions/{purchaseRequisition}/approve', [PurchaseRequisitionController::class, 'approve'])->name('purchase-requisitions.approve');
+        Route::resource('purchase-orders', PurchaseOrderController::class)->only(['index','create','store','show']);
+        Route::post('/purchase-orders/{purchaseOrder}/approve', [PurchaseOrderController::class, 'approve'])->name('purchase-orders.approve');
+        Route::get('/purchase-orders/{purchaseOrder}/goods-receipts/create', [GoodsReceiptController::class, 'create'])->name('purchase-orders.goods-receipts.create');
+        Route::post('/purchase-orders/{purchaseOrder}/goods-receipts', [GoodsReceiptController::class, 'store'])->name('purchase-orders.goods-receipts.store');
+        Route::get('/goods-receipts', [GoodsReceiptController::class, 'index'])->name('goods-receipts.index');
+        Route::get('/goods-receipts/{goodsReceipt}', [GoodsReceiptController::class, 'show'])->name('goods-receipts.show');
+        Route::get('/supplier-statements', [SupplierStatementController::class, 'index'])->name('supplier-statements.index');
+        Route::get('/supplier-statements/{supplier}', [SupplierStatementController::class, 'show'])->name('supplier-statements.show');
 
         /*
         |--------------------------------------------------------------------------

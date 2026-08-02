@@ -1,0 +1,3 @@
+<?php
+namespace App\Http\Requests; use Illuminate\Foundation\Http\FormRequest;
+class StoreGoodsReceiptRequest extends FormRequest { public function authorize():bool{return $this->user()?->can('goods-receipts.create')??false;} public function rules():array{return ['grn_number'=>['required','string','max:50','unique:goods_receipts,grn_number'],'warehouse_id'=>['nullable','exists:warehouses,id'],'received_date'=>['required','date'],'supplier_invoice_number'=>['nullable','string','max:100'],'supplier_invoice_date'=>['nullable','date'],'due_date'=>['nullable','date'],'note'=>['nullable','string'],'items'=>['required','array'],'items.*.purchase_order_item_id'=>['required','exists:purchase_order_items,id'],'items.*.quantity'=>['required','integer','min:0']];}}

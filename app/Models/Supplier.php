@@ -1,17 +1,3 @@
 <?php
-
-namespace App\Models;
-
-use Illuminate\Database\Eloquent\Model;
-
-class Supplier extends Model
-{
-    protected $fillable = [
-        'name',
-        'company_name',
-        'phone',
-        'email',
-        'address',
-        'status',
-    ];
-}
+namespace App\Models; use Illuminate\Database\Eloquent\Model; use Illuminate\Database\Eloquent\Relations\HasMany;
+class Supplier extends Model { protected $fillable=['name','company_name','phone','email','address','status']; protected $casts=['status'=>'boolean']; public function purchases():HasMany{return $this->hasMany(Purchase::class);} public function purchaseOrders():HasMany{return $this->hasMany(PurchaseOrder::class);} }

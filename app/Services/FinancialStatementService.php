@@ -29,7 +29,8 @@ class FinancialStatementService
             ->join('journal_entries', 'journal_entries.id', '=', 'journal_lines.journal_entry_id')
             ->join('accounts', 'accounts.id', '=', 'journal_lines.account_id')
             ->where('journal_entries.status', 'posted')
-            ->whereBetween('journal_entries.entry_date', [$from->copy()->startOfYear()->toDateString(), $to->toDateString()])
+            ->whereDate('journal_entries.entry_date', '>=', $from->copy()->startOfYear()->toDateString())
+            ->whereDate('journal_entries.entry_date', '<=', $to->toDateString())
             ->groupBy('period')
             ->orderBy('period')
             ->get()
@@ -189,7 +190,10 @@ class FinancialStatementService
         $lines = JournalLine::query()
             ->with(['journalEntry:id,entry_number,entry_date,reference,source_type,description', 'account:id,code,name'])
             ->whereIn('account_id', $cashAccountIds)
-            ->whereHas('journalEntry', fn (Builder $q) => $q->where('status', 'posted')->whereBetween('entry_date', [$from->toDateString(), $to->toDateString()]))
+            ->whereHas('journalEntry', fn (Builder $q) => $q
+                ->where('status', 'posted')
+                ->whereDate('entry_date', '>=', $from->toDateString())
+                ->whereDate('entry_date', '<=', $to->toDateString()))
             ->get();
 
         $sections = ['operating' => collect(), 'investing' => collect(), 'financing' => collect()];
@@ -239,7 +243,8 @@ class FinancialStatementService
             ->selectRaw('SUM(journal_lines.credit) as credit')
             ->join('journal_entries', 'journal_entries.id', '=', 'journal_lines.journal_entry_id')
             ->where('journal_entries.status', 'posted')
-            ->whereBetween('journal_entries.entry_date', [$from->toDateString(), $to->toDateString()])
+            ->whereDate('journal_entries.entry_date', '>=', $from->toDateString())
+            ->whereDate('journal_entries.entry_date', '<=', $to->toDateString())
             ->groupBy('journal_lines.account_id')
             ->get()->keyBy('account_id')->map(fn ($row) => ['debit' => (float) $row->debit, 'credit' => (float) $row->credit]);
     }

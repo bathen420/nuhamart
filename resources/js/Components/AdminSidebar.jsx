@@ -24,6 +24,10 @@ import {
     UserCog,
     Users,
     Warehouse,
+    BookOpen,
+    PackageCheck,
+    FileText,
+    ClipboardList,
 } from "lucide-react";
 
 import AdminMenuItem from "./AdminMenuItem";
@@ -174,6 +178,10 @@ export default function AdminSidebar() {
             permission: "purchases.view",
             icon: ShoppingCart,
         },
+        { label: "Purchase Requisitions", routeName: "admin.purchase-requisitions.index", urlPrefix: "/admin/purchase-requisitions", permission: "purchase-requisitions.view", icon: ClipboardList },
+        { label: "Purchase Orders", routeName: "admin.purchase-orders.index", urlPrefix: "/admin/purchase-orders", permission: "purchase-orders.view", icon: FileText },
+        { label: "Goods Receipts", routeName: "admin.goods-receipts.index", urlPrefix: "/admin/goods-receipts", permission: "goods-receipts.view", icon: PackageCheck },
+        { label: "Supplier Statements", routeName: "admin.supplier-statements.index", urlPrefix: "/admin/supplier-statements", permission: "supplier-statements.view", icon: BookOpen },
         {
             label: "Purchase Returns",
             routeName: "admin.purchase-returns.index",

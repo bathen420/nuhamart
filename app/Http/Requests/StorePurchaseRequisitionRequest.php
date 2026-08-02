@@ -1,0 +1,3 @@
+<?php
+namespace App\Http\Requests; use Illuminate\Foundation\Http\FormRequest;
+class StorePurchaseRequisitionRequest extends FormRequest { public function authorize():bool{return $this->user()?->can('purchase-requisitions.create')??false;} public function rules():array{return ['requisition_number'=>['required','string','max:50','unique:purchase_requisitions,requisition_number'],'department'=>['nullable','string','max:100'],'required_date'=>['nullable','date'],'reason'=>['nullable','string'],'items'=>['required','array','min:1'],'items.*.product_id'=>['required','exists:products,id'],'items.*.quantity'=>['required','integer','min:1'],'items.*.estimated_price'=>['nullable','numeric','min:0'],'items.*.note'=>['nullable','string']];}}
