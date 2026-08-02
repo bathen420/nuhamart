@@ -28,6 +28,7 @@ import {
     PackageCheck,
     FileText,
     ClipboardList,
+    Barcode,
 } from "lucide-react";
 
 import AdminMenuItem from "./AdminMenuItem";
@@ -142,6 +143,13 @@ export default function AdminSidebar() {
             urlPrefix: "/admin/products",
             permission: "products.view",
             icon: Package,
+        },
+        {
+            label: "Barcode & Labels",
+            routeName: "admin.barcode-labels.index",
+            urlPrefix: "/admin/barcode-labels",
+            permission: "barcode-labels.view",
+            icon: Barcode,
         },
         {
             label: "Units",

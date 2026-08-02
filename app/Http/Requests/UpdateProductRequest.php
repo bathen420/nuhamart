@@ -26,6 +26,15 @@ class UpdateProductRequest extends FormRequest
                 Rule::unique('products', 'sku')->ignore($this->product),
             ],
 
+            'barcode' => [
+                'nullable',
+                'string',
+                'max:100',
+                Rule::unique('products', 'barcode')->ignore($this->product),
+            ],
+
+            'barcode_type' => ['nullable', 'in:code128,ean13'],
+
             'image' => [
                 'nullable',
                 'image',

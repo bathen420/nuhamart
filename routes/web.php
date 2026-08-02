@@ -45,6 +45,7 @@ use App\Http\Controllers\Admin\PurchaseRequisitionController;
 use App\Http\Controllers\Admin\PurchaseOrderController;
 use App\Http\Controllers\Admin\GoodsReceiptController;
 use App\Http\Controllers\Admin\SupplierStatementController;
+use App\Http\Controllers\Admin\BarcodeLabelController;
 
 
 /*
@@ -117,6 +118,16 @@ Route::middleware(['auth', 'verified', 'active', 'activity'])
         Route::resource('supplier-groups', SupplierGroupController::class)->except(['show']);
 
         Route::resource('products', ProductController::class);
+        Route::get('/barcode-labels', [BarcodeLabelController::class, 'index'])
+            ->middleware('permission:barcode-labels.view')
+            ->name('barcode-labels.index');
+        Route::post('/barcode-labels/generate', [BarcodeLabelController::class, 'generate'])
+            ->middleware('permission:barcode-labels.generate')
+            ->name('barcode-labels.generate');
+        Route::get('/barcode-labels/print', [BarcodeLabelController::class, 'print'])
+            ->middleware('permission:barcode-labels.print')
+            ->name('barcode-labels.print');
+
         Route::resource('units', UnitController::class)->except(['show']);
         Route::resource('product-variants', ProductVariantController::class)->except(['show']);
         Route::post('product-variants/labels', [ProductVariantController::class, 'labels'])->name('product-variants.labels');

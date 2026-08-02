@@ -97,6 +97,34 @@ export default function Form({
                 <InputError message={errors.sku} className="mt-2" />
             </div>
 
+            {/* Barcode */}
+            <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                    <InputLabel htmlFor="barcode" value="Barcode (optional)" />
+                    <TextInput
+                        id="barcode"
+                        className="mt-1 block w-full"
+                        value={data.barcode ?? ""}
+                        onChange={(e) => setData("barcode", e.target.value)}
+                        placeholder="Leave blank to generate later"
+                    />
+                    <InputError message={errors.barcode} className="mt-2" />
+                </div>
+                <div>
+                    <InputLabel htmlFor="barcode_type" value="Barcode Type" />
+                    <select
+                        id="barcode_type"
+                        value={data.barcode_type ?? "code128"}
+                        onChange={(e) => setData("barcode_type", e.target.value)}
+                        className="mt-1 block w-full rounded-md border-gray-300"
+                    >
+                        <option value="code128">Code 128</option>
+                        <option value="ean13">EAN-13</option>
+                    </select>
+                    <InputError message={errors.barcode_type} className="mt-2" />
+                </div>
+            </div>
+
             {/* Price */}
             <div>
                 <InputLabel htmlFor="price" value="Price" />

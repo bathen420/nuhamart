@@ -43,6 +43,18 @@ class StoreProductRequest extends FormRequest
                 'unique:products,sku',
             ],
 
+            'barcode' => [
+                'nullable',
+                'string',
+                'max:100',
+                'unique:products,barcode',
+            ],
+
+            'barcode_type' => [
+                'nullable',
+                'in:code128,ean13',
+            ],
+
             'image' => [
                 'nullable',
                 'image',

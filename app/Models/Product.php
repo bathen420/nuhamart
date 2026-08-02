@@ -21,6 +21,10 @@ class Product extends Model
 
         'sku',
 
+        'barcode',
+
+        'barcode_type',
+
         'short_description',
 
         'description',

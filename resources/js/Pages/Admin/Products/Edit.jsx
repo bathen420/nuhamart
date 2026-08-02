@@ -20,6 +20,8 @@ export default function Edit({
         brand_id: product.brand_id ?? "",
         name: product.name ?? "",
         sku: product.sku ?? "",
+        barcode: product.barcode ?? "",
+        barcode_type: product.barcode_type ?? "code128",
         price: product.price ?? "",
         discount_price: product.discount_price ?? "",
         stock_quantity: product.stock_quantity ?? 0,

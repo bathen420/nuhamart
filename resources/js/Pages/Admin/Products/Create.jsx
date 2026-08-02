@@ -8,6 +8,8 @@ export default function Create({ auth, categories, brands }) {
         brand_id: "",
         name: "",
         sku: "",
+        barcode: "",
+        barcode_type: "code128",
         price: "",
         discount_price: "",
         stock_quantity: "",
