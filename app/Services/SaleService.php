@@ -14,7 +14,8 @@ class SaleService
 {
     public function __construct(
         protected SaleRepository $saleRepository,
-        protected AccountingService $accounting
+        protected AccountingService $accounting,
+        protected CrmLoyaltyService $crm
     ) {
     }
 
@@ -110,6 +111,7 @@ class SaleService
             }
 
             $this->accounting->postSale($sale, (int) Auth::id());
+            $this->crm->recordSale($sale, Auth::id());
 
             return $sale->load(['customer', 'user', 'items.product']);
         });

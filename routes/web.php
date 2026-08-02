@@ -46,6 +46,8 @@ use App\Http\Controllers\Admin\PurchaseOrderController;
 use App\Http\Controllers\Admin\GoodsReceiptController;
 use App\Http\Controllers\Admin\SupplierStatementController;
 use App\Http\Controllers\Admin\BarcodeLabelController;
+use App\Http\Controllers\Admin\CrmController;
+use App\Http\Controllers\Admin\GiftVoucherController;
 
 
 /*
@@ -181,6 +183,13 @@ Route::middleware(['auth', 'verified', 'active', 'activity'])
 
         Route::resource('customers', CustomerController::class)
             ->except(['show']);
+
+        Route::get('/crm', [CrmController::class, 'index'])->middleware('permission:crm.view')->name('crm.index');
+        Route::get('/crm/customers/{customer}', [CrmController::class, 'show'])->middleware('permission:crm.view')->name('crm.show');
+        Route::post('/crm/customers/{customer}/points', [CrmController::class, 'points'])->middleware('permission:loyalty.manage')->name('crm.points');
+        Route::post('/crm/customers/{customer}/wallet', [CrmController::class, 'wallet'])->middleware('permission:wallet.manage')->name('crm.wallet');
+        Route::post('/crm/customers/{customer}/notes', [CrmController::class, 'note'])->middleware('permission:crm.manage')->name('crm.notes');
+        Route::resource('gift-vouchers', GiftVoucherController::class)->only(['index','store','destroy'])->middleware('permission:vouchers.manage');
 
         /*
         |--------------------------------------------------------------------------

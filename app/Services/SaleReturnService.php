@@ -15,7 +15,8 @@ class SaleReturnService
 {
     public function __construct(
         protected SaleReturnRepository $repository,
-        protected AccountingService $accounting
+        protected AccountingService $accounting,
+        protected CrmLoyaltyService $crm
     ) {
     }
 
@@ -133,6 +134,7 @@ class SaleReturnService
             ]);
 
             $this->accounting->postSaleReturn($saleReturn, $userId);
+            $this->crm->recordSaleReturn($saleReturn, $userId);
 
             return $saleReturn->load([
                 'sale',

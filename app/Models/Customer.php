@@ -37,4 +37,24 @@ class Customer extends Model
     {
         return $this->hasMany(Sale::class);
     }
+
+    public function crmProfile()
+    {
+        return $this->hasOne(CustomerCrmProfile::class);
+    }
+
+    public function loyaltyTransactions()
+    {
+        return $this->hasMany(LoyaltyTransaction::class);
+    }
+
+    public function walletTransactions()
+    {
+        return $this->hasMany(WalletTransaction::class);
+    }
+
+    public function crmTimeline()
+    {
+        return $this->hasMany(CrmTimelineEntry::class);
+    }
 }

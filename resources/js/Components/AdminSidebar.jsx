@@ -173,6 +173,20 @@ export default function AdminSidebar() {
             icon: Users,
         },
         {
+            label: "CRM & Loyalty",
+            routeName: "admin.crm.index",
+            urlPrefix: "/admin/crm",
+            permission: "crm.view",
+            icon: Users,
+        },
+        {
+            label: "Gift Vouchers",
+            routeName: "admin.gift-vouchers.index",
+            urlPrefix: "/admin/gift-vouchers",
+            permission: "vouchers.manage",
+            icon: Tags,
+        },
+        {
             label: "Suppliers",
             routeName: "admin.suppliers.index",
             urlPrefix: "/admin/suppliers",
