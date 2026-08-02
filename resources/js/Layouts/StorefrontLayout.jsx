@@ -96,7 +96,7 @@ export default function StorefrontLayout({ children, categories = [] }) {
                     </div>
                 </div>
 
-                <div className="mx-4 mb-3 lg:hidden"><SmartSearch categories={menuCategories} compact placeholder={t("searchMobile")} /></div>
+                <div className="mx-4 mb-3 lg:hidden"><SmartSearch categories={menuCategories} compact mobileFullscreen placeholder={t("searchMobile")} /></div>
 
                 <nav className={`${mobileOpen ? "block" : "hidden"} border-t border-slate-100 lg:block`}>
                     <div className="mx-auto flex max-w-[1480px] flex-col px-4 lg:flex-row lg:items-center lg:gap-7">

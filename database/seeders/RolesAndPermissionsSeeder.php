@@ -19,6 +19,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $modules = [
             'dashboard' => ['view'],
             'homepage-content' => ['view', 'manage'],
+            'marketing' => ['view', 'manage'],
             'categories' => ['view', 'create', 'edit', 'delete'],
             'brands' => ['view', 'create', 'edit', 'delete'],
             'authors' => ['view', 'create', 'edit', 'delete'],

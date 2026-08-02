@@ -100,10 +100,14 @@ export default function Home({
     categories = [],
     authors = [],
     publishers = [],
+    homepageSettings = {},
 }) {
     const { t } = useI18n();
     const [slide, setSlide] = useState(0);
     const [quickView, setQuickView] = useState(null);
+    const generalSettings = homepageSettings.general || {};
+    const sectionSettings = homepageSettings.sections || {};
+    const sectionEnabled = (key) => sectionSettings[key]?.enabled !== false;
 
     const banners = heroBanners.length
         ? heroBanners
@@ -133,7 +137,13 @@ export default function Home({
     return (
         <StorefrontLayout categories={categories}>
             <Head title="Nuha Mart BD — Modern Books & Lifestyle Store" />
+            {generalSettings.announcement_enabled && generalSettings.announcement_text && (
+                <Link href={generalSettings.announcement_url || "/shop"} className="block bg-[#0f766e] px-4 py-2 text-center text-sm font-bold text-white transition hover:bg-[#115e59]">
+                    {generalSettings.announcement_text}
+                </Link>
+            )}
 
+            {sectionEnabled("hero") && (
             <section className="mx-auto max-w-[1480px] px-4 pt-5 lg:pt-7">
                 <div className="grid gap-4 lg:grid-cols-[1fr_330px]">
                     <div
@@ -177,7 +187,10 @@ export default function Home({
                             </div>
                             <div className="relative hidden h-full items-center justify-center lg:flex">
                                 {activeBanner.image ? (
-                                    <img src={`/storage/${activeBanner.image}`} alt={activeBanner.title} fetchPriority="high" className="max-h-[380px] w-full object-contain" />
+                                    <picture>
+                                        {activeBanner.mobile_image && <source media="(max-width: 767px)" srcSet={`/storage/${activeBanner.mobile_image}`} />}
+                                        <img src={`/storage/${activeBanner.image}`} alt={activeBanner.title} fetchPriority="high" className="max-h-[380px] w-full object-contain" />
+                                    </picture>
                                 ) : (
                                     <div className="relative h-80 w-full max-w-lg">
                                         <div className="absolute left-8 top-20 h-48 w-36 -rotate-12 rounded-2xl bg-gradient-to-br from-amber-200 to-[#f59e0b] shadow-2xl" />
@@ -223,7 +236,9 @@ export default function Home({
                     </div>
                 </div>
             </section>
+            )}
 
+            {sectionEnabled("categories") && (
             <section className="mx-auto max-w-[1480px] px-4 py-7">
                 <div className="rounded-[28px] border border-slate-200/80 bg-white p-4 shadow-[0_18px_60px_rgba(15,23,42,0.04)] sm:p-6">
                     <SectionHeader eyebrow={t("browseExplore")} title={t("popularCategoriesTitle")} subtitle={t("popularCategoriesSubtitle")} />
@@ -238,13 +253,15 @@ export default function Home({
                     </div>
                 </div>
             </section>
+            )}
 
-            <ProductSection eyebrow={t("limitedTime")} title={t("flashSale")} subtitle={t("flashSaleSubtitle")} items={flashSale} href={`${route("storefront.catalog")}?sort=discount`} flash onQuickView={setQuickView} />
-            <ProductSection eyebrow={t("curatedForYou")} title={t("featured")} subtitle={t("featuredSub")} items={featured} onQuickView={setQuickView} />
-            <ProductSection eyebrow={t("readerFavourites")} title={t("bestSellers")} subtitle={t("bestSub")} items={bestSellers} onQuickView={setQuickView} />
-            <ProductSection eyebrow={t("freshOnShelves")} title={t("newArrivals")} subtitle={t("newSub")} items={newArrivals} href={`${route("storefront.catalog")}?sort=newest`} onQuickView={setQuickView} />
-            <ProductSection eyebrow={t("readAnywhere")} title={t("ebookLibrary")} subtitle={t("ebookSub")} items={ebooks} href={`${route("storefront.catalog")}?product_type=ebook`} onQuickView={setQuickView} />
+            {sectionEnabled("flash_sale") && <ProductSection eyebrow={t("limitedTime")} title={t("flashSale")} subtitle={t("flashSaleSubtitle")} items={flashSale} href={`${route("storefront.catalog")}?sort=discount`} flash onQuickView={setQuickView} />}
+            {sectionEnabled("featured") && <ProductSection eyebrow={t("curatedForYou")} title={t("featured")} subtitle={t("featuredSub")} items={featured} onQuickView={setQuickView} />}
+            {sectionEnabled("best_sellers") && <ProductSection eyebrow={t("readerFavourites")} title={t("bestSellers")} subtitle={t("bestSub")} items={bestSellers} onQuickView={setQuickView} />}
+            {sectionEnabled("new_arrivals") && <ProductSection eyebrow={t("freshOnShelves")} title={t("newArrivals")} subtitle={t("newSub")} items={newArrivals} href={`${route("storefront.catalog")}?sort=newest`} onQuickView={setQuickView} />}
+            {sectionEnabled("ebooks") && <ProductSection eyebrow={t("readAnywhere")} title={t("ebookLibrary")} subtitle={t("ebookSub")} items={ebooks} href={`${route("storefront.catalog")}?product_type=ebook`} onQuickView={setQuickView} />}
 
+            {sectionEnabled("authors_publishers") && (
             <section className="mx-auto grid max-w-[1480px] gap-6 px-4 py-8 lg:grid-cols-2">
                 <div className="rounded-[28px] border border-slate-200/80 bg-white p-6 shadow-sm sm:p-7">
                     <SectionHeader eyebrow={t("meetTheCreators")} title={t("popularAuthors")} href={route("storefront.catalog")} />
@@ -270,7 +287,9 @@ export default function Home({
                     </div>
                 </div>
             </section>
+            )}
 
+            {sectionEnabled("trust") && (
             <section className="mx-auto max-w-[1480px] px-4 py-6">
                 <div className="grid gap-4 rounded-[28px] bg-gradient-to-r from-[#0f766e] to-[#115e59] p-6 text-white shadow-xl shadow-teal-900/10 sm:grid-cols-2 lg:grid-cols-4 lg:p-8">
                     {[
@@ -286,6 +305,7 @@ export default function Home({
                     ))}
                 </div>
             </section>
+            )}
 
             <section className="mx-auto max-w-[1480px] px-4 py-7">
                 <div className="overflow-hidden rounded-[30px] bg-slate-900 px-6 py-10 text-white sm:px-10 lg:flex lg:items-center lg:justify-between lg:px-14">

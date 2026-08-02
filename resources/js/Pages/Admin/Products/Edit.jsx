@@ -50,6 +50,8 @@ export default function Edit({
         status: product.status ? 1 : 0,
         sort_order: product.sort_order ?? 0,
         image: null,
+        gallery_images: [],
+        sample_file: null,
     });
 
     const submit = (event) => {

@@ -48,7 +48,12 @@ class EnforceAdminPermission
 
         $exact = [
             'dashboard' => 'dashboard.view',
+            'marketing.coupons.index' => 'marketing.view',
+            'marketing.coupons.store' => 'marketing.manage',
+            'marketing.coupons.update' => 'marketing.manage',
+            'marketing.coupons.destroy' => 'marketing.manage',
             'homepage-content.index' => 'homepage-content.view',
+            'homepage-content.settings.update' => 'homepage-content.manage',
             'homepage-content.banners.store' => 'homepage-content.manage',
             'homepage-content.banners.update' => 'homepage-content.manage',
             'homepage-content.banners.destroy' => 'homepage-content.manage',

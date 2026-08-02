@@ -156,9 +156,18 @@ class ProductController extends Controller
             $data = $request->validated();
 
             if ($request->hasFile('image')) {
-                $data['image'] = $request
-                    ->file('image')
-                    ->store('products', 'public');
+                $data['image'] = $request->file('image')->store('products', 'public');
+            }
+
+            if ($request->hasFile('gallery_images')) {
+                $data['gallery_images'] = collect($request->file('gallery_images'))
+                    ->map(fn ($file) => $file->store('products/gallery', 'public'))
+                    ->values()
+                    ->all();
+            }
+
+            if ($request->hasFile('sample_file')) {
+                $data['sample_file'] = $request->file('sample_file')->store('products/samples', 'public');
             }
 
             $data['slug'] = $this->generateUniqueSlug($data['name']);
@@ -274,6 +283,29 @@ class ProductController extends Controller
                 unset($data['image']);
             }
 
+            if ($request->hasFile('gallery_images')) {
+                foreach ((array) $product->gallery_images as $path) {
+                    if ($path && Storage::disk('public')->exists($path)) {
+                        Storage::disk('public')->delete($path);
+                    }
+                }
+                $data['gallery_images'] = collect($request->file('gallery_images'))
+                    ->map(fn ($file) => $file->store('products/gallery', 'public'))
+                    ->values()
+                    ->all();
+            } else {
+                unset($data['gallery_images']);
+            }
+
+            if ($request->hasFile('sample_file')) {
+                if ($product->sample_file && Storage::disk('public')->exists($product->sample_file)) {
+                    Storage::disk('public')->delete($product->sample_file);
+                }
+                $data['sample_file'] = $request->file('sample_file')->store('products/samples', 'public');
+            } else {
+                unset($data['sample_file']);
+            }
+
             if (
                 isset($data['name'])
                 && $data['name'] !== $product->name
@@ -351,6 +383,15 @@ class ProductController extends Controller
                 && Storage::disk('public')->exists($product->image)
             ) {
                 Storage::disk('public')->delete($product->image);
+            }
+
+            foreach ((array) $product->gallery_images as $path) {
+                if ($path && Storage::disk('public')->exists($path)) {
+                    Storage::disk('public')->delete($path);
+                }
+            }
+            if ($product->sample_file && Storage::disk('public')->exists($product->sample_file)) {
+                Storage::disk('public')->delete($product->sample_file);
             }
 
             $product->delete();

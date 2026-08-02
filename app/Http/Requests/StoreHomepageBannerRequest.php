@@ -26,12 +26,15 @@ class StoreHomepageBannerRequest extends FormRequest
             'primary_button_url' => ['nullable','string','max:255'],
             'secondary_button_text' => ['nullable','string','max:50'],
             'secondary_button_url' => ['nullable','string','max:255'],
-            'image' => ['nullable','image','max:3072'],
+            'image' => ['nullable','image','max:4096'],
+            'mobile_image' => ['nullable','image','max:3072'],
             'background_from' => ['nullable','regex:/^#[0-9A-Fa-f]{6}$/'],
             'background_to' => ['nullable','regex:/^#[0-9A-Fa-f]{6}$/'],
             'text_color' => ['nullable','regex:/^#[0-9A-Fa-f]{6}$/'],
             'sort_order' => ['nullable','integer','min:0','max:9999'],
             'is_active' => ['nullable','boolean'],
+            'starts_at' => ['nullable','date'],
+            'ends_at' => ['nullable','date','after_or_equal:starts_at'],
         ];
     }
 }

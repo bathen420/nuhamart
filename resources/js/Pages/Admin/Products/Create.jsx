@@ -36,6 +36,8 @@ export default function Create({ auth, categories, brands, authors, publishers }
         status: 1,
         sort_order: 0,
         image: null,
+        gallery_images: [],
+        sample_file: null,
     });
 
     const submit = (e) => {

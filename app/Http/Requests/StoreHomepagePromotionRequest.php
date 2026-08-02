@@ -23,6 +23,8 @@ class StoreHomepagePromotionRequest extends FormRequest
             'theme' => ['required','in:mint,purple,orange,blue'],
             'sort_order' => ['nullable','integer','min:0','max:9999'],
             'is_active' => ['nullable','boolean'],
+            'starts_at' => ['nullable','date'],
+            'ends_at' => ['nullable','date','after_or_equal:starts_at'],
         ];
     }
 }

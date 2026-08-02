@@ -31,6 +31,8 @@ class Order extends Model
         'tracking_number',
         'admin_note',
         'discount',
+        'coupon_id',
+        'coupon_code',
         'total',
         'payment_method',
         'payment_reference',

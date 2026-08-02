@@ -305,6 +305,36 @@ export default function Form({
                 />
             </div>
 
+            <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                    <InputLabel htmlFor="gallery_images" value="Gallery Images (up to 6)" />
+                    <input
+                        id="gallery_images"
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        className="mt-1 block w-full"
+                        onChange={(e) => setData("gallery_images", Array.from(e.target.files || []))}
+                    />
+                    {product?.gallery_images?.length > 0 && (
+                        <p className="mt-2 text-xs text-slate-500">Uploading new gallery images will replace the current gallery.</p>
+                    )}
+                    <InputError message={errors.gallery_images} className="mt-2" />
+                </div>
+                <div>
+                    <InputLabel htmlFor="sample_file" value="Sample PDF (optional)" />
+                    <input
+                        id="sample_file"
+                        type="file"
+                        accept="application/pdf"
+                        className="mt-1 block w-full"
+                        onChange={(e) => setData("sample_file", e.target.files?.[0] ?? null)}
+                    />
+                    {product?.sample_file && <p className="mt-2 text-xs text-slate-500">A sample PDF is already uploaded.</p>}
+                    <InputError message={errors.sample_file} className="mt-2" />
+                </div>
+            </div>
+
             {/* Sort Order */}
             <div>
                 <InputLabel htmlFor="sort_order" value="Sort Order" />

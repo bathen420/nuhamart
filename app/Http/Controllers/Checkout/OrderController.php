@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Checkout;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Checkout\StoreOrderRequest;
+use App\Models\BusinessSetting;
 use App\Models\Order;
 use App\Services\OrderService;
 use Illuminate\Http\RedirectResponse;
@@ -20,6 +21,8 @@ class OrderController extends Controller
 
     public function create(Request $request): Response
     {
+        $settings = BusinessSetting::current();
+
         return Inertia::render('Checkout/Index', [
             'customer' => $request->user() ? [
                 'name' => $request->user()->name,
@@ -27,8 +30,23 @@ class OrderController extends Controller
                 'phone' => $request->user()->phone,
             ] : null,
             'savedAddresses' => $request->user()?->customerAddresses()->latest('is_default')->latest()->get() ?? [],
-            'shippingRates' => config('commerce.shipping'),
-            'paymentMethods' => collect(config('commerce.payments'))->filter(fn ($method) => $method['enabled'] ?? false)->map(fn ($method, $key) => ['key' => $key, ...$method])->values(),
+            'shippingRates' => [
+                'dhaka' => (float) ($settings->shipping_dhaka ?? config('commerce.shipping.dhaka', 60)),
+                'outside_dhaka' => (float) ($settings->shipping_outside_dhaka ?? config('commerce.shipping.outside_dhaka', 120)),
+                'digital_only' => (float) config('commerce.shipping.digital_only', 0),
+                'store_pickup' => (float) config('commerce.shipping.store_pickup', 0),
+                'free_shipping_threshold' => (float) ($settings->free_shipping_threshold ?? 0),
+            ],
+            'paymentMethods' => collect(config('commerce.payments'))->filter(fn ($method) => $method['enabled'] ?? false)->map(function ($method, $key) use ($settings) {
+                $account = match ($key) {
+                    'bkash' => $settings->bkash_number ?: ($method['account'] ?? null),
+                    'nagad' => $settings->nagad_number ?: ($method['account'] ?? null),
+                    'bank' => $settings->bank_payment_instructions ?: ($method['account'] ?? null),
+                    default => $method['account'] ?? null,
+                };
+
+                return ['key' => $key, ...$method, 'account' => $account];
+            })->values(),
         ]);
     }
 
@@ -39,7 +57,7 @@ class OrderController extends Controller
             $payload['user_id'] = $request->user()?->id;
             $order = $this->orderService->place($payload);
 
-            if ($request->user() && $request->boolean('save_address')) {
+            if ($request->user() && $request->boolean('save_address') && ($payload['shipping_method'] ?? 'standard') !== 'store_pickup') {
                 if ($request->boolean('address_is_default')) {
                     $request->user()->customerAddresses()->update(['is_default' => false]);
                 }

@@ -31,7 +31,11 @@ const messages = {
         qualityGuaranteed: "Genuine products from trusted sources", supportEveryday: "Helpful support when you need it", newsletterEyebrow: "Stay inspired",
         newsletterTitle: "New books, better deals—straight to your inbox", newsletterSubtitle: "Get selected offers, reading recommendations and new-release updates without the noise.",
         emailPlaceholder: "Enter your email address", subscribe: "Subscribe", shopBy: "Shop by", returnPolicy: "Return policy", privacyPolicy: "Privacy policy",
-        contactUs: "Contact us", supportHours: "Support: 9 AM – 9 PM", rightsReserved: "All rights reserved.", categoriesShort: "Categories",
+        contactUs: "Contact us", supportHours: "Support: 9 AM – 9 PM", rightsReserved: "All rights reserved.", categoriesShort: "Categories", products: "Products", authors: "Authors", publishers: "Publishers",
+        searchStore: "Search Nuha Mart BD", clearSearch: "Clear search", filterCategory: "Filter by category", closeSearch: "Close search",
+        searchEverything: "Search everything", recentSearches: "Recent searches", popularSearches: "Popular searches", clearAll: "Clear all",
+        searchKeyboardHint: "Use the up and down arrow keys to browse suggestions, then press Enter.", searching: "Searching…",
+        viewAllResults: "View all results for", noSearchResults: "No matching products, authors, publishers or categories found.",
     },
     bn: {
         home: "হোম", shop: "শপ", books: "বই", ebooks: "ই-বুক", stationery: "স্টেশনারি", offers: "অফার",
@@ -63,7 +67,11 @@ const messages = {
         qualityGuaranteed: "বিশ্বস্ত উৎস থেকে আসল পণ্য", supportEveryday: "প্রয়োজনে সহায়ক গ্রাহকসেবা", newsletterEyebrow: "আপডেট থাকুন",
         newsletterTitle: "নতুন বই ও সেরা অফার সরাসরি আপনার ইনবক্সে", newsletterSubtitle: "অপ্রয়োজনীয় বার্তা নয়—শুধু নির্বাচিত অফার, বইয়ের পরামর্শ ও নতুন প্রকাশনার খবর।",
         emailPlaceholder: "আপনার ইমেইল লিখুন", subscribe: "সাবস্ক্রাইব", shopBy: "কেনাকাটার বিভাগ", returnPolicy: "রিটার্ন নীতি", privacyPolicy: "গোপনীয়তা নীতি",
-        contactUs: "যোগাযোগ", supportHours: "সহায়তা: সকাল ৯টা – রাত ৯টা", rightsReserved: "সর্বস্বত্ব সংরক্ষিত।", categoriesShort: "ক্যাটাগরি",
+        contactUs: "যোগাযোগ", supportHours: "সহায়তা: সকাল ৯টা – রাত ৯টা", rightsReserved: "সর্বস্বত্ব সংরক্ষিত।", categoriesShort: "ক্যাটাগরি", products: "পণ্য", authors: "লেখক", publishers: "প্রকাশনী",
+        searchStore: "Nuha Mart BD-তে খুঁজুন", clearSearch: "সার্চ মুছুন", filterCategory: "ক্যাটাগরি দিয়ে ফিল্টার", closeSearch: "সার্চ বন্ধ করুন",
+        searchEverything: "সবকিছু খুঁজুন", recentSearches: "সাম্প্রতিক সার্চ", popularSearches: "জনপ্রিয় সার্চ", clearAll: "সব মুছুন",
+        searchKeyboardHint: "সাজেশন দেখতে ওপর ও নিচের অ্যারো কী ব্যবহার করুন, তারপর Enter চাপুন।", searching: "খোঁজা হচ্ছে…",
+        viewAllResults: "সব ফলাফল দেখুন:", noSearchResults: "কোনো মিল পাওয়া পণ্য, লেখক, প্রকাশনী বা ক্যাটাগরি নেই।",
     },
 };
 

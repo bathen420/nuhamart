@@ -67,6 +67,8 @@ class Product extends Model
         'stock_quantity',
 
         'image',
+        'gallery_images',
+        'sample_file',
 
         'status',
 
@@ -78,6 +80,15 @@ class Product extends Model
 
         'sort_order',
 
+    ];
+
+
+    protected $casts = [
+        'gallery_images' => 'array',
+        'status' => 'boolean',
+        'is_featured' => 'boolean',
+        'is_new_arrival' => 'boolean',
+        'is_best_seller' => 'boolean',
     ];
 
     /**

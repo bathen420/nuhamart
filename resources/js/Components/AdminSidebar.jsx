@@ -14,6 +14,7 @@ import {
     Package,
     ScrollText,
     Settings,
+    BadgePercent,
     ShieldCheck,
     ShoppingBag,
     ShoppingCart,
@@ -62,6 +63,7 @@ export default function AdminSidebar() {
     const commerceItems = [
         { label: "Dashboard", routeName: "admin.dashboard", urlPrefix: "/admin/dashboard", permission: "dashboard.view", icon: LayoutDashboard },
         { label: "Homepage & Banners", routeName: "admin.homepage-content.index", urlPrefix: "/admin/homepage-content", permission: "homepage-content.view", icon: LayoutTemplate },
+        { label: "Marketing & Coupons", routeName: "admin.marketing.coupons.index", urlPrefix: "/admin/marketing", permission: "marketing.view", icon: BadgePercent },
         { label: "Orders", routeName: "admin.orders.index", urlPrefix: "/admin/orders", permission: "orders.view", icon: ShoppingBag },
         { label: "Products & Books", routeName: "admin.products.index", urlPrefix: "/admin/products", permission: "products.view", icon: Package },
         { label: "Categories", routeName: "admin.categories.index", urlPrefix: "/admin/categories", permission: "categories.view", icon: FolderTree },

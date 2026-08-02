@@ -76,6 +76,9 @@ class StoreProductRequest extends FormRequest
             'is_new_arrival' => ['required', 'boolean'],
             'is_best_seller' => ['required', 'boolean'],
 
+            'gallery_images' => ['nullable', 'array', 'max:6'],
+            'gallery_images.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'sample_file' => ['nullable', 'file', 'mimes:pdf', 'max:10240'],
             'image' => [
                 'nullable',
                 'image',

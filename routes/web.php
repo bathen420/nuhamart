@@ -10,6 +10,8 @@ use App\Http\Controllers\StorefrontController;
 use App\Http\Controllers\Admin\CustomerController;
 
 use App\Http\Controllers\Checkout\OrderController as CheckoutOrderController;
+use App\Http\Controllers\Checkout\CouponController as CheckoutCouponController;
+use App\Http\Controllers\Admin\CouponController as AdminCouponController;
 
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CategoryController;
@@ -95,6 +97,8 @@ Route::get('/cart', function () {
 Route::get('/checkout', [CheckoutOrderController::class, 'create'])
     ->name('checkout.index');
 
+Route::post('/checkout/coupon/validate', CheckoutCouponController::class)->middleware('throttle:30,1')->name('checkout.coupon.validate');
+
 Route::post('/checkout/place-order', [CheckoutOrderController::class, 'store'])
     ->name('checkout.store');
 
@@ -152,7 +156,10 @@ Route::middleware(['auth', 'verified', 'active', 'activity', \App\Http\Middlewar
         Route::resource('authors', AuthorController::class)->except(['show']);
         Route::resource('publishers', PublisherController::class)->except(['show']);
 
+        Route::resource('marketing/coupons', AdminCouponController::class)->only(['index','store','update','destroy'])->names('marketing.coupons');
+
         Route::get('homepage-content', [HomepageContentController::class, 'index'])->name('homepage-content.index');
+        Route::put('homepage-content/settings', [HomepageContentController::class, 'updateSettings'])->name('homepage-content.settings.update');
         Route::post('homepage-content/banners', [HomepageContentController::class, 'storeBanner'])->name('homepage-content.banners.store');
         Route::put('homepage-content/banners/{banner}', [HomepageContentController::class, 'updateBanner'])->name('homepage-content.banners.update');
         Route::delete('homepage-content/banners/{banner}', [HomepageContentController::class, 'destroyBanner'])->name('homepage-content.banners.destroy');

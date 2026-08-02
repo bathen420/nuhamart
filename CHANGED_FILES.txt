@@ -1,8 +1,0 @@
-app/Http/Controllers/Controller.php
-resources/js/Pages/Admin/Products/Index.jsx
-resources/js/Pages/Admin/Products/Show.jsx
-resources/js/Pages/Admin/ProductVariants/Labels.jsx
-public/hot (removed)
-BUG_FIX_REPORT.md
-UPGRADE.md
-CHANGED_FILES.txt

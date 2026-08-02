@@ -6,6 +6,7 @@ use App\Models\Author;
 use App\Models\Category;
 use App\Models\HomepageBanner;
 use App\Models\HomepagePromotion;
+use App\Models\HomepageSetting;
 use App\Models\Product;
 use App\Models\Publisher;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,7 +23,7 @@ class StorefrontController extends Controller
         $base = Product::query()->where('status', true)->with($this->relations());
 
         return Inertia::render('Storefront/Home', [
-            'heroBanners' => HomepageBanner::query()->where('is_active', true)->orderBy('sort_order')->orderBy('id')->get()->map(fn ($banner) => [
+            'heroBanners' => HomepageBanner::query()->published()->orderBy('sort_order')->orderBy('id')->get()->map(fn ($banner) => [
                 'id' => $banner->id,
                 'badge' => $this->localizedValue($banner, 'badge'),
                 'title' => $this->localizedValue($banner, 'title'),
@@ -33,11 +34,12 @@ class StorefrontController extends Controller
                 'secondary_button_text' => $this->localizedValue($banner, 'secondary_button_text'),
                 'secondary_button_url' => $banner->secondary_button_url,
                 'image' => $banner->image,
+                'mobile_image' => $banner->mobile_image,
                 'background_from' => $banner->background_from,
                 'background_to' => $banner->background_to,
                 'text_color' => $banner->text_color,
             ]),
-            'promotions' => HomepagePromotion::query()->where('is_active', true)->orderBy('sort_order')->orderBy('id')->get()->map(fn ($promotion) => [
+            'promotions' => HomepagePromotion::query()->published()->orderBy('sort_order')->orderBy('id')->get()->map(fn ($promotion) => [
                 'id' => $promotion->id,
                 'title' => $this->localizedValue($promotion, 'title'),
                 'subtitle' => $this->localizedValue($promotion, 'subtitle'),
@@ -46,6 +48,7 @@ class StorefrontController extends Controller
                 'image' => $promotion->image,
                 'theme' => $promotion->theme,
             ]),
+            'homepageSettings' => HomepageSetting::payload(),
             'flashSale' => (clone $base)->whereNotNull('discount_price')->whereColumn('discount_price', '<', 'price')->orderByRaw('(price - discount_price) desc')->limit(8)->get()->map(fn ($p) => $this->card($p)),
             'featured' => (clone $base)->where('is_featured', true)->orderBy('sort_order')->limit(8)->get()->map(fn ($p) => $this->card($p)),
             'newArrivals' => (clone $base)->where('is_new_arrival', true)->latest()->limit(8)->get()->map(fn ($p) => $this->card($p)),
@@ -183,7 +186,19 @@ class StorefrontController extends Controller
         abort_unless($product->status, 404);
         $product->load($this->relations());
         $related = Product::where('status', true)->whereKeyNot($product->id)->where('category_id', $product->category_id)->with($this->relations())->limit(8)->get()->map(fn ($p) => $this->card($p));
-        return Inertia::render('Storefront/ProductShow', ['product' => $this->detail($product), 'related' => $related]);
+        $sameAuthor = $product->author_id
+            ? Product::where('status', true)->whereKeyNot($product->id)->where('author_id', $product->author_id)->with($this->relations())->limit(8)->get()->map(fn ($p) => $this->card($p))
+            : collect();
+        $samePublisher = $product->publisher_id
+            ? Product::where('status', true)->whereKeyNot($product->id)->where('publisher_id', $product->publisher_id)->with($this->relations())->limit(8)->get()->map(fn ($p) => $this->card($p))
+            : collect();
+
+        return Inertia::render('Storefront/ProductShow', [
+            'product' => $this->detail($product),
+            'related' => $related,
+            'sameAuthor' => $sameAuthor,
+            'samePublisher' => $samePublisher,
+        ]);
     }
 
     public function author(Author $author): Response
@@ -244,7 +259,20 @@ class StorefrontController extends Controller
 
     private function detail(Product $p): array
     {
-        return array_merge($this->card($p), ['sku'=>$p->sku,'short_description'=>$p->localized('short_description'),'description'=>$p->localized('description'),'edition'=>$p->edition,'language'=>$p->language,'pages'=>$p->pages,'publication_year'=>$p->publication_year,'binding'=>$p->binding,'weight'=>$p->weight,'dimensions'=>$p->dimensions]);
+        return array_merge($this->card($p), [
+            'sku'=>$p->sku,
+            'short_description'=>$p->localized('short_description'),
+            'description'=>$p->localized('description'),
+            'edition'=>$p->edition,
+            'language'=>$p->language,
+            'pages'=>$p->pages,
+            'publication_year'=>$p->publication_year,
+            'binding'=>$p->binding,
+            'weight'=>$p->weight,
+            'dimensions'=>$p->dimensions,
+            'gallery_images'=>collect((array) $p->gallery_images)->map(fn ($path) => '/storage/'.$path)->values(),
+            'sample_file'=>$p->sample_file ? '/storage/'.$p->sample_file : null,
+        ]);
     }
 
     private function categoryOptions(?int $limit = null)
