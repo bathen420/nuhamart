@@ -89,7 +89,7 @@ Route::post('/checkout/place-order', [CheckoutOrderController::class, 'store'])
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'verified', 'active', 'activity'])
+Route::middleware(['auth', 'verified', 'active', 'activity', \App\Http\Middleware\EnforceAdminPermission::class])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
@@ -121,20 +121,20 @@ Route::middleware(['auth', 'verified', 'active', 'activity'])
 
         Route::resource('products', ProductController::class);
         Route::get('/barcode-labels', [BarcodeLabelController::class, 'index'])
-            ->middleware('permission:barcode-labels.view')
+            
             ->name('barcode-labels.index');
         Route::post('/barcode-labels/generate', [BarcodeLabelController::class, 'generate'])
-            ->middleware('permission:barcode-labels.generate')
+            
             ->name('barcode-labels.generate');
         Route::get('/barcode-labels/print', [BarcodeLabelController::class, 'print'])
-            ->middleware('permission:barcode-labels.print')
+            
             ->name('barcode-labels.print');
 
         Route::resource('units', UnitController::class)->except(['show']);
         Route::resource('product-variants', ProductVariantController::class)->except(['show']);
         Route::post('product-variants/labels', [ProductVariantController::class, 'labels'])->name('product-variants.labels');
 
-        Route::resource('opening-stocks', OpeningStockController::class)->only(['index','create','store','show'])->middleware('permission:opening-stocks.view');
+        Route::resource('opening-stocks', OpeningStockController::class)->only(['index','create','store','show']);
 
         Route::resource('stock-adjustments', StockAdjustmentController::class)->only(['index','create','store','show']);
         Route::patch('stock-adjustments/{stockAdjustment}/approve', [StockAdjustmentController::class, 'approve'])->name('stock-adjustments.approve');
@@ -160,17 +160,17 @@ Route::middleware(['auth', 'verified', 'active', 'activity'])
         |--------------------------------------------------------------------------
         */
         Route::get('financial-statements', [FinancialStatementController::class, 'dashboard'])
-            ->middleware('permission:financial-statements.view')->name('financial-statements.dashboard');
+            ->name('financial-statements.dashboard');
         Route::get('financial-statements/trial-balance', [FinancialStatementController::class, 'trialBalance'])
-            ->middleware('permission:financial-statements.view')->name('financial-statements.trial-balance');
+            ->name('financial-statements.trial-balance');
         Route::get('financial-statements/profit-loss', [FinancialStatementController::class, 'profitLoss'])
-            ->middleware('permission:financial-statements.view')->name('financial-statements.profit-loss');
+            ->name('financial-statements.profit-loss');
         Route::get('financial-statements/balance-sheet', [FinancialStatementController::class, 'balanceSheet'])
-            ->middleware('permission:financial-statements.view')->name('financial-statements.balance-sheet');
+            ->name('financial-statements.balance-sheet');
         Route::get('financial-statements/cash-flow', [FinancialStatementController::class, 'cashFlow'])
-            ->middleware('permission:financial-statements.view')->name('financial-statements.cash-flow');
+            ->name('financial-statements.cash-flow');
         Route::get('financial-statements/export/{statement}', [FinancialStatementController::class, 'export'])
-            ->middleware('permission:financial-statements.export')->name('financial-statements.export');
+            ->name('financial-statements.export');
 
 
         /*
@@ -184,12 +184,12 @@ Route::middleware(['auth', 'verified', 'active', 'activity'])
         Route::resource('customers', CustomerController::class)
             ->except(['show']);
 
-        Route::get('/crm', [CrmController::class, 'index'])->middleware('permission:crm.view')->name('crm.index');
-        Route::get('/crm/customers/{customer}', [CrmController::class, 'show'])->middleware('permission:crm.view')->name('crm.show');
-        Route::post('/crm/customers/{customer}/points', [CrmController::class, 'points'])->middleware('permission:loyalty.manage')->name('crm.points');
-        Route::post('/crm/customers/{customer}/wallet', [CrmController::class, 'wallet'])->middleware('permission:wallet.manage')->name('crm.wallet');
-        Route::post('/crm/customers/{customer}/notes', [CrmController::class, 'note'])->middleware('permission:crm.manage')->name('crm.notes');
-        Route::resource('gift-vouchers', GiftVoucherController::class)->only(['index','store','destroy'])->middleware('permission:vouchers.manage');
+        Route::get('/crm', [CrmController::class, 'index'])->name('crm.index');
+        Route::get('/crm/customers/{customer}', [CrmController::class, 'show'])->name('crm.show');
+        Route::post('/crm/customers/{customer}/points', [CrmController::class, 'points'])->name('crm.points');
+        Route::post('/crm/customers/{customer}/wallet', [CrmController::class, 'wallet'])->name('crm.wallet');
+        Route::post('/crm/customers/{customer}/notes', [CrmController::class, 'note'])->name('crm.notes');
+        Route::resource('gift-vouchers', GiftVoucherController::class)->only(['index','store','destroy']);
 
         /*
         |--------------------------------------------------------------------------
@@ -313,23 +313,23 @@ Route::middleware(['auth', 'verified', 'active', 'activity'])
         */
 
         Route::get('/reports', [ReportController::class, 'index'])
-            ->middleware('permission:reports.view')
+            
             ->name('reports.index');
 
         Route::get('/reports/sales', [ReportController::class, 'sales'])
-            ->middleware('permission:reports.view')
+            
             ->name('reports.sales');
 
         Route::get('/reports/sales/print', [ReportController::class, 'salesPrint'])
-            ->middleware('permission:reports.view')
+            
             ->name('reports.sales.print');
 
         Route::get('/reports/sales/export', [ReportController::class, 'salesExport'])
-            ->middleware('permission:reports.export')
+            
             ->name('reports.sales.export');
 
         Route::get('/reports/sales/export-excel', [ReportController::class, 'salesExcelExport'])
-            ->middleware('permission:reports.export')
+            
             ->name('reports.sales.export-excel');
 
         /*
@@ -355,31 +355,31 @@ Route::middleware(['auth', 'verified', 'active', 'activity'])
         Route::patch('/settings', [BusinessSettingController::class, 'update'])
             ->name('settings.update');
 
-        Route::resource('users', UserController::class)->except(['show'])->middleware('permission:users.view');
-        Route::resource('roles', RoleController::class)->except(['show'])->middleware('permission:roles.view');
-        Route::get('/permissions', [PermissionController::class, 'index'])->middleware('permission:permissions.view')->name('permissions.index');
+        Route::resource('users', UserController::class)->except(['show']);
+        Route::resource('roles', RoleController::class)->except(['show']);
+        Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions.index');
 
-        Route::get('/activity-logs', [ActivityLogController::class, 'index'])->middleware('permission:activity-logs.view')->name('activity-logs.index');
-        Route::get('/activity-logs/export', [ActivityLogController::class, 'export'])->middleware('permission:activity-logs.export')->name('activity-logs.export');
+        Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+        Route::get('/activity-logs/export', [ActivityLogController::class, 'export'])->name('activity-logs.export');
 
 
         Route::get('/notifications', [NotificationController::class, 'index'])
-            ->middleware('permission:notifications.view')
+            
             ->name('notifications.index');
         Route::patch('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])
-            ->middleware('permission:notifications.view')
+            
             ->name('notifications.read-all');
         Route::delete('/notifications/read', [NotificationController::class, 'destroyRead'])
-            ->middleware('permission:notifications.delete')
+            
             ->name('notifications.destroy-read');
         Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])
-            ->middleware('permission:notifications.view')
+            
             ->name('notifications.read');
         Route::patch('/notifications/{notification}/unread', [NotificationController::class, 'markAsUnread'])
-            ->middleware('permission:notifications.view')
+            
             ->name('notifications.unread');
         Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])
-            ->middleware('permission:notifications.delete')
+            
             ->name('notifications.destroy');
     });
 

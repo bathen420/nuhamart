@@ -1,0 +1,10 @@
+NuhaMart v1.5.3 — Opening Stock Permission Fix
+
+REPLACE:
+tests/Feature/OpeningStockTest.php
+
+DOCUMENTATION:
+INSTALL_v1.5.3_OPENING_STOCK_PERMISSION_FIX.md
+CHANGELOG_v1.5.3.md
+FILE_MANIFEST_v1.5.3.txt
+SHA256SUMS_v1.5.3.txt

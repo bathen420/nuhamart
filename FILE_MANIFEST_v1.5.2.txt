@@ -1,0 +1,13 @@
+MODIFIED
+routes/web.php
+
+NEW
+app/Http/Middleware/EnforceAdminPermission.php
+app/Services/SystemIntegrityService.php
+app/Console/Commands/NuhaMartHealthCheck.php
+tests/Feature/FoundationHardeningTest.php
+scripts/VERIFY_RELEASE_WINDOWS.ps1
+INSTALL_v1.5.2_FOUNDATION_HARDENING.md
+CHANGELOG_v1.5.2.md
+FILE_MANIFEST_v1.5.2.txt
+SHA256SUMS_v1.5.2.txt
