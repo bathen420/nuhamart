@@ -1,4 +1,0 @@
-./CHANGELOG_v0.9.3.md
-./FILE_MANIFEST.txt
-./INSTALL_v0.9.3.md
-./database/factories/ProductFactory.php

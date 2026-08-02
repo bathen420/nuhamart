@@ -2,18 +2,36 @@ import { Head, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import Form from "./Form";
 
-export default function Create({ auth, categories, brands }) {
+export default function Create({ auth, categories, brands, authors, publishers }) {
     const { data, setData, post, processing, errors } = useForm({
         category_id: "",
         brand_id: "",
         name: "",
+        name_bn: "",
         sku: "",
         barcode: "",
         barcode_type: "code128",
+        author_id: "",
+        publisher_id: "",
+        product_type: "physical",
+        isbn: "",
+        edition: "",
+        language: "",
+        pages: "",
+        publication_year: "",
+        binding: "",
+        weight: "",
+        dimensions: "",
+        ebook_price: "",
+        is_featured: 0,
+        is_new_arrival: 0,
+        is_best_seller: 0,
         price: "",
         discount_price: "",
         stock_quantity: "",
         short_description: "",
+        description_bn: "",
+        short_description_bn: "",
         description: "",
         status: 1,
         sort_order: 0,
@@ -57,6 +75,8 @@ export default function Create({ auth, categories, brands }) {
                                 submit={submit}
                                 categories={categories}
                                 brands={brands}
+                                authors={authors}
+                                publishers={publishers}
                                 buttonText="Save Product"
                             />
                         </div>

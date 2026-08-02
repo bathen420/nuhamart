@@ -19,7 +19,7 @@ class InventoryCoreTest extends TestCase
     public function test_approved_adjustment_updates_warehouse_and_product_stock(): void
     {
         $this->seed(RolesAndPermissionsSeeder::class);
-        $user = User::where('email', 'admin@nuhamart.com')->firstOrFail();
+        $user = User::where('email', 'admin@nuhamartbd.com')->firstOrFail();
         $warehouse = Warehouse::create(['name'=>'Main','code'=>'MAIN','status'=>true,'is_default'=>true,'created_by'=>$user->id]);
         $product = Product::factory()->create(['stock_quantity'=>0]);
 

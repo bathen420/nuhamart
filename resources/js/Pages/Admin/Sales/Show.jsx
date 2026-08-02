@@ -19,7 +19,7 @@ const formatDate = (date) => {
 
 export default function Show({ auth, sale }) {
     const { businessSettings = {} } = usePage().props;
-    const companyName = businessSettings.company_name || "NuhaMart";
+    const companyName = businessSettings.company_name || "Nuha Mart BD";
     const currencySymbol = businessSettings.currency_symbol || "৳";
     const money = (value) => `${currencySymbol}${formatNumber(value)}`;
     const saleItems = Array.isArray(sale?.items) ? sale.items : [];

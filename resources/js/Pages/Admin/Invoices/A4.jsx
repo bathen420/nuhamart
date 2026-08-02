@@ -38,7 +38,7 @@ export default function A4({ sale = {}, invoiceSettings = {}, generatedAt }) {
     const [printing, setPrinting] = useState(false);
     const symbol = invoiceSettings.currency_symbol || "৳";
     const items = Array.isArray(sale.items) ? sale.items : [];
-    const companyName = invoiceSettings.company_name || "NuhaMart";
+    const companyName = invoiceSettings.company_name || "Nuha Mart BD";
 
     const customerLines = useMemo(
         () => [

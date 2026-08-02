@@ -41,8 +41,10 @@ class CategoryController extends Controller
     {
         Category::create([
             'name'        => $request->name,
+            'name_bn'     => $request->name_bn,
             'slug'        => Str::slug($request->name),
             'description' => $request->description,
+            'description_bn' => $request->description_bn,
             'status'      => $request->boolean('status'),
             'sort_order'  => $request->sort_order ?? 0,
         ]);
@@ -70,8 +72,10 @@ class CategoryController extends Controller
     {
         $category->update([
             'name'        => $request->name,
+            'name_bn'     => $request->name_bn,
             'slug'        => Str::slug($request->name),
             'description' => $request->description,
+            'description_bn' => $request->description_bn,
             'status'      => $request->boolean('status'),
             'sort_order'  => $request->sort_order ?? 0,
         ]);

@@ -9,7 +9,7 @@
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title inertia>{{ config('app.name', 'NuhaMart') }}</title>
+    <title inertia>{{ config('app.name', 'Nuha Mart BD') }}</title>
 
     @routes
     @viteReactRefresh

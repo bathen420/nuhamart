@@ -14,6 +14,8 @@ export default function Form({
     submit,
     categories,
     brands,
+    authors = [],
+    publishers = [],
     buttonText,
     product = null,
 }) {
@@ -69,6 +71,19 @@ export default function Form({
                 <InputError message={errors.brand_id} className="mt-2" />
             </div>
 
+
+            <div className="rounded-xl border border-indigo-100 bg-indigo-50/40 p-5">
+                <h3 className="mb-4 text-lg font-bold text-slate-900">Book & Digital Product Information</h3>
+                <div className="grid gap-4 md:grid-cols-2">
+                    <div><InputLabel value="Product Type"/><select className="mt-1 block w-full rounded-md border-gray-300" value={data.product_type} onChange={e=>setData("product_type",e.target.value)}><option value="physical">Physical Product / Hardcopy</option><option value="ebook">Ebook</option><option value="both">Physical + Ebook</option></select><InputError className="mt-2" message={errors.product_type}/></div>
+                    <div><InputLabel value="ISBN"/><TextInput className="mt-1 block w-full" value={data.isbn ?? ""} onChange={e=>setData("isbn",e.target.value)}/><InputError className="mt-2" message={errors.isbn}/></div>
+                    <div><InputLabel value="Author"/><select className="mt-1 block w-full rounded-md border-gray-300" value={data.author_id ?? ""} onChange={e=>setData("author_id",e.target.value)}><option value="">Not applicable</option>{authors.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
+                    <div><InputLabel value="Publisher"/><select className="mt-1 block w-full rounded-md border-gray-300" value={data.publisher_id ?? ""} onChange={e=>setData("publisher_id",e.target.value)}><option value="">Not applicable</option>{publishers.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
+                    {[["edition","Edition"],["language","Language"],["pages","Pages"],["publication_year","Publication Year"],["binding","Binding"],["weight","Weight (kg)"],["dimensions","Dimensions"],["ebook_price","Ebook Price"]].map(([field,label])=><div key={field}><InputLabel value={label}/><TextInput type={["pages","publication_year","weight","ebook_price"].includes(field)?"number":"text"} className="mt-1 block w-full" value={data[field] ?? ""} onChange={e=>setData(field,e.target.value)}/><InputError className="mt-2" message={errors[field]}/></div>)}
+                </div>
+                <div className="mt-4 flex flex-wrap gap-5">{[["is_featured","Featured"],["is_new_arrival","New Arrival"],["is_best_seller","Best Seller"]].map(([field,label])=><label key={field} className="flex items-center gap-2"><input type="checkbox" checked={Boolean(data[field])} onChange={e=>setData(field,e.target.checked?1:0)}/><span>{label}</span></label>)}</div>
+            </div>
+
             {/* Product Name */}
             <div>
                 <InputLabel htmlFor="name" value="Product Name" />
@@ -82,6 +97,8 @@ export default function Form({
 
                 <InputError message={errors.name} className="mt-2" />
             </div>
+
+            <div><InputLabel value="Product Name (Bangla)"/><TextInput className="mt-1 block w-full" value={data.name_bn ?? ""} onChange={(e)=>setData("name_bn",e.target.value)}/><InputError message={errors.name_bn} className="mt-2"/></div>
 
             {/* SKU */}
             <div>
@@ -231,6 +248,9 @@ export default function Form({
                     className="mt-2"
                 />
             </div>
+
+            <div><InputLabel value="Short Description (Bangla)"/><textarea rows="3" className="mt-1 block w-full rounded-md border-gray-300" value={data.short_description_bn ?? ""} onChange={(e)=>setData("short_description_bn",e.target.value)}/><InputError message={errors.short_description_bn} className="mt-2"/></div>
+            <div><InputLabel value="Description (Bangla)"/><textarea rows="6" className="mt-1 block w-full rounded-md border-gray-300" value={data.description_bn ?? ""} onChange={(e)=>setData("description_bn",e.target.value)}/><InputError message={errors.description_bn} className="mt-2"/></div>
 
             {/* Status */}
             <div className="flex items-center gap-2">

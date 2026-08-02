@@ -9,14 +9,14 @@ class NuhaMartHealthCheck extends Command
 {
     protected $signature = 'nuhamart:health-check';
 
-    protected $description = 'Run non-destructive NuhaMart database and accounting integrity checks';
+    protected $description = 'Run non-destructive Nuha Mart BD database and accounting integrity checks';
 
     public function handle(SystemIntegrityService $integrity): int
     {
         $checks = $integrity->run();
 
         $this->newLine();
-        $this->info('NuhaMart system integrity report');
+        $this->info('Nuha Mart BD system integrity report');
         $this->table(
             ['Check', 'Status', 'Issues', 'Description'],
             collect($checks)->map(fn (array $check) => [

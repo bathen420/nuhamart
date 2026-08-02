@@ -9,7 +9,7 @@ class ClearDashboardCache extends Command
 {
     protected $signature = 'dashboard:clear-cache';
 
-    protected $description = 'Clear the NuhaMart dashboard analytics cache';
+    protected $description = 'Clear the Nuha Mart BD dashboard analytics cache';
 
     public function handle(DashboardService $dashboardService): int
     {

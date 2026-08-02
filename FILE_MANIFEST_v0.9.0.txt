@@ -1,9 +1,0 @@
-CHANGELOG_v0.9.0_PROFESSIONAL_INVOICE.md
-INSTALL_v0.9.0_PROFESSIONAL_INVOICE.md
-app/Http/Controllers/Admin/InvoiceController.php
-resources/js/Pages/Admin/Invoices/A4.jsx
-resources/js/Pages/Admin/Invoices/Thermal.jsx
-resources/js/Pages/Admin/Sales/Show.jsx
-resources/views/invoices/sale-pdf.blade.php
-routes/web.php
-tests/Feature/InvoiceRoutesTest.php

@@ -3,12 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreSaleRequest;
+use App\Http\Requests\EnterprisePosCheckoutRequest;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Services\SaleService;
+use App\Services\EnterprisePosService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,7 +19,8 @@ use Inertia\Response;
 class POSController extends Controller
 {
     public function __construct(
-        protected SaleService $saleService
+        protected SaleService $saleService,
+        protected EnterprisePosService $enterprisePos
     ) {
     }
 
@@ -74,6 +76,9 @@ class POSController extends Controller
             'customers' => $customers,
             'categories' => $categories,
             'brands' => $brands,
+
+            'currentShift' => $this->enterprisePos->currentShift(),
+            'heldSalesCount' => \App\Models\HeldSale::where('user_id', auth()->id())->where('status', 'held')->count(),
 
             'filters' => [
                 'search' => $request->string('search')->toString(),
@@ -206,9 +211,9 @@ class POSController extends Controller
      * Complete a POS sale.
      */
     public function checkout(
-        StoreSaleRequest $request
+        EnterprisePosCheckoutRequest $request
     ): RedirectResponse {
-        $sale = $this->saleService->store(
+        $sale = $this->enterprisePos->checkout(
             $request->validated()
         );
 

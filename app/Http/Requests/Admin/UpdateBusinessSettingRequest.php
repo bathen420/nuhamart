@@ -22,6 +22,8 @@ class UpdateBusinessSettingRequest extends FormRequest
             'phone' => ['nullable', 'string', 'max:50'],
             'email' => ['nullable', 'email', 'max:150'],
             'website' => ['nullable', 'url', 'max:200'],
+            'facebook_url' => ['nullable', 'url', 'max:255'],
+            'youtube_url' => ['nullable', 'url', 'max:255'],
             'currency_code' => ['required', 'string', 'max:10'],
             'currency_symbol' => ['required', 'string', 'max:10'],
             'timezone' => ['required', 'timezone'],
@@ -30,7 +32,13 @@ class UpdateBusinessSettingRequest extends FormRequest
             'sales_return_prefix' => ['required', 'alpha_dash', 'max:20'],
             'purchase_return_prefix' => ['required', 'alpha_dash', 'max:20'],
             'tax_rate' => ['required', 'numeric', 'min:0', 'max:100'],
+            'shipping_dhaka' => ['required', 'numeric', 'min:0'],
+            'shipping_outside_dhaka' => ['required', 'numeric', 'min:0'],
+            'free_shipping_threshold' => ['nullable', 'numeric', 'min:0'],
             'default_payment_method' => ['required', 'in:Cash,Card,Bank Transfer,Mobile Banking'],
+            'bkash_number' => ['nullable', 'string', 'max:30'],
+            'nagad_number' => ['nullable', 'string', 'max:30'],
+            'bank_payment_instructions' => ['nullable', 'string', 'max:2000'],
             'invoice_footer' => ['nullable', 'string', 'max:1000'],
         ];
     }

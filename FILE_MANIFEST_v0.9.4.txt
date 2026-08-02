@@ -1,7 +1,0 @@
-resources/css/app.css
-resources/js/Pages/Admin/Invoices/A4.jsx
-resources/js/Pages/Admin/Invoices/Thermal.jsx
-INSTALL_v0.9.4_PRINT_FIX.md
-CHANGELOG_v0.9.4.md
-FILE_MANIFEST_v0.9.4.txt
-SHA256SUMS_v0.9.4.txt

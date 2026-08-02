@@ -15,10 +15,10 @@ export default function Welcome({
 }) {
     return (
         <>
-            <Head title="NuhaMart - Online Shopping in Bangladesh">
+            <Head title="Nuha Mart BD - Online Shopping in Bangladesh">
                 <meta
                     name="description"
-                    content="Shop electronics, fashion, books, beauty products and daily essentials from NuhaMart."
+                    content="Shop electronics, fashion, books, beauty products and daily essentials from Nuha Mart BD."
                 />
             </Head>
 

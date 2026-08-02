@@ -274,3 +274,42 @@ img {
         page-break-inside: avoid !important;
     }
 }
+
+/*
+|--------------------------------------------------------------------------
+| Nuha Mart BD Storefront Design System — v2.0 Alpha
+|--------------------------------------------------------------------------
+*/
+
+:root {
+    --nm-primary: #0f766e;
+    --nm-primary-dark: #115e59;
+    --nm-accent: #f59e0b;
+    --nm-surface: #ffffff;
+    --nm-background: #f6f8f7;
+    --nm-text: #0f172a;
+}
+
+.storefront-focus-ring:focus-visible {
+    outline: 3px solid rgba(15, 118, 110, 0.25);
+    outline-offset: 3px;
+}
+
+.storefront-card-image {
+    content-visibility: auto;
+    contain-intrinsic-size: 280px 360px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

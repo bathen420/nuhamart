@@ -36,6 +36,8 @@ export default function Form({
                 />
             </div>
 
+            <div><InputLabel value="Name (Bangla)"/><TextInput className="mt-1 block w-full" value={data.name_bn ?? ""} onChange={(e)=>setData("name_bn",e.target.value)}/><InputError message={errors.name_bn} className="mt-2"/></div>
+
             {/* Description */}
             <div>
                 <InputLabel
@@ -58,6 +60,8 @@ export default function Form({
                     message={errors.description}
                 />
             </div>
+
+            <div><InputLabel value="Description (Bangla)"/><textarea rows="5" className="mt-1 block w-full rounded-md border-gray-300" value={data.description_bn ?? ""} onChange={(e)=>setData("description_bn",e.target.value)}/><InputError message={errors.description_bn} className="mt-2"/></div>
 
             {/* Status */}
             <div>

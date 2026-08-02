@@ -51,7 +51,7 @@ export default function Thermal({ sale = {}, invoiceSettings = {}, paperSize = 8
                 <article id="print-invoice" className="print-document receipt mx-auto bg-white p-2 text-[11px] leading-4 shadow" style={{ width }}>
                     <header className="text-center">
                         {invoiceSettings.logo && <img src={invoiceSettings.logo} alt="Logo" className="mx-auto mb-1 h-10 max-w-[36mm] object-contain" />}
-                        <h1 className="text-base font-black">{invoiceSettings.company_name || "NuhaMart"}</h1>
+                        <h1 className="text-base font-black">{invoiceSettings.company_name || "Nuha Mart BD"}</h1>
                         <p>{invoiceSettings.company_tagline || "Inventory & POS System"}</p>
                         {invoiceSettings.address && <p>{invoiceSettings.address}</p>}
                         {[invoiceSettings.phone, invoiceSettings.email].filter(Boolean).map((line) => <p key={line}>{line}</p>)}
@@ -82,7 +82,7 @@ export default function Thermal({ sale = {}, invoiceSettings = {}, paperSize = 8
                     {Number(sale.returned_total ?? 0) > 0 && <><div className="my-2 border-t border-dashed border-black" /><Line label="Returned" value={money(sale.returned_total, symbol)} /><Line label="Net Sale" value={money(sale.net_total, symbol)} bold /></>}
 
                     <div className="my-2 border-t border-dashed border-black" />
-                    <footer className="text-center"><p className="font-bold">{invoiceSettings.invoice_footer || "Thank you for your purchase."}</p><p className="mt-1">Powered by NuhaMart</p></footer>
+                    <footer className="text-center"><p className="font-bold">{invoiceSettings.invoice_footer || "Thank you for your purchase."}</p><p className="mt-1">Powered by Nuha Mart BD</p></footer>
                 </article>
             </main>
         </>

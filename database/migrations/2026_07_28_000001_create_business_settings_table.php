@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('business_settings', function (Blueprint $table) {
             $table->id();
-            $table->string('company_name')->default('NuhaMart');
+            $table->string('company_name')->default('Nuha Mart BD');
             $table->string('company_tagline')->nullable();
             $table->string('logo')->nullable();
             $table->text('address')->nullable();

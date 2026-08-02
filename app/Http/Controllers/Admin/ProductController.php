@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Models\Brand;
+use App\Models\Author;
+use App\Models\Publisher;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
@@ -57,6 +59,8 @@ class ProductController extends Controller
             ->with([
                 'category:id,name',
                 'brand:id,name',
+            'author:id,name',
+            'publisher:id,name',
             ])
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($subQuery) use ($search) {
@@ -126,6 +130,9 @@ class ProductController extends Controller
                 'name',
             ]);
 
+        $authors = Author::where('status', true)->orderBy('name')->get(['id','name']);
+        $publishers = Publisher::where('status', true)->orderBy('name')->get(['id','name']);
+
         return Inertia::render('Admin/Products/Create', [
             'auth' => [
                 'user' => auth()->user(),
@@ -134,6 +141,8 @@ class ProductController extends Controller
             'categories' => $categories,
 
             'brands' => $brands,
+            'authors' => $authors,
+            'publishers' => $publishers,
         ]);
     }
 
@@ -181,6 +190,8 @@ class ProductController extends Controller
         $product->load([
             'category:id,name',
             'brand:id,name',
+            'author:id,name',
+            'publisher:id,name',
         ]);
 
         return Inertia::render('Admin/Products/Show', [
@@ -200,6 +211,8 @@ class ProductController extends Controller
         $product->load([
             'category:id,name',
             'brand:id,name',
+            'author:id,name',
+            'publisher:id,name',
         ]);
 
         $categories = Category::query()
@@ -218,6 +231,9 @@ class ProductController extends Controller
                 'name',
             ]);
 
+        $authors = Author::where('status', true)->orderBy('name')->get(['id','name']);
+        $publishers = Publisher::where('status', true)->orderBy('name')->get(['id','name']);
+
         return Inertia::render('Admin/Products/Edit', [
             'auth' => [
                 'user' => auth()->user(),
@@ -228,6 +244,8 @@ class ProductController extends Controller
             'categories' => $categories,
 
             'brands' => $brands,
+            'authors' => $authors,
+            'publishers' => $publishers,
         ]);
     }
 

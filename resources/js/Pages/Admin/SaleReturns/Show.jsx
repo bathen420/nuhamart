@@ -52,7 +52,7 @@ export default function Show({
     const companyName =
         businessSettings.company_name ??
         businessSettings.business_name ??
-        "NuhaMart";
+        "Nuha Mart BD";
 
     const currencySymbol =
         businessSettings.currency_symbol ??

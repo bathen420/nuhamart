@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\StorefrontController;
 
 use App\Http\Controllers\Admin\CustomerController;
 
@@ -22,6 +23,7 @@ use App\Http\Controllers\Admin\SaleController;
 use App\Http\Controllers\Admin\SaleReturnController;
 use App\Http\Controllers\Admin\PurchaseReturnController;
 use App\Http\Controllers\Admin\POSController;
+use App\Http\Controllers\Admin\EnterprisePosController;
 use App\Http\Controllers\Admin\BusinessSettingController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RoleController;
@@ -48,6 +50,14 @@ use App\Http\Controllers\Admin\SupplierStatementController;
 use App\Http\Controllers\Admin\BarcodeLabelController;
 use App\Http\Controllers\Admin\CrmController;
 use App\Http\Controllers\Admin\GiftVoucherController;
+use App\Http\Controllers\Admin\AuthorController;
+use App\Http\Controllers\Admin\PublisherController;
+use App\Http\Controllers\Admin\HomepageContentController;
+use App\Http\Controllers\Customer\AccountController as CustomerAccountController;
+use App\Http\Controllers\Customer\AddressController as CustomerAddressController;
+use App\Http\Controllers\Storefront\TrackOrderController;
+use App\Http\Controllers\Admin\OrderWorkflowController;
+use App\Http\Controllers\Storefront\SeoController;
 
 
 /*
@@ -58,14 +68,19 @@ use App\Http\Controllers\Admin\GiftVoucherController;
 use App\Http\Controllers\Admin\UnitController;
 use App\Http\Controllers\Admin\ProductVariantController;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-})->name('home');
+Route::get('/language/{locale}', function (string $locale) {
+    abort_unless(in_array($locale, ['en', 'bn'], true), 404);
+    session(['locale' => $locale]);
+    return back();
+})->name('language.switch');
+
+Route::get('/', [StorefrontController::class, 'home'])->name('home');
+Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('seo.sitemap');
+Route::get('/shop', [StorefrontController::class, 'catalog'])->name('storefront.catalog');
+Route::get('/search/suggestions', [StorefrontController::class, 'suggestions'])->middleware('throttle:90,1')->name('storefront.search.suggestions');
+Route::get('/products/{product:slug}', [StorefrontController::class, 'show'])->name('storefront.products.show');
+Route::get('/authors/{author:slug}', [StorefrontController::class, 'author'])->name('storefront.author');
+Route::get('/publishers/{publisher:slug}', [StorefrontController::class, 'publisher'])->name('storefront.publisher');
 
 Route::get('/cart', function () {
     return Inertia::render('Cart/Index');
@@ -82,6 +97,28 @@ Route::get('/checkout', [CheckoutOrderController::class, 'create'])
 
 Route::post('/checkout/place-order', [CheckoutOrderController::class, 'store'])
     ->name('checkout.store');
+
+Route::get('/checkout/success/{orderNo}', [CheckoutOrderController::class, 'success'])
+    ->name('checkout.success');
+
+
+/*
+|--------------------------------------------------------------------------
+| Customer account and order tracking
+|--------------------------------------------------------------------------
+*/
+Route::get('/track-order', [TrackOrderController::class, 'index'])->name('orders.track');
+Route::post('/track-order', [TrackOrderController::class, 'search'])->middleware('throttle:20,1')->name('orders.track.search');
+
+Route::middleware(['auth', 'verified'])->prefix('account')->name('customer.')->group(function () {
+    Route::get('/', [CustomerAccountController::class, 'dashboard'])->name('dashboard');
+    Route::get('/orders', [CustomerAccountController::class, 'orders'])->name('orders.index');
+    Route::get('/orders/{order}', [CustomerAccountController::class, 'show'])->name('orders.show');
+    Route::get('/addresses', [CustomerAddressController::class, 'index'])->name('addresses.index');
+    Route::post('/addresses', [CustomerAddressController::class, 'store'])->name('addresses.store');
+    Route::put('/addresses/{address}', [CustomerAddressController::class, 'update'])->name('addresses.update');
+    Route::delete('/addresses/{address}', [CustomerAddressController::class, 'destroy'])->name('addresses.destroy');
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -112,6 +149,16 @@ Route::middleware(['auth', 'verified', 'active', 'activity', \App\Http\Middlewar
         Route::resource('categories', CategoryController::class);
 
         Route::resource('brands', BrandController::class);
+        Route::resource('authors', AuthorController::class)->except(['show']);
+        Route::resource('publishers', PublisherController::class)->except(['show']);
+
+        Route::get('homepage-content', [HomepageContentController::class, 'index'])->name('homepage-content.index');
+        Route::post('homepage-content/banners', [HomepageContentController::class, 'storeBanner'])->name('homepage-content.banners.store');
+        Route::put('homepage-content/banners/{banner}', [HomepageContentController::class, 'updateBanner'])->name('homepage-content.banners.update');
+        Route::delete('homepage-content/banners/{banner}', [HomepageContentController::class, 'destroyBanner'])->name('homepage-content.banners.destroy');
+        Route::post('homepage-content/promotions', [HomepageContentController::class, 'storePromotion'])->name('homepage-content.promotions.store');
+        Route::put('homepage-content/promotions/{promotion}', [HomepageContentController::class, 'updatePromotion'])->name('homepage-content.promotions.update');
+        Route::delete('homepage-content/promotions/{promotion}', [HomepageContentController::class, 'destroyPromotion'])->name('homepage-content.promotions.destroy');
 
         Route::resource('warehouses', WarehouseController::class)
             ->except(['show']);
@@ -215,6 +262,16 @@ Route::middleware(['auth', 'verified', 'active', 'activity', \App\Http\Middlewar
             [POSController::class, 'checkout']
         )->name('pos.checkout');
 
+        Route::get('/pos/shifts', [EnterprisePosController::class, 'shifts'])->name('pos.shifts');
+        Route::post('/pos/shifts/open', [EnterprisePosController::class, 'open'])->name('pos.shifts.open');
+        Route::post('/pos/shifts/{shift}/close', [EnterprisePosController::class, 'close'])->name('pos.shifts.close');
+        Route::get('/pos/shifts/{shift}/report', [EnterprisePosController::class, 'report'])->name('pos.shifts.report');
+        Route::post('/pos/shifts/{shift}/drawer', [EnterprisePosController::class, 'drawer'])->name('pos.drawer');
+        Route::get('/pos/holds', [EnterprisePosController::class, 'holds'])->name('pos.holds');
+        Route::post('/pos/hold', [EnterprisePosController::class, 'hold'])->name('pos.hold');
+        Route::get('/pos/holds/{heldSale}/resume', [EnterprisePosController::class, 'resume'])->name('pos.holds.resume');
+        Route::delete('/pos/holds/{heldSale}', [EnterprisePosController::class, 'destroyHold'])->name('pos.holds.destroy');
+
         /*
         |--------------------------------------------------------------------------
         | Sales History
@@ -273,6 +330,7 @@ Route::middleware(['auth', 'verified', 'active', 'activity', \App\Http\Middlewar
         )->name('orders.pdf');
 
         Route::resource('orders', AdminOrderController::class);
+        Route::patch('orders/{order}/workflow', [OrderWorkflowController::class, 'update'])->name('orders.workflow.update');
 
 
         /* Purchase Management Pro */

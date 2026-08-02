@@ -1,0 +1,7 @@
+import { Head, Link, router } from "@inertiajs/react";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import Pagination from "@/Components/Pagination";
+export default function Index({ auth, publishers }) {
+ const remove=(id)=>{ if(confirm("Delete this publisher?")) router.delete(route("admin.publishers.destroy",id)); };
+ return <AuthenticatedLayout user={auth?.user} header={<h2 className="text-xl font-semibold">Publishers</h2>}><Head title="Publishers"/><div className="py-8"><div className="mx-auto max-w-7xl sm:px-6 lg:px-8"><div className="mb-4 flex justify-end"><Link href={route("admin.publishers.create")} className="rounded bg-blue-600 px-4 py-2 text-white">+ Add Publisher</Link></div><div className="overflow-hidden rounded-lg bg-white shadow"><table className="min-w-full"><thead className="bg-gray-50"><tr><th className="px-6 py-3 text-left">Name</th><th className="px-6 py-3 text-left">Status</th><th className="px-6 py-3 text-right">Action</th></tr></thead><tbody className="divide-y">{publishers.data.map(item=><tr key={item.id}><td className="px-6 py-4 font-medium">{item.name}</td><td className="px-6 py-4">{item.status ? "Active":"Inactive"}</td><td className="space-x-2 px-6 py-4 text-right"><Link href={route("admin.publishers.edit",item.id)} className="rounded bg-amber-500 px-3 py-1 text-white">Edit</Link><button onClick={()=>remove(item.id)} className="rounded bg-red-600 px-3 py-1 text-white">Delete</button></td></tr>)}</tbody></table><Pagination links={publishers.links}/></div></div></div></AuthenticatedLayout>;
+}

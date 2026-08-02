@@ -18,7 +18,7 @@ export default function Dashboard({
 }) {
     const { auth, businessSettings = {} } = usePage().props;
     const userName = auth?.user?.name || "Administrator";
-    const companyName = businessSettings.company_name || "NuhaMart";
+    const companyName = businessSettings.company_name || "Nuha Mart BD";
     const currencySymbol = businessSettings.currency_symbol || "৳";
     const money = (value) => `${currencySymbol}${new Intl.NumberFormat("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(value || 0))}`;
 

@@ -1,5 +1,0 @@
-tests/Feature/BarcodeServiceTest.php
-INSTALL_v1.4.1_BARCODE_TEST_FIX.md
-CHANGELOG_v1.4.1.md
-FILE_MANIFEST_v1.4.1.txt
-SHA256SUMS_v1.4.1.txt

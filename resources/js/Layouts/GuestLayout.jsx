@@ -2,7 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 
 export default function GuestLayout({ children }) {
     const businessSettings = usePage().props.businessSettings || {};
-    const companyName = businessSettings.company_name || 'NuhaMart';
+    const companyName = businessSettings.company_name || 'Nuha Mart BD';
 
     return (
         <div className="flex min-h-screen flex-col items-center bg-gray-100 px-4 pt-6 sm:justify-center sm:pt-0">

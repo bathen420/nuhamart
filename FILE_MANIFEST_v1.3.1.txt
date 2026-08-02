@@ -1,5 +1,0 @@
-CHANGELOG_v1.3.1.md
-FILE_MANIFEST_v1.3.1.txt
-INSTALL_v1.3.1_TEST_STABILITY_FIX.md
-app/Services/FinancialStatementService.php
-tests/Feature/PurchaseManagementProTest.php

@@ -1,4 +1,0 @@
-42a646cfad3034a7e9e5d0dada22c1a9e29d95f883ed84e98ad89c27ac4e1ae1  ./CHANGELOG_v1.5.1.md
-d0d1358db8ad5feeeb61f3d96ff4b5512d7cc23ef04a6e2fcd6429765f4498be  ./FILE_MANIFEST_v1.5.1.txt
-ec4dbd25026a635cb99d39cb331450f8ccc1abcfd251ec0dbd3875e063a631a9  ./INSTALL_v1.5.1_CRM_TEST_FIX.md
-b8ee1b75ef1b3382759c15c59b91470b823779fc57afe8c87e15de6af9f4bfc6  ./tests/Feature/CrmLoyaltyTest.php

@@ -5,7 +5,7 @@ const FieldError = ({ message }) => message ? <p className="mt-1 text-sm text-re
 
 export default function Edit({ auth, setting, timezones }) {
     const { data, setData, post, processing, errors, recentlySuccessful } = useForm({
-        company_name: setting.company_name ?? "NuhaMart",
+        company_name: setting.company_name ?? "Nuha Mart BD",
         company_tagline: setting.company_tagline ?? "",
         logo: null,
         remove_logo: false,
@@ -13,6 +13,8 @@ export default function Edit({ auth, setting, timezones }) {
         phone: setting.phone ?? "",
         email: setting.email ?? "",
         website: setting.website ?? "",
+        facebook_url: setting.facebook_url ?? "",
+        youtube_url: setting.youtube_url ?? "",
         currency_code: setting.currency_code ?? "BDT",
         currency_symbol: setting.currency_symbol ?? "৳",
         timezone: setting.timezone ?? "Asia/Dhaka",
@@ -21,7 +23,13 @@ export default function Edit({ auth, setting, timezones }) {
         sales_return_prefix: setting.sales_return_prefix ?? "SRN",
         purchase_return_prefix: setting.purchase_return_prefix ?? "PRN",
         tax_rate: setting.tax_rate ?? 0,
+        shipping_dhaka: setting.shipping_dhaka ?? 60,
+        shipping_outside_dhaka: setting.shipping_outside_dhaka ?? 120,
+        free_shipping_threshold: setting.free_shipping_threshold ?? "",
         default_payment_method: setting.default_payment_method ?? "Cash",
+        bkash_number: setting.bkash_number ?? "",
+        nagad_number: setting.nagad_number ?? "",
+        bank_payment_instructions: setting.bank_payment_instructions ?? "",
         invoice_footer: setting.invoice_footer ?? "",
         _method: "patch",
     });
@@ -48,6 +56,8 @@ export default function Edit({ auth, setting, timezones }) {
                                 <label className="block">Email<input type="email" className={inputClass} value={data.email} onChange={e => setData("email", e.target.value)} /><FieldError message={errors.email} /></label>
                                 <label className="block">Website<input placeholder="https://example.com" className={inputClass} value={data.website} onChange={e => setData("website", e.target.value)} /><FieldError message={errors.website} /></label>
                                 <label className="block">Logo<input type="file" accept="image/png,image/jpeg,image/webp" className={inputClass} onChange={e => setData("logo", e.target.files[0])} /><FieldError message={errors.logo} /></label>
+                                <label className="block">Facebook URL<input className={inputClass} value={data.facebook_url} onChange={e => setData("facebook_url", e.target.value)} /><FieldError message={errors.facebook_url} /></label>
+                                <label className="block">YouTube URL<input className={inputClass} value={data.youtube_url} onChange={e => setData("youtube_url", e.target.value)} /><FieldError message={errors.youtube_url} /></label>
                                 <label className="block md:col-span-2">Address<textarea rows="3" className={inputClass} value={data.address} onChange={e => setData("address", e.target.value)} /><FieldError message={errors.address} /></label>
                             </div>
                             {setting.logo && <div className="mt-4 flex items-center gap-4"><img src={setting.logo} className="h-16 w-16 rounded-lg border object-contain" alt="Business logo" /><label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={data.remove_logo} onChange={e => setData("remove_logo", e.target.checked)} /> Remove current logo</label></div>}
@@ -59,7 +69,20 @@ export default function Edit({ auth, setting, timezones }) {
                                 <label>Currency Code<input className={inputClass} value={data.currency_code} onChange={e => setData("currency_code", e.target.value.toUpperCase())} /><FieldError message={errors.currency_code} /></label>
                                 <label>Currency Symbol<input className={inputClass} value={data.currency_symbol} onChange={e => setData("currency_symbol", e.target.value)} /><FieldError message={errors.currency_symbol} /></label>
                                 <label>Tax Rate (%)<input type="number" min="0" max="100" step="0.01" className={inputClass} value={data.tax_rate} onChange={e => setData("tax_rate", e.target.value)} /><FieldError message={errors.tax_rate} /></label>
+                                <label>Shipping — Dhaka<input type="number" min="0" step="0.01" className={inputClass} value={data.shipping_dhaka} onChange={e => setData("shipping_dhaka", e.target.value)} /><FieldError message={errors.shipping_dhaka} /></label>
+                                <label>Shipping — Outside Dhaka<input type="number" min="0" step="0.01" className={inputClass} value={data.shipping_outside_dhaka} onChange={e => setData("shipping_outside_dhaka", e.target.value)} /><FieldError message={errors.shipping_outside_dhaka} /></label>
+                                <label>Free Shipping Threshold<input type="number" min="0" step="0.01" className={inputClass} value={data.free_shipping_threshold} onChange={e => setData("free_shipping_threshold", e.target.value)} /><FieldError message={errors.free_shipping_threshold} /></label>
                                 <label>Timezone<select className={inputClass} value={data.timezone} onChange={e => setData("timezone", e.target.value)}>{timezones.map(zone => <option key={zone}>{zone}</option>)}</select><FieldError message={errors.timezone} /></label>
+                            </div>
+                        </section>
+
+                        <section className="rounded-xl bg-white p-6 shadow-sm">
+                            <h3 className="text-lg font-semibold text-gray-900">Launch Payment Settings</h3>
+                            <p className="mt-1 text-sm text-gray-500">Show customers the correct manual payment account information.</p>
+                            <div className="mt-5 grid gap-5 md:grid-cols-2">
+                                <label>bKash Number<input className={inputClass} value={data.bkash_number} onChange={e => setData("bkash_number", e.target.value)} /><FieldError message={errors.bkash_number} /></label>
+                                <label>Nagad Number<input className={inputClass} value={data.nagad_number} onChange={e => setData("nagad_number", e.target.value)} /><FieldError message={errors.nagad_number} /></label>
+                                <label className="md:col-span-2">Bank Payment Instructions<textarea rows="4" className={inputClass} value={data.bank_payment_instructions} onChange={e => setData("bank_payment_instructions", e.target.value)} /><FieldError message={errors.bank_payment_instructions} /></label>
                             </div>
                         </section>
 

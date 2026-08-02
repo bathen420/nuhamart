@@ -32,11 +32,21 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
 
+            'locale' => app()->getLocale(),
+            'supportedLocales' => ['en' => 'English', 'bn' => 'বাংলা'],
+
             'auth' => [
                 'user' => $request->user()?->loadMissing('roles'),
                 'permissions' => $request->user() ? $request->user()->getAllPermissions()->pluck('name')->values() : [],
                 'roles' => $request->user() ? $request->user()->getRoleNames()->values() : [],
             ],
+
+            'storefrontCategories' => function () {
+                if (!\Illuminate\Support\Facades\Schema::hasTable('categories')) return [];
+                return \App\Models\Category::query()->where('status', true)->withCount(['products' => fn ($q) => $q->where('status', true)])->orderBy('sort_order')->limit(12)->get()->map(fn ($x) => [
+                    'id' => $x->id, 'name' => $x->localized('name'), 'slug' => $x->slug, 'products_count' => $x->products_count,
+                ]);
+            },
 
             'notificationsSummary' => function () use ($request) {
                 $user = $request->user();
@@ -63,8 +73,8 @@ class HandleInertiaRequests extends Middleware
             'businessSettings' => function () {
                 if (!\Illuminate\Support\Facades\Schema::hasTable('business_settings')) {
                     return [
-                        'company_name' => 'NuhaMart',
-                        'company_tagline' => 'Inventory & POS System',
+                        'company_name' => 'Nuha Mart BD',
+                        'company_tagline' => 'Books, E-books & Everyday Shopping',
                         'logo' => null,
                         'address' => null,
                         'phone' => null,

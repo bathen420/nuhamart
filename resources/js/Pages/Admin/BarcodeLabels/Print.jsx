@@ -5,7 +5,7 @@ import BarcodeSvg from "@/Components/Barcode/BarcodeSvg";
 export default function Print({ labels = [], preset = {}, options = {} }) {
     const { businessSettings = {} } = usePage().props;
     const [ready, setReady] = useState(false);
-    const companyName = businessSettings.company_name ?? "NuhaMart";
+    const companyName = businessSettings.company_name ?? "Nuha Mart BD";
     const width = Number(preset.width_mm ?? 50);
     const height = Number(preset.height_mm ?? 25);
     const columns = Number(preset.columns ?? 4);

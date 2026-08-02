@@ -21,7 +21,7 @@ createInertiaApp({
 
     setup({ el, App, props }) {
         const root = createRoot(el);
-        const companyName = props.initialPage.props?.businessSettings?.company_name || import.meta.env.VITE_APP_NAME || "NuhaMart";
+        const companyName = props.initialPage.props?.businessSettings?.company_name || import.meta.env.VITE_APP_NAME || "Nuha Mart BD";
         const pageTitle = props.initialPage.props?.title;
         document.title = pageTitle ? `${pageTitle} - ${companyName}` : companyName;
 

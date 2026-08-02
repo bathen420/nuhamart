@@ -1,5 +1,0 @@
-tests/Feature/CrmLoyaltyTest.php
-INSTALL_v1.5.1_CRM_TEST_FIX.md
-CHANGELOG_v1.5.1.md
-FILE_MANIFEST_v1.5.1.txt
-SHA256SUMS_v1.5.1.txt

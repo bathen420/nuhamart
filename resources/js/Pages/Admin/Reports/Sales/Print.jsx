@@ -65,7 +65,7 @@ export default function Print({
     const { businessSettings = {} } = usePage().props;
     const [printReady, setPrintReady] = useState(false);
 
-    const companyName = businessSettings.company_name ?? "NuhaMart";
+    const companyName = businessSettings.company_name ?? "Nuha Mart BD";
     const currency = businessSettings.currency_symbol ?? "৳";
     const rows = Array.isArray(sales) ? sales : [];
 

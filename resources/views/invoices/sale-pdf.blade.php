@@ -21,7 +21,7 @@
 </head>
 <body>
     <table class="header"><tr><td style="border:0; padding:0;">
-        <div class="brand">{{ $invoiceSettings['company_name'] ?: 'NuhaMart' }}</div>
+        <div class="brand">{{ $invoiceSettings['company_name'] ?: 'Nuha Mart BD' }}</div>
         <div class="muted">{{ $invoiceSettings['company_tagline'] ?: 'Inventory & POS System' }}</div>
         <div class="muted">{{ collect([$invoiceSettings['address'], $invoiceSettings['phone'], $invoiceSettings['email'], $invoiceSettings['website']])->filter()->implode(' · ') }}</div>
     </td><td style="border:0; padding:0;" class="right">

@@ -30,7 +30,7 @@ export default function Create() {
                         </h2>
 
                         <p className="mt-1 text-sm text-gray-500">
-                            Create a new customer record for NuhaMart.
+                            Create a new customer record for Nuha Mart BD.
                         </p>
                     </div>
 

@@ -3,170 +3,64 @@
 namespace App\Http\Requests\Checkout;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreOrderRequest extends FormRequest
 {
-    /**
-     * Determine whether the user is authorised to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, mixed>
-     */
     public function rules(): array
     {
         return [
-            'name' => [
-                'required',
-                'string',
-                'max:255',
-            ],
-
-            'phone' => [
-                'required',
-                'string',
-                'max:20',
-            ],
-
-            'email' => [
-                'nullable',
-                'email',
-                'max:255',
-            ],
-
-            'division' => [
-                'required',
-                'string',
-                'max:100',
-            ],
-
-            'district' => [
-                'required',
-                'string',
-                'max:100',
-            ],
-
-            'area' => [
-                'required',
-                'string',
-                'max:150',
-            ],
-
-            'address' => [
-                'required',
-                'string',
-                'max:1000',
-            ],
-
-            'note' => [
+            'name' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'regex:/^01[3-9][0-9]{8}$/'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'division' => ['required', 'string', 'max:100'],
+            'district' => ['required', 'string', 'max:100'],
+            'area' => ['required', 'string', 'max:150'],
+            'address' => ['required', 'string', 'max:1000'],
+            'note' => ['nullable', 'string', 'max:1000'],
+            'shipping_method' => ['required', Rule::in(['standard'])],
+            'payment_method' => ['required', Rule::in(array_keys(collect(config('commerce.payments'))->filter(fn ($method) => $method['enabled'] ?? false)->all()))],
+            'address_label' => ['nullable', 'string', 'max:60'],
+            'save_address' => ['sometimes', 'boolean'],
+            'address_is_default' => ['sometimes', 'boolean'],
+            'payment_reference' => [
+                Rule::requiredIf(fn () => in_array($this->input('payment_method'), ['bkash', 'nagad'], true)),
                 'nullable',
                 'string',
-                'max:1000',
+                'max:120',
             ],
-
-            'payment_method' => [
-                'required',
-                'string',
-                'in:cod,sslcommerz,bkash,nagad',
-            ],
-
-            'items' => [
-                'required',
-                'array',
-                'min:1',
-            ],
-
-            'items.*.product_id' => [
-                'required',
-                'integer',
-                'exists:products,id',
-            ],
-
-            'items.*.quantity' => [
-                'required',
-                'integer',
-                'min:1',
-                'max:100',
-            ],
+            'items' => ['required', 'array', 'min:1', 'max:100'],
+            'items.*.product_id' => ['required', 'integer', 'distinct', 'exists:products,id'],
+            'items.*.quantity' => ['required', 'integer', 'min:1', 'max:100'],
         ];
     }
 
-    /**
-     * Get custom validation messages.
-     *
-     * @return array<string, string>
-     */
     public function messages(): array
     {
         return [
-            'name.required' => 'Customer name is required.',
-            'phone.required' => 'Phone number is required.',
-            'email.email' => 'Please enter a valid email address.',
-
-            'division.required' => 'Division is required.',
-            'district.required' => 'District is required.',
-            'area.required' => 'Area is required.',
-            'address.required' => 'Delivery address is required.',
-
-            'payment_method.required' => 'Please select a payment method.',
-            'payment_method.in' => 'The selected payment method is invalid.',
-
+            'phone.regex' => 'Enter a valid Bangladesh mobile number (01XXXXXXXXX).',
+            'payment_reference.required' => 'Transaction/reference number is required for this payment method.',
             'items.required' => 'Your cart is empty.',
-            'items.array' => 'Your cart data is invalid.',
             'items.min' => 'Your cart is empty.',
-
-            'items.*.product_id.required' => 'Product ID is required.',
-            'items.*.product_id.exists' => 'One of the selected products no longer exists.',
-
-            'items.*.quantity.required' => 'Product quantity is required.',
-            'items.*.quantity.integer' => 'Product quantity must be a valid number.',
-            'items.*.quantity.min' => 'Product quantity must be at least 1.',
+            'items.*.product_id.distinct' => 'A product appears more than once in the cart.',
         ];
     }
 
-    /**
-     * Prepare the data for validation.
-     */
     protected function prepareForValidation(): void
     {
+        foreach (['name', 'phone', 'email', 'division', 'district', 'area', 'address', 'note', 'payment_reference'] as $field) {
+            if (is_string($this->input($field))) {
+                $this->merge([$field => trim($this->input($field))]);
+            }
+        }
+
         $this->merge([
-            'name' => is_string($this->name)
-                ? trim($this->name)
-                : $this->name,
-
-            'phone' => is_string($this->phone)
-                ? trim($this->phone)
-                : $this->phone,
-
-            'email' => is_string($this->email)
-                ? trim($this->email)
-                : $this->email,
-
-            'division' => is_string($this->division)
-                ? trim($this->division)
-                : $this->division,
-
-            'district' => is_string($this->district)
-                ? trim($this->district)
-                : $this->district,
-
-            'area' => is_string($this->area)
-                ? trim($this->area)
-                : $this->area,
-
-            'address' => is_string($this->address)
-                ? trim($this->address)
-                : $this->address,
-
-            'note' => is_string($this->note)
-                ? trim($this->note)
-                : $this->note,
+            'shipping_method' => $this->input('shipping_method', 'standard'),
         ]);
     }
 }
