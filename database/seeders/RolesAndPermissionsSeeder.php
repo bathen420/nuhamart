@@ -45,6 +45,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'purchase-returns' => ['view', 'create', 'print'],
             'pos' => ['view', 'create', 'hold', 'manage-shifts', 'manage-drawer', 'view-reports'],
             'orders' => ['view', 'create', 'edit', 'delete', 'print'],
+            'couriers' => ['view', 'manage'],
             'sales' => ['view', 'delete', 'print'],
             'sale-returns' => ['view', 'create', 'print'],
             'opening-stocks' => ['view', 'create'],

@@ -156,7 +156,7 @@ class OrderController extends Controller
             });
 
             return redirect()
-                ->route('orders.index')
+                ->route('admin.orders.index')
                 ->with('success', 'Order created successfully.');
 
         } catch (\Throwable $e) {
@@ -174,7 +174,7 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        $order->load(['items.product', 'statusHistories' => fn ($query) => $query->latest('recorded_at')]);
+        $order->load(['items.product', 'courierConsignments' => fn ($query) => $query->latest(), 'statusHistories' => fn ($query) => $query->latest('recorded_at')]);
 
         return Inertia::render('Admin/Orders/Show', [
             'auth' => [
@@ -209,7 +209,7 @@ class OrderController extends Controller
         $order->update($data);
 
         return redirect()
-            ->route('orders.index')
+            ->route('admin.orders.index')
             ->with('success', 'Order updated successfully.');
     }
 
@@ -221,21 +221,30 @@ class OrderController extends Controller
         $order->delete();
 
         return redirect()
-            ->route('orders.index')
+            ->route('admin.orders.index')
             ->with('success', 'Order deleted successfully.');
     }
 
 
     public function download(Order $order)
     {
-        $order->load('items.product');
+        $order->load([
+            'items.product',
+            'courierConsignments' => fn ($query) => $query->latest(),
+        ]);
 
         $pdf = Pdf::loadView('pdf.invoice', [
             'order' => $order,
-        ]);
+        ])->setPaper('a4', 'portrait');
 
-        return $pdf->download(
-            'Invoice-' . $order->order_no . '.pdf'
+        $safeOrderNumber = preg_replace(
+            '/[^A-Za-z0-9\-_]/',
+            '-',
+            (string) $order->order_no
+        );
+
+        return $pdf->stream(
+            "Invoice-{$safeOrderNumber}.pdf"
         );
     }
 

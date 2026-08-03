@@ -105,6 +105,8 @@ class EnforceAdminPermission
             'sale-returns.show' => 'sale-returns.view',
             'orders.pdf' => 'orders.print',
             'orders.workflow.update' => 'orders.edit',
+            'orders.courier-consignments.store' => 'couriers.manage',
+            'courier-consignments.sync' => 'couriers.manage',
             'purchase-requisitions.approve' => 'purchase-requisitions.approve',
             'purchase-orders.approve' => 'purchase-orders.approve',
             'purchase-orders.goods-receipts.create' => 'goods-receipts.create',

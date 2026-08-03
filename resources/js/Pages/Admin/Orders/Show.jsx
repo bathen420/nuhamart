@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, Link, router, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 
 const paymentBadge = (status) => {
@@ -32,6 +32,7 @@ const orderBadge = (status) => {
 };
 
 export default function Show({ auth, order }) {
+    const consignment = order.courier_consignments?.[0] ?? null;
     const workflow = useForm({
         status: order.status ?? "pending",
         payment_status: order.payment_status ?? "pending",
@@ -46,7 +47,11 @@ export default function Show({ auth, order }) {
     };
 
     const printInvoice = () => {
-        window.print();
+        window.open(
+            route("admin.orders.pdf", order.id),
+            "_blank",
+            "noopener,noreferrer"
+        );
     };
 
     return (
@@ -83,7 +88,7 @@ export default function Show({ auth, order }) {
                 }
             >
 
-                <Head title={`Invoice ${order.order_number}`} />
+                <Head title={`Invoice ${order.order_no ?? order.id}`} />
 
                 <div
                     id="invoice"
@@ -95,7 +100,7 @@ export default function Show({ auth, order }) {
                     <div className="flex justify-between print-hidden">
 
                         <Link
-                            href={route("orders.index")}
+                            href={route("admin.orders.index")}
                             className="rounded-lg bg-gray-700 px-5 py-2 text-white"
                         >
                             ← Back
@@ -111,7 +116,9 @@ export default function Show({ auth, order }) {
                             </button>
 
                             <a
-                                href={route("orders.pdf", order.id)}
+                                href={route("admin.orders.pdf", order.id)}
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 className="rounded-lg bg-red-600 px-5 py-2 text-white"
                             >
                                 📄 PDF
@@ -134,6 +141,27 @@ export default function Show({ auth, order }) {
                         </div>
                         {Object.keys(workflow.errors).length > 0 && <p className="mt-3 text-sm text-red-600">Please review the workflow fields.</p>}
                     </form>
+
+                    <section className="print-hidden rounded-xl border border-indigo-100 bg-indigo-50 p-5">
+                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                            <div>
+                                <h3 className="text-lg font-bold text-indigo-900">Courier Delivery</h3>
+                                <p className="text-sm text-indigo-700">Create and synchronize the Steadfast consignment from this order.</p>
+                            </div>
+                            {!consignment ? (
+                                <button type="button" onClick={() => router.post(route("admin.orders.courier-consignments.store", order.id), { provider: "steadfast" }, { preserveScroll: true })} className="rounded-lg bg-indigo-700 px-5 py-2.5 font-semibold text-white">Send to Steadfast</button>
+                            ) : (
+                                <button type="button" onClick={() => router.post(route("admin.courier-consignments.sync", consignment.id), {}, { preserveScroll: true })} className="rounded-lg bg-indigo-700 px-5 py-2.5 font-semibold text-white">Sync Courier Status</button>
+                            )}
+                        </div>
+                        {consignment && <div className="mt-4 grid gap-3 text-sm md:grid-cols-4">
+                            <div><span className="block text-gray-500">Provider</span><strong className="capitalize">{consignment.provider}</strong></div>
+                            <div><span className="block text-gray-500">Tracking</span><strong>{consignment.tracking_code || "Pending"}</strong></div>
+                            <div><span className="block text-gray-500">Status</span><strong className="capitalize">{consignment.status?.replaceAll("_", " ")}</strong></div>
+                            <div><span className="block text-gray-500">Last Sync</span><strong>{consignment.last_synced_at ? new Date(consignment.last_synced_at).toLocaleString() : "Never"}</strong></div>
+                            {consignment.last_error && <p className="text-red-600 md:col-span-4">{consignment.last_error}</p>}
+                        </div>}
+                    </section>
 
                     {/* Invoice Header */}
 
@@ -176,7 +204,7 @@ export default function Show({ auth, order }) {
                                             Invoice #
                                         </span>
                                         <br />
-                                        {order.order_number}
+                                        {order.order_no ?? order.id}
                                     </p>
 
                                     <p>
@@ -224,7 +252,7 @@ export default function Show({ auth, order }) {
 
                                 <p>
                                     <strong>Address:</strong><br />
-                                    {order.customer_address}
+                                    {order.address || [order.area, order.district, order.division].filter(Boolean).join(", ") || "-"}
                                 </p>
 
                             </div>
@@ -264,9 +292,9 @@ export default function Show({ auth, order }) {
                                     <span>Order Status</span>
 
                                     <span
-                                        className={`rounded-full px-3 py-1 text-sm font-semibold ${orderBadge(order.order_status)}`}
+                                        className={`rounded-full px-3 py-1 text-sm font-semibold ${orderBadge(order.status)}`}
                                     >
-                                        {order.order_status}
+                                        {order.status}
                                     </span>
 
                                 </div>
@@ -348,7 +376,7 @@ export default function Show({ auth, order }) {
                                             </td>
 
                                             <td className="border px-4 py-3 text-right">
-                                                ৳ {Number(item.price).toFixed(2)}
+                                                ৳ {Number(item.unit_price).toFixed(2)}
                                             </td>
 
                                             <td className="border px-4 py-3 text-right font-semibold">
@@ -404,7 +432,7 @@ export default function Show({ auth, order }) {
                                     <span>Shipping</span>
 
                                     <strong>
-                                        ৳ {Number(order.shipping).toFixed(2)}
+                                        ৳ {Number(order.shipping_charge).toFixed(2)}
                                     </strong>
 
                                 </div>
