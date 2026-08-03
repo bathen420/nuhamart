@@ -31,6 +31,9 @@ class BusinessSetting extends Model
         'bkash_number',
         'nagad_number',
         'bank_payment_instructions',
+        'steadfast_enabled',
+        'default_courier',
+        'courier_sync_minutes',
         'invoice_footer',
     ];
 
@@ -39,6 +42,8 @@ class BusinessSetting extends Model
         'shipping_dhaka' => 'decimal:2',
         'shipping_outside_dhaka' => 'decimal:2',
         'free_shipping_threshold' => 'decimal:2',
+        'steadfast_enabled' => 'boolean',
+        'courier_sync_minutes' => 'integer',
     ];
 
     public static function current(): self

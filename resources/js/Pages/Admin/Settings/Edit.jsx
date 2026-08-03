@@ -30,6 +30,9 @@ export default function Edit({ auth, setting, timezones }) {
         bkash_number: setting.bkash_number ?? "",
         nagad_number: setting.nagad_number ?? "",
         bank_payment_instructions: setting.bank_payment_instructions ?? "",
+        steadfast_enabled: Boolean(setting.steadfast_enabled),
+        default_courier: setting.default_courier ?? "steadfast",
+        courier_sync_minutes: setting.courier_sync_minutes ?? 15,
         invoice_footer: setting.invoice_footer ?? "",
         _method: "patch",
     });
@@ -83,6 +86,20 @@ export default function Edit({ auth, setting, timezones }) {
                                 <label>bKash Number<input className={inputClass} value={data.bkash_number} onChange={e => setData("bkash_number", e.target.value)} /><FieldError message={errors.bkash_number} /></label>
                                 <label>Nagad Number<input className={inputClass} value={data.nagad_number} onChange={e => setData("nagad_number", e.target.value)} /><FieldError message={errors.nagad_number} /></label>
                                 <label className="md:col-span-2">Bank Payment Instructions<textarea rows="4" className={inputClass} value={data.bank_payment_instructions} onChange={e => setData("bank_payment_instructions", e.target.value)} /><FieldError message={errors.bank_payment_instructions} /></label>
+                            </div>
+                        </section>
+
+
+                        <section className="rounded-xl bg-white p-6 shadow-sm">
+                            <h3 className="text-lg font-semibold text-gray-900">Courier Settings</h3>
+                            <p className="mt-1 text-sm text-gray-500">Credentials remain in .env. This panel controls whether the integration is available to admins.</p>
+                            <div className="mt-5 grid gap-5 md:grid-cols-3">
+                                <label className="flex items-center gap-3 rounded-lg border p-4">
+                                    <input type="checkbox" checked={data.steadfast_enabled} onChange={e => setData("steadfast_enabled", e.target.checked)} />
+                                    <span><span className="block font-semibold">Enable Steadfast</span><span className="text-xs text-gray-500">Requires STEADFAST_API_KEY and STEADFAST_SECRET_KEY in .env</span></span>
+                                </label>
+                                <label>Default Courier<select className={inputClass} value={data.default_courier} onChange={e => setData("default_courier", e.target.value)}><option value="steadfast">Steadfast</option></select><FieldError message={errors.default_courier} /></label>
+                                <label>Sync Interval (minutes)<input type="number" min="5" max="1440" className={inputClass} value={data.courier_sync_minutes} onChange={e => setData("courier_sync_minutes", e.target.value)} /><FieldError message={errors.courier_sync_minutes} /></label>
                             </div>
                         </section>
 

@@ -174,7 +174,7 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        $order->load(['items.product', 'statusHistories' => fn ($query) => $query->latest('recorded_at')]);
+        $order->load(['items.product', 'courierConsignments' => fn ($query) => $query->latest(), 'statusHistories' => fn ($query) => $query->latest('recorded_at')]);
 
         return Inertia::render('Admin/Orders/Show', [
             'auth' => [

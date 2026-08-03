@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, Link, router, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 
 const paymentBadge = (status) => {
@@ -32,6 +32,7 @@ const orderBadge = (status) => {
 };
 
 export default function Show({ auth, order }) {
+    const consignment = order.courier_consignments?.[0] ?? null;
     const workflow = useForm({
         status: order.status ?? "pending",
         payment_status: order.payment_status ?? "pending",
@@ -134,6 +135,27 @@ export default function Show({ auth, order }) {
                         </div>
                         {Object.keys(workflow.errors).length > 0 && <p className="mt-3 text-sm text-red-600">Please review the workflow fields.</p>}
                     </form>
+
+                    <section className="print-hidden rounded-xl border border-indigo-100 bg-indigo-50 p-5">
+                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                            <div>
+                                <h3 className="text-lg font-bold text-indigo-900">Courier Delivery</h3>
+                                <p className="text-sm text-indigo-700">Create and synchronize the Steadfast consignment from this order.</p>
+                            </div>
+                            {!consignment ? (
+                                <button type="button" onClick={() => router.post(route("admin.orders.courier-consignments.store", order.id), { provider: "steadfast" }, { preserveScroll: true })} className="rounded-lg bg-indigo-700 px-5 py-2.5 font-semibold text-white">Send to Steadfast</button>
+                            ) : (
+                                <button type="button" onClick={() => router.post(route("admin.courier-consignments.sync", consignment.id), {}, { preserveScroll: true })} className="rounded-lg bg-indigo-700 px-5 py-2.5 font-semibold text-white">Sync Courier Status</button>
+                            )}
+                        </div>
+                        {consignment && <div className="mt-4 grid gap-3 text-sm md:grid-cols-4">
+                            <div><span className="block text-gray-500">Provider</span><strong className="capitalize">{consignment.provider}</strong></div>
+                            <div><span className="block text-gray-500">Tracking</span><strong>{consignment.tracking_code || "Pending"}</strong></div>
+                            <div><span className="block text-gray-500">Status</span><strong className="capitalize">{consignment.status?.replaceAll("_", " ")}</strong></div>
+                            <div><span className="block text-gray-500">Last Sync</span><strong>{consignment.last_synced_at ? new Date(consignment.last_synced_at).toLocaleString() : "Never"}</strong></div>
+                            {consignment.last_error && <p className="text-red-600 md:col-span-4">{consignment.last_error}</p>}
+                        </div>}
+                    </section>
 
                     {/* Invoice Header */}
 

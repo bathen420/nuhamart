@@ -39,6 +39,9 @@ class UpdateBusinessSettingRequest extends FormRequest
             'bkash_number' => ['nullable', 'string', 'max:30'],
             'nagad_number' => ['nullable', 'string', 'max:30'],
             'bank_payment_instructions' => ['nullable', 'string', 'max:2000'],
+            'steadfast_enabled' => ['nullable', 'boolean'],
+            'default_courier' => ['required', 'in:steadfast'],
+            'courier_sync_minutes' => ['required', 'integer', 'min:5', 'max:1440'],
             'invoice_footer' => ['nullable', 'string', 'max:1000'],
         ];
     }

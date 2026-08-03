@@ -59,6 +59,7 @@ use App\Http\Controllers\Customer\AccountController as CustomerAccountController
 use App\Http\Controllers\Customer\AddressController as CustomerAddressController;
 use App\Http\Controllers\Storefront\TrackOrderController;
 use App\Http\Controllers\Admin\OrderWorkflowController;
+use App\Http\Controllers\Admin\CourierConsignmentController;
 use App\Http\Controllers\Storefront\SeoController;
 use App\Http\Controllers\Payment\SslCommerzController;
 
@@ -345,6 +346,8 @@ Route::middleware(['auth', 'verified', 'active', 'activity', \App\Http\Middlewar
 
         Route::resource('orders', AdminOrderController::class);
         Route::patch('orders/{order}/workflow', [OrderWorkflowController::class, 'update'])->name('orders.workflow.update');
+        Route::post('orders/{order}/courier-consignments', [CourierConsignmentController::class, 'store'])->name('orders.courier-consignments.store');
+        Route::post('courier-consignments/{consignment}/sync', [CourierConsignmentController::class, 'sync'])->name('courier-consignments.sync');
 
 
         /* Purchase Management Pro */

@@ -64,6 +64,11 @@ class Order extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function courierConsignments(): HasMany
+    {
+        return $this->hasMany(CourierConsignment::class);
+    }
+
     public function paymentTransactions(): HasMany
     {
         return $this->hasMany(PaymentTransaction::class);
