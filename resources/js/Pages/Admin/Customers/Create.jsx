@@ -1,10 +1,11 @@
+import { Head, useForm } from "@inertiajs/react";
+import { UserPlus } from "lucide-react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import { Badge, PageHeader } from "@/Components/Admin/UI";
 import CustomerForm from "./Form";
-import { Head, Link, useForm } from "@inertiajs/react";
-import { ArrowLeft, UserPlus } from "lucide-react";
 
 export default function Create() {
-    const { data, setData, post, processing, errors } = useForm({
+    const form = useForm({
         name: "",
         phone: "",
         email: "",
@@ -14,64 +15,39 @@ export default function Create() {
         notes: "",
     });
 
-    const submit = (event) => {
-        event.preventDefault();
-
-        post(route("admin.customers.store"));
-    };
-
     return (
-        <AuthenticatedLayout
-            header={
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <h2 className="text-xl font-semibold text-gray-900">
-                            Add Customer
-                        </h2>
-
-                        <p className="mt-1 text-sm text-gray-500">
-                            Create a new customer record for Nuha Mart BD.
-                        </p>
-                    </div>
-
-                    <Link
-                        href={route("admin.customers.index")}
-                        className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 transition hover:text-blue-600"
-                    >
-                        <ArrowLeft size={17} />
-                        Back to Customers
-                    </Link>
-                </div>
-            }
-        >
+        <AuthenticatedLayout>
             <Head title="Add Customer" />
 
-            <div className="mx-auto max-w-5xl">
-                <div className="mb-6 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white shadow-sm">
-                    <div className="flex items-center gap-4">
-                        <div className="rounded-xl bg-white/15 p-3">
-                            <UserPlus size={28} />
-                        </div>
-
-                        <div>
-                            <h1 className="text-2xl font-bold">
-                                New Customer
-                            </h1>
-
-                            <p className="mt-1 text-sm text-blue-100">
-                                Customer code will be generated automatically.
-                            </p>
-                        </div>
+            <div className="space-y-6">
+                <PageHeader
+                    eyebrow="Customer relationship management"
+                    title="Add customer"
+                    description="Create a customer profile for sales, orders, loyalty and wallet activity."
+                >
+                    <div className="mt-3 flex gap-2">
+                        <Badge tone="brand">
+                            <UserPlus size={13} />
+                            New profile
+                        </Badge>
+                        <Badge tone="neutral">
+                            Customer code is automatic
+                        </Badge>
                     </div>
-                </div>
+                </PageHeader>
 
                 <CustomerForm
-                    data={data}
-                    setData={setData}
-                    errors={errors}
-                    processing={processing}
-                    submitLabel="Create Customer"
-                    onSubmit={submit}
+                    data={form.data}
+                    setData={form.setData}
+                    errors={form.errors}
+                    processing={form.processing}
+                    submitLabel="Create customer"
+                    onSubmit={(event) => {
+                        event.preventDefault();
+                        form.post(route("admin.customers.store"), {
+                            preserveScroll: true,
+                        });
+                    }}
                 />
             </div>
         </AuthenticatedLayout>

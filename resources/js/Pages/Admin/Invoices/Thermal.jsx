@@ -82,7 +82,10 @@ export default function Thermal({ sale = {}, invoiceSettings = {}, paperSize = 8
                     {Number(sale.returned_total ?? 0) > 0 && <><div className="my-2 border-t border-dashed border-black" /><Line label="Returned" value={money(sale.returned_total, symbol)} /><Line label="Net Sale" value={money(sale.net_total, symbol)} bold /></>}
 
                     <div className="my-2 border-t border-dashed border-black" />
-                    <footer className="text-center"><p className="font-bold">{invoiceSettings.invoice_footer || "Thank you for your purchase."}</p><p className="mt-1">Powered by Nuha Mart BD</p></footer>
+                    <footer className="text-center"><p className="font-bold">{invoiceSettings.invoice_footer || "Thank you for your purchase."}</p><p className="mt-1">
+                        {invoiceSettings.receipt_footer ||
+                            `Powered by ${invoiceSettings.company_name || "Nuha Mart BD"}`}
+                    </p></footer>
                 </article>
             </main>
         </>

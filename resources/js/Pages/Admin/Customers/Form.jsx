@@ -1,316 +1,237 @@
 import { Link } from "@inertiajs/react";
 import {
-    Save,
-    X,
-    User,
-    Phone,
     Mail,
     MapPin,
+    Phone,
+    Save,
+    StickyNote,
+    UserRound,
     Wallet,
-    FileText,
 } from "lucide-react";
+import {
+    Alert,
+    Badge,
+    Button,
+    Card,
+    CardBody,
+    CardHeader,
+    FormField,
+    Input,
+    Textarea,
+    Toggle,
+} from "@/Components/Admin/UI";
 
-export default function CustomerForm({
+export default function Form({
     data,
     setData,
     errors,
     processing,
-    submitLabel = "Save Customer",
+    submitLabel,
     onSubmit,
+    customerCode,
 }) {
     return (
         <form onSubmit={onSubmit} className="space-y-6">
-            <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-                <div className="border-b border-gray-200 px-6 py-4">
-                    <h2 className="text-lg font-semibold text-gray-900">
-                        Customer Information
-                    </h2>
+            {errors.error && (
+                <Alert variant="danger" title="Unable to save customer">
+                    {errors.error}
+                </Alert>
+            )}
 
-                    <p className="mt-1 text-sm text-gray-500">
-                        Enter the customer&apos;s basic and account details.
-                    </p>
-                </div>
+            <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+                <main className="space-y-6">
+                    <Card>
+                        <CardHeader
+                            title="Customer identity"
+                            description="Primary contact and account information."
+                        />
+                        <CardBody className="grid gap-5 md:grid-cols-2">
+                            <FormField
+                                label="Full name"
+                                required
+                                error={errors.name}
+                            >
+                                <Input
+                                    value={data.name}
+                                    onChange={(event) =>
+                                        setData("name", event.target.value)
+                                    }
+                                    invalid={Boolean(errors.name)}
+                                    placeholder="Customer full name"
+                                />
+                            </FormField>
 
-                <div className="grid gap-6 p-6 md:grid-cols-2">
-                    <div>
-                        <label
-                            htmlFor="name"
-                            className="mb-2 block text-sm font-medium text-gray-700"
-                        >
-                            Customer Name
-                            <span className="ml-1 text-red-500">*</span>
-                        </label>
+                            <FormField
+                                label="Phone number"
+                                required
+                                error={errors.phone}
+                            >
+                                <Input
+                                    value={data.phone}
+                                    onChange={(event) =>
+                                        setData("phone", event.target.value)
+                                    }
+                                    invalid={Boolean(errors.phone)}
+                                    placeholder="01XXXXXXXXX"
+                                />
+                            </FormField>
 
-                        <div className="relative">
-                            <User
-                                size={18}
-                                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                            />
+                            <FormField
+                                label="Email address"
+                                error={errors.email}
+                            >
+                                <Input
+                                    type="email"
+                                    value={data.email}
+                                    onChange={(event) =>
+                                        setData("email", event.target.value)
+                                    }
+                                    invalid={Boolean(errors.email)}
+                                    placeholder="customer@example.com"
+                                />
+                            </FormField>
 
-                            <input
-                                id="name"
-                                type="text"
-                                value={data.name}
-                                onChange={(event) =>
-                                    setData("name", event.target.value)
-                                }
-                                placeholder="Enter customer name"
-                                className={`w-full rounded-lg border py-2.5 pl-10 pr-3 outline-none transition focus:ring-2 ${
-                                    errors.name
-                                        ? "border-red-400 focus:border-red-500 focus:ring-red-100"
-                                        : "border-gray-300 focus:border-blue-500 focus:ring-blue-100"
-                                }`}
-                            />
-                        </div>
+                            <FormField
+                                label="Opening balance"
+                                error={errors.opening_balance}
+                                description="Existing receivable balance when creating the customer."
+                            >
+                                <Input
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    value={data.opening_balance}
+                                    onChange={(event) =>
+                                        setData(
+                                            "opening_balance",
+                                            event.target.value,
+                                        )
+                                    }
+                                    invalid={Boolean(errors.opening_balance)}
+                                />
+                            </FormField>
 
-                        {errors.name && (
-                            <p className="mt-1 text-sm text-red-600">
-                                {errors.name}
-                            </p>
-                        )}
-                    </div>
+                            <FormField
+                                label="Address"
+                                error={errors.address}
+                                className="md:col-span-2"
+                            >
+                                <Textarea
+                                    rows={4}
+                                    value={data.address}
+                                    onChange={(event) =>
+                                        setData("address", event.target.value)
+                                    }
+                                    invalid={Boolean(errors.address)}
+                                    placeholder="Customer address"
+                                />
+                            </FormField>
 
-                    <div>
-                        <label
-                            htmlFor="phone"
-                            className="mb-2 block text-sm font-medium text-gray-700"
-                        >
-                            Phone Number
-                            <span className="ml-1 text-red-500">*</span>
-                        </label>
+                            <FormField
+                                label="Internal notes"
+                                error={errors.notes}
+                                className="md:col-span-2"
+                            >
+                                <Textarea
+                                    rows={5}
+                                    value={data.notes}
+                                    onChange={(event) =>
+                                        setData("notes", event.target.value)
+                                    }
+                                    invalid={Boolean(errors.notes)}
+                                    placeholder="Preferences, delivery instructions or internal notes"
+                                />
+                            </FormField>
 
-                        <div className="relative">
-                            <Phone
-                                size={18}
-                                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                            />
-
-                            <input
-                                id="phone"
-                                type="text"
-                                value={data.phone}
-                                onChange={(event) =>
-                                    setData("phone", event.target.value)
-                                }
-                                placeholder="Enter phone number"
-                                className={`w-full rounded-lg border py-2.5 pl-10 pr-3 outline-none transition focus:ring-2 ${
-                                    errors.phone
-                                        ? "border-red-400 focus:border-red-500 focus:ring-red-100"
-                                        : "border-gray-300 focus:border-blue-500 focus:ring-blue-100"
-                                }`}
-                            />
-                        </div>
-
-                        {errors.phone && (
-                            <p className="mt-1 text-sm text-red-600">
-                                {errors.phone}
-                            </p>
-                        )}
-                    </div>
-
-                    <div>
-                        <label
-                            htmlFor="email"
-                            className="mb-2 block text-sm font-medium text-gray-700"
-                        >
-                            Email Address
-                        </label>
-
-                        <div className="relative">
-                            <Mail
-                                size={18}
-                                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                            />
-
-                            <input
-                                id="email"
-                                type="email"
-                                value={data.email}
-                                onChange={(event) =>
-                                    setData("email", event.target.value)
-                                }
-                                placeholder="Enter email address"
-                                className={`w-full rounded-lg border py-2.5 pl-10 pr-3 outline-none transition focus:ring-2 ${
-                                    errors.email
-                                        ? "border-red-400 focus:border-red-500 focus:ring-red-100"
-                                        : "border-gray-300 focus:border-blue-500 focus:ring-blue-100"
-                                }`}
-                            />
-                        </div>
-
-                        {errors.email && (
-                            <p className="mt-1 text-sm text-red-600">
-                                {errors.email}
-                            </p>
-                        )}
-                    </div>
-
-                    <div>
-                        <label
-                            htmlFor="opening_balance"
-                            className="mb-2 block text-sm font-medium text-gray-700"
-                        >
-                            Opening Balance
-                        </label>
-
-                        <div className="relative">
-                            <Wallet
-                                size={18}
-                                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                            />
-
-                            <input
-                                id="opening_balance"
-                                type="number"
-                                min="0"
-                                step="0.01"
-                                value={data.opening_balance}
-                                onChange={(event) =>
-                                    setData(
-                                        "opening_balance",
-                                        event.target.value,
-                                    )
-                                }
-                                placeholder="0.00"
-                                className={`w-full rounded-lg border py-2.5 pl-10 pr-3 outline-none transition focus:ring-2 ${
-                                    errors.opening_balance
-                                        ? "border-red-400 focus:border-red-500 focus:ring-red-100"
-                                        : "border-gray-300 focus:border-blue-500 focus:ring-blue-100"
-                                }`}
-                            />
-                        </div>
-
-                        {errors.opening_balance && (
-                            <p className="mt-1 text-sm text-red-600">
-                                {errors.opening_balance}
-                            </p>
-                        )}
-                    </div>
-
-                    <div className="md:col-span-2">
-                        <label
-                            htmlFor="address"
-                            className="mb-2 block text-sm font-medium text-gray-700"
-                        >
-                            Address
-                        </label>
-
-                        <div className="relative">
-                            <MapPin
-                                size={18}
-                                className="pointer-events-none absolute left-3 top-3 text-gray-400"
-                            />
-
-                            <textarea
-                                id="address"
-                                rows="3"
-                                value={data.address}
-                                onChange={(event) =>
-                                    setData("address", event.target.value)
-                                }
-                                placeholder="Enter customer address"
-                                className={`w-full rounded-lg border py-2.5 pl-10 pr-3 outline-none transition focus:ring-2 ${
-                                    errors.address
-                                        ? "border-red-400 focus:border-red-500 focus:ring-red-100"
-                                        : "border-gray-300 focus:border-blue-500 focus:ring-blue-100"
-                                }`}
-                            />
-                        </div>
-
-                        {errors.address && (
-                            <p className="mt-1 text-sm text-red-600">
-                                {errors.address}
-                            </p>
-                        )}
-                    </div>
-
-                    <div className="md:col-span-2">
-                        <label
-                            htmlFor="notes"
-                            className="mb-2 block text-sm font-medium text-gray-700"
-                        >
-                            Notes
-                        </label>
-
-                        <div className="relative">
-                            <FileText
-                                size={18}
-                                className="pointer-events-none absolute left-3 top-3 text-gray-400"
-                            />
-
-                            <textarea
-                                id="notes"
-                                rows="4"
-                                value={data.notes}
-                                onChange={(event) =>
-                                    setData("notes", event.target.value)
-                                }
-                                placeholder="Write optional notes"
-                                className={`w-full rounded-lg border py-2.5 pl-10 pr-3 outline-none transition focus:ring-2 ${
-                                    errors.notes
-                                        ? "border-red-400 focus:border-red-500 focus:ring-red-100"
-                                        : "border-gray-300 focus:border-blue-500 focus:ring-blue-100"
-                                }`}
-                            />
-                        </div>
-
-                        {errors.notes && (
-                            <p className="mt-1 text-sm text-red-600">
-                                {errors.notes}
-                            </p>
-                        )}
-                    </div>
-
-                    <div className="md:col-span-2">
-                        <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
-                            <input
-                                type="checkbox"
+                            <Toggle
                                 checked={Boolean(data.status)}
-                                onChange={(event) =>
-                                    setData("status", event.target.checked)
+                                onChange={(checked) =>
+                                    setData("status", checked)
                                 }
-                                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                label="Active customer"
+                                description="Inactive customers remain in historical records."
+                                className="md:col-span-2"
                             />
+                        </CardBody>
+                    </Card>
+                </main>
 
-                            <div>
-                                <p className="text-sm font-medium text-gray-800">
-                                    Active Customer
+                <aside className="h-fit xl:sticky xl:top-28">
+                    <Card>
+                        <CardHeader
+                            title="Profile preview"
+                            description="CRM identity preview."
+                        />
+                        <CardBody>
+                            <div className="rounded-3xl bg-gradient-to-br from-ink-950 to-brand-950 p-5 text-white">
+                                <span className="grid h-14 w-14 place-items-center rounded-2xl bg-white/10 text-lg font-black">
+                                    {(data.name || "Customer")
+                                        .split(/\s+/)
+                                        .slice(0, 2)
+                                        .map((part) => part.charAt(0))
+                                        .join("")
+                                        .toUpperCase()}
+                                </span>
+                                <h3 className="mt-4 text-xl font-black text-white">
+                                    {data.name || "Customer name"}
+                                </h3>
+                                <p className="mt-1 text-xs font-bold text-brand-200">
+                                    {customerCode || "Code generated automatically"}
                                 </p>
 
-                                <p className="text-xs text-gray-500">
-                                    Inactive customers can remain in records but
-                                    may be excluded from future transactions.
-                                </p>
+                                <div className="mt-5 space-y-3 text-sm">
+                                    <div className="flex items-center gap-3">
+                                        <Phone size={15} className="text-brand-300" />
+                                        <span>{data.phone || "Phone number"}</span>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <Mail size={15} className="text-brand-300" />
+                                        <span className="truncate">
+                                            {data.email || "No email"}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-start gap-3">
+                                        <MapPin
+                                            size={15}
+                                            className="mt-0.5 text-brand-300"
+                                        />
+                                        <span className="line-clamp-2">
+                                            {data.address || "No address"}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="mt-5 flex gap-2">
+                                    <Badge
+                                        tone={data.status ? "success" : "neutral"}
+                                        dot
+                                    >
+                                        {data.status ? "Active" : "Inactive"}
+                                    </Badge>
+                                    <Badge tone="brand">CRM</Badge>
+                                </div>
                             </div>
-                        </label>
 
-                        {errors.status && (
-                            <p className="mt-1 text-sm text-red-600">
-                                {errors.status}
-                            </p>
-                        )}
-                    </div>
-                </div>
-            </div>
+                            <Button
+                                type="submit"
+                                loading={processing}
+                                className="mt-5 w-full"
+                            >
+                                <Save size={16} />
+                                {submitLabel}
+                            </Button>
 
-            <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-                <Link
-                    href={route("admin.customers.index")}
-                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-                >
-                    <X size={18} />
-                    Cancel
-                </Link>
-
-                <button
-                    type="submit"
-                    disabled={processing}
-                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                    <Save size={18} />
-
-                    {processing ? "Saving..." : submitLabel}
-                </button>
+                            <Button
+                                as={Link}
+                                href={route("admin.customers.index")}
+                                variant="secondary"
+                                className="mt-2 w-full"
+                            >
+                                Cancel
+                            </Button>
+                        </CardBody>
+                    </Card>
+                </aside>
             </div>
         </form>
     );

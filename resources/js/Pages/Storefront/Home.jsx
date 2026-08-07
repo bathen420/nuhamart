@@ -1,4 +1,4 @@
-import { Head, Link } from "@inertiajs/react";
+import { Head, usePage, Link } from "@inertiajs/react";
 import {
     ArrowRight,
     BadgeCheck,
@@ -102,6 +102,8 @@ export default function Home({
     publishers = [],
     homepageSettings = {},
 }) {
+    const { businessSettings = {} } = usePage().props;
+    const companyName = businessSettings.company_name || "Nuha Mart BD";
     const { t } = useI18n();
     const [slide, setSlide] = useState(0);
     const [quickView, setQuickView] = useState(null);
@@ -136,7 +138,7 @@ export default function Home({
 
     return (
         <StorefrontLayout categories={categories}>
-            <Head title="Nuha Mart BD — Modern Books & Lifestyle Store" />
+            <Head title={`${companyName} — Modern Books & Lifestyle Store`} />
             {generalSettings.announcement_enabled && generalSettings.announcement_text && (
                 <Link href={generalSettings.announcement_url || "/shop"} className="block bg-[#0f766e] px-4 py-2 text-center text-sm font-bold text-white transition hover:bg-[#115e59]">
                     {generalSettings.announcement_text}

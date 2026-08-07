@@ -86,6 +86,9 @@ class StoreProductRequest extends FormRequest
                 'max:2048',
                 ],
 
+            'seo_title' => ['nullable', 'string', 'max:160'],
+            'seo_description' => ['nullable', 'string', 'max:255'],
+
             'price' => [
                 'required',
                 'numeric',

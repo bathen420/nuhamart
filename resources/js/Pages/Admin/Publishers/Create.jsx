@@ -1,2 +1,57 @@
-import {Head,useForm} from "@inertiajs/react"; import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout"; import Form from "./Form";
-export default function Create({auth}){const {data,setData,post,processing,errors}=useForm({name:"",name_bn:"",description:"",description_bn:"",status:1,sort_order:0});const submit=e=>{e.preventDefault();post(route("admin.publishers.store"));};return <AuthenticatedLayout user={auth?.user} header={<h2 className="text-xl font-semibold">Add Publisher</h2>}><Head title="Add Publisher"/><div className="mx-auto max-w-4xl py-8"><div className="rounded-lg bg-white p-6 shadow"><Form {...{data,setData,errors,processing,submit}} buttonText="Save Publisher"/></div></div></AuthenticatedLayout>}
+import { Head, useForm } from "@inertiajs/react";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import EntityForm from "@/Components/Admin/Catalog/EntityForm";
+
+export default function Create() {
+    const form = useForm({
+        name: "",
+        name_bn: "",
+        description: "",
+        description_bn: "",
+        status: 1,
+        sort_order: 0,
+    });
+
+    return (
+        <AuthenticatedLayout>
+            <Head title="Add Publisher" />
+            <EntityForm
+                entity="publisher"
+                title="Add publisher"
+                description="Create a bilingual publishing-house profile."
+                routeBase="admin.publishers"
+                data={form.data}
+                setData={form.setData}
+                errors={form.errors}
+                processing={form.processing}
+                submit={(event) => {
+                    event.preventDefault();
+                    form.post(route("admin.publishers.store"), {
+                        preserveScroll: true,
+                    });
+                }}
+                fields={[
+                    { name: "name", label: "Name (English)", required: true },
+                    { name: "name_bn", label: "Name (Bangla)" },
+                    {
+                        name: "description",
+                        label: "Description (English)",
+                        type: "textarea",
+                        full: true,
+                    },
+                    {
+                        name: "description_bn",
+                        label: "Description (Bangla)",
+                        type: "textarea",
+                        full: true,
+                    },
+                    {
+                        name: "sort_order",
+                        label: "Display order",
+                        type: "number",
+                    },
+                ]}
+            />
+        </AuthenticatedLayout>
+    );
+}

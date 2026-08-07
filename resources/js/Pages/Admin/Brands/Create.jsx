@@ -1,88 +1,48 @@
 import { Head, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import Form from "./Form";
+import EntityForm from "@/Components/Admin/Catalog/EntityForm";
 
-
-export default function Create({ auth }) {
-
-
-    const { data, setData, post, processing, errors } = useForm({
-
+export default function Create() {
+    const form = useForm({
         name: "",
         description: "",
         status: 1,
         sort_order: 0,
-
     });
 
-
-
-    const submit = (e) => {
-
-        e.preventDefault();
-
-
-        post(route("admin.brands.store"));
-
-    };
-
-
-
     return (
-
-        <AuthenticatedLayout
-            user={auth?.user}
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Create Brand
-                </h2>
-            }
-        >
-
-            <Head title="Create Brand" />
-
-
-            <div className="py-8">
-
-                <div className="mx-auto max-w-4xl sm:px-6 lg:px-8">
-
-
-                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-
-
-                        <div className="p-6">
-
-
-                            <Form
-
-                                data={data}
-
-                                setData={setData}
-
-                                errors={errors}
-
-                                processing={processing}
-
-                                submit={submit}
-
-                                buttonText="Create Brand"
-
-                            />
-
-
-                        </div>
-
-
-                    </div>
-
-
-                </div>
-
-
-            </div>
-
-
+        <AuthenticatedLayout>
+            <Head title="Add Brand" />
+            <EntityForm
+                entity="brand"
+                title="Add brand"
+                description="Create a manufacturer or product label."
+                routeBase="admin.brands"
+                data={form.data}
+                setData={form.setData}
+                errors={form.errors}
+                processing={form.processing}
+                submit={(event) => {
+                    event.preventDefault();
+                    form.post(route("admin.brands.store"), {
+                        preserveScroll: true,
+                    });
+                }}
+                fields={[
+                    { name: "name", label: "Brand name", required: true },
+                    {
+                        name: "description",
+                        label: "Description",
+                        type: "textarea",
+                        full: true,
+                    },
+                    {
+                        name: "sort_order",
+                        label: "Display order",
+                        type: "number",
+                    },
+                ]}
+            />
         </AuthenticatedLayout>
-
     );
 }

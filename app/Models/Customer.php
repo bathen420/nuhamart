@@ -38,6 +38,11 @@ class Customer extends Model
         return $this->hasMany(Sale::class);
     }
 
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'customer_id');
+    }
+
     public function crmProfile()
     {
         return $this->hasOne(CustomerCrmProfile::class);

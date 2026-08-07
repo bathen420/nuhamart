@@ -20,28 +20,62 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request->get('search');
+        $filters = $request->validate([
+            'search' => ['nullable', 'string', 'max:120'],
+            'status' => ['nullable', 'in:pending,confirmed,processing,shipped,delivered,cancelled'],
+            'payment_status' => ['nullable', 'in:pending,paid,failed'],
+            'payment_method' => ['nullable', 'in:cod,sslcommerz,bkash,nagad'],
+            'courier' => ['nullable', 'string', 'max:80'],
+            'date_from' => ['nullable', 'date'],
+            'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
+            'sort' => ['nullable', 'in:latest,oldest,total_high,total_low'],
+        ]);
 
-        $orders = Order::query()
-            ->when($search, function ($query) use ($search) {
-                $query->where('order_no', 'like', "%{$search}%")
-                    ->orWhere('customer_name', 'like', "%{$search}%")
-                    ->orWhere('customer_phone', 'like', "%{$search}%");
-            })
+        $query = Order::query()
             ->withCount('items')
-            ->latest('id')
-            ->paginate(10)
-            ->withQueryString();
+            ->when($filters['search'] ?? null, function ($query, $search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('order_no', 'like', "%{$search}%")
+                        ->orWhere('customer_name', 'like', "%{$search}%")
+                        ->orWhere('customer_phone', 'like', "%{$search}%")
+                        ->orWhere('tracking_number', 'like', "%{$search}%");
+                });
+            })
+            ->when($filters['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
+            ->when($filters['payment_status'] ?? null, fn ($query, $status) => $query->where('payment_status', $status))
+            ->when($filters['payment_method'] ?? null, fn ($query, $method) => $query->where('payment_method', $method))
+            ->when($filters['courier'] ?? null, fn ($query, $courier) => $query->where('courier_name', 'like', "%{$courier}%"))
+            ->when($filters['date_from'] ?? null, fn ($query, $date) => $query->whereDate('created_at', '>=', $date))
+            ->when($filters['date_to'] ?? null, fn ($query, $date) => $query->whereDate('created_at', '<=', $date));
+
+        match ($filters['sort'] ?? 'latest') {
+            'oldest' => $query->oldest('id'),
+            'total_high' => $query->orderByDesc('total'),
+            'total_low' => $query->orderBy('total'),
+            default => $query->latest('id'),
+        };
+
+        $summaryQuery = Order::query();
 
         return Inertia::render('Admin/Orders/Index', [
             'auth' => [
                 'user' => auth()->user(),
             ],
 
-            'orders' => $orders,
+            'orders' => $query->paginate(15)->withQueryString(),
 
-            'filters' => [
-                'search' => $search,
+            'filters' => $filters,
+
+            'summary' => [
+                'total' => (clone $summaryQuery)->count(),
+                'today' => (clone $summaryQuery)->whereDate('created_at', today())->count(),
+                'pending' => (clone $summaryQuery)->where('status', 'pending')->count(),
+                'processing' => (clone $summaryQuery)->whereIn('status', ['confirmed', 'processing'])->count(),
+                'shipped' => (clone $summaryQuery)->where('status', 'shipped')->count(),
+                'delivered' => (clone $summaryQuery)->where('status', 'delivered')->count(),
+                'cancelled' => (clone $summaryQuery)->where('status', 'cancelled')->count(),
+                'pending_payment' => (clone $summaryQuery)->where('payment_status', 'pending')->count(),
+                'revenue' => (float) (clone $summaryQuery)->where('status', 'delivered')->sum('total'),
             ],
         ]);
     }

@@ -1,11 +1,39 @@
 import { Head, Link, usePage } from "@inertiajs/react";
+import {
+    ArrowRight,
+    Banknote,
+    Boxes,
+    CalendarDays,
+    CreditCard,
+    PackagePlus,
+    PackageSearch,
+    RefreshCw,
+    RotateCcw,
+    ShoppingBag,
+    ShoppingCart,
+    TrendingUp,
+    Truck,
+    UserPlus,
+    Users,
+} from "lucide-react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import AnalyticsCard from "@/Components/Dashboard/AnalyticsCard";
-import RevenueChart from "@/Components/Dashboard/RevenueChart";
-import RecentSales from "@/Components/Dashboard/RecentSales";
-import BestSellingProducts from "@/Components/Dashboard/BestSellingProducts";
-import LowStockAlert from "@/Components/Dashboard/LowStockAlert";
-import { ArrowRight, PackagePlus, ShoppingCart, UserPlus } from "lucide-react";
+import Button from "@/Components/Admin/UI/Button";
+import PageHeader from "@/Components/Admin/UI/PageHeader";
+import CommandKpiCard from "@/Components/Dashboard/CommandKpiCard";
+import EnterpriseRevenueChart from "@/Components/Dashboard/EnterpriseRevenueChart";
+import EnterpriseRecentSales from "@/Components/Dashboard/EnterpriseRecentSales";
+import InventoryAttention from "@/Components/Dashboard/InventoryAttention";
+import BestProductsCard from "@/Components/Dashboard/BestProductsCard";
+import BusinessHealthCard from "@/Components/Dashboard/BusinessHealthCard";
+import ActivityTimeline from "@/Components/Dashboard/ActivityTimeline";
+
+function greeting() {
+    const hour = new Date().getHours();
+
+    if (hour < 12) return "Good morning";
+    if (hour < 18) return "Good afternoon";
+    return "Good evening";
+}
 
 export default function Dashboard({
     stats = {},
@@ -16,186 +44,281 @@ export default function Dashboard({
     lowStockLimit = 5,
     recentActivities = [],
 }) {
-    const { auth, businessSettings = {} } = usePage().props;
+    const { auth = {}, businessSettings = {} } = usePage().props;
+
     const userName = auth?.user?.name || "Administrator";
-    const companyName = businessSettings.company_name || "Nuha Mart BD";
+    const companyName =
+        businessSettings.short_name ||
+        businessSettings.company_name ||
+        "Nuha Mart BD";
     const currencySymbol = businessSettings.currency_symbol || "৳";
-    const money = (value) => `${currencySymbol}${new Intl.NumberFormat("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(value || 0))}`;
+
+    const number = (value) =>
+        new Intl.NumberFormat("en-GB").format(Number(value || 0));
+
+    const money = (value) =>
+        `${currencySymbol}${new Intl.NumberFormat("en-GB", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        }).format(Number(value || 0))}`;
+
+    const totalInventoryRisk =
+        Number(stats.low_stock || 0) + Number(stats.out_of_stock || 0);
 
     const quickActions = [
         {
-            title: "New Sale / POS",
-            description: "Create a sales invoice",
+            title: "Open POS",
+            description: "Create a new sale",
             href: route("admin.pos.create"),
             icon: ShoppingCart,
+            tone: "bg-brand-50 text-brand-700",
         },
         {
-            title: "New Purchase",
+            title: "New purchase",
             description: "Receive supplier stock",
             href: route("admin.purchases.create"),
             icon: PackagePlus,
+            tone: "bg-amber-50 text-amber-700",
         },
         {
-            title: "Add Product",
-            description: "Create inventory item",
+            title: "Add product",
+            description: "Create a catalog item",
             href: route("admin.products.create"),
-            icon: PackagePlus,
+            icon: Boxes,
+            tone: "bg-sky-50 text-sky-700",
         },
         {
-            title: "Add Customer",
+            title: "Add customer",
             description: "Register a customer",
             href: route("admin.customers.create"),
             icon: UserPlus,
+            tone: "bg-violet-50 text-violet-700",
         },
     ];
 
     return (
         <AuthenticatedLayout>
-            <Head title="Dashboard Analytics" />
+            <Head title="Business Command Center" />
 
-            <div className="min-h-screen bg-slate-100">
-                <div className="mx-auto max-w-[1600px] space-y-6 p-4 sm:p-6 lg:p-8">
-                    <section className="overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-blue-950 to-indigo-950 p-6 text-white shadow-xl sm:p-8">
-                        <p className="text-sm font-semibold text-blue-200">
-                            Welcome back, {userName}
-                        </p>
-                        <div className="mt-2 flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-                            <div className="flex items-center gap-4">
-                                {businessSettings.logo && <img src={businessSettings.logo} alt={companyName} className="h-16 w-16 rounded-2xl bg-white object-contain p-2" />}
-                                <div>
-                                <h1 className="text-3xl font-black tracking-tight">
-                                    {companyName} Business Dashboard
-                                </h1>
-                                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">
-                                    {businessSettings.company_tagline || "Monitor POS sales, purchases, customer dues and inventory health."}
-                                </p>
-                                {(businessSettings.address || businessSettings.phone) && <p className="mt-1 text-xs text-slate-400">{[businessSettings.address, businessSettings.phone].filter(Boolean).join(" · ")}</p>}
-                                </div>
-                            </div>
-
-                            <Link
-                                href={route("admin.pos.create")}
-                                className="inline-flex w-fit items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-black text-blue-700 shadow"
+            <div className="space-y-6">
+                <PageHeader
+                    eyebrow="Business command center"
+                    title={`${greeting()}, ${userName}`}
+                    description={`A live operational view of ${companyName}: sales, purchasing, customers and inventory.`}
+                    actions={
+                        <>
+                            <Button
+                                as={Link}
+                                href={route("admin.reports.index")}
+                                variant="secondary"
+                                size="sm"
                             >
-                                Open POS <ArrowRight className="h-4 w-4" />
-                            </Link>
-                        </div>
-                    </section>
+                                <TrendingUp size={16} />
+                                Reports
+                            </Button>
+                            <Button
+                                as={Link}
+                                href={route("admin.pos.create")}
+                                size="sm"
+                            >
+                                <ShoppingCart size={16} />
+                                Open POS
+                            </Button>
+                        </>
+                    }
+                >
+                    <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-semibold text-ink-400">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 ring-1 ring-ink-200">
+                            <CalendarDays size={13} />
+                            {new Intl.DateTimeFormat("en-GB", {
+                                weekday: "short",
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                            }).format(new Date())}
+                        </span>
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-700 ring-1 ring-emerald-100">
+                            <RefreshCw size={12} />
+                            Data is current
+                        </span>
+                    </div>
+                </PageHeader>
 
-                    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                        <AnalyticsCard
-                            title="Today's Sales"
-                            value={money(stats.today_sales)}
-                            description={`${stats.today_sales_count || 0} completed transaction(s)`}
-                            icon="sales"
-                            tone="emerald"
-                        />
-                        <AnalyticsCard
-                            title="This Month Sales"
-                            value={money(stats.month_sales)}
-                            description={`${stats.month_sales_count || 0} transaction(s) this month`}
-                            icon="orders"
-                            tone="blue"
-                        />
-                        <AnalyticsCard
-                            title="Today's Purchase"
-                            value={money(stats.today_purchase)}
-                            description={`Monthly purchase ${money(stats.month_purchase)}`}
-                            icon="purchase"
-                            tone="amber"
-                        />
-                        <AnalyticsCard
-                            title="Customer Due"
-                            value={money(stats.total_due)}
-                            description="Outstanding balance from completed sales"
-                            icon="due"
-                            tone="rose"
-                        />
-                    </section>
+                <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                    <CommandKpiCard
+                        label="Today's sales"
+                        value={money(stats.today_sales)}
+                        helper={`${number(
+                            stats.today_sales_count,
+                        )} completed transaction(s)`}
+                        icon={TrendingUp}
+                        tone="emerald"
+                    />
+                    <CommandKpiCard
+                        label="Month-to-date sales"
+                        value={money(stats.month_sales)}
+                        helper={`${number(
+                            stats.month_sales_count,
+                        )} transaction(s) this month`}
+                        icon={Banknote}
+                        tone="sky"
+                    />
+                    <CommandKpiCard
+                        label="Today's purchase"
+                        value={money(stats.today_purchase)}
+                        helper={`Month total ${money(stats.month_purchase)}`}
+                        icon={ShoppingBag}
+                        tone="amber"
+                    />
+                    <CommandKpiCard
+                        label="Customer due"
+                        value={money(stats.total_due)}
+                        helper="Outstanding balance from completed sales"
+                        icon={CreditCard}
+                        tone="rose"
+                    />
+                </section>
 
+                <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                    <CommandKpiCard
+                        label="Products"
+                        value={number(stats.products)}
+                        helper="Catalog items"
+                        icon={Boxes}
+                        compact
+                    />
+                    <CommandKpiCard
+                        label="Customers"
+                        value={number(stats.customers)}
+                        helper="Registered accounts"
+                        icon={Users}
+                        tone="violet"
+                        compact
+                    />
+                    <CommandKpiCard
+                        label="Suppliers"
+                        value={number(stats.suppliers)}
+                        helper="Supplier records"
+                        icon={Truck}
+                        tone="sky"
+                        compact
+                    />
+                    <CommandKpiCard
+                        label="Completed sales"
+                        value={number(stats.sales)}
+                        helper={money(stats.total_sales)}
+                        icon={Banknote}
+                        tone="emerald"
+                        compact
+                    />
+                    <CommandKpiCard
+                        label="Inventory risk"
+                        value={number(totalInventoryRisk)}
+                        helper={`${number(stats.low_stock)} low · ${number(
+                            stats.out_of_stock,
+                        )} out`}
+                        icon={PackageSearch}
+                        tone="amber"
+                        compact
+                    />
+                    <CommandKpiCard
+                        label="Total returns"
+                        value={money(stats.total_return)}
+                        helper={`${number(
+                            stats.today_return_count,
+                        )} return(s) today`}
+                        icon={RotateCcw}
+                        tone="rose"
+                        compact
+                    />
+                </section>
 
-                    <section className="grid gap-4 sm:grid-cols-3">
-                        <AnalyticsCard
-                            title="Today's Returns"
-                            value={money(stats.today_return)}
-                            description={`${stats.today_return_count || 0} return transaction(s)`}
-                            icon="orders"
-                            tone="rose"
-                        />
-                        <AnalyticsCard
-                            title="This Month Returns"
-                            value={money(stats.month_return)}
-                            description="Completed sales returns this month"
-                            icon="orders"
-                            tone="amber"
-                        />
-                        <AnalyticsCard
-                            title="Total Returns"
-                            value={money(stats.total_return)}
-                            description="Lifetime completed sales returns"
-                            icon="orders"
-                            tone="violet"
-                        />
-                    </section>
+                <section className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(340px,1fr)]">
+                    <EnterpriseRevenueChart
+                        labels={chartData.labels || []}
+                        sales={chartData.sales || []}
+                        purchases={chartData.purchases || []}
+                        currencySymbol={currencySymbol}
+                    />
 
-                    <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-                        <AnalyticsCard title="Products" value={stats.products || 0} description="Inventory products" icon="products" />
-                        <AnalyticsCard title="Customers" value={stats.customers || 0} description="Registered customers" icon="customers" tone="violet" />
-                        <AnalyticsCard title="Suppliers" value={stats.suppliers || 0} description="Active supplier records" icon="suppliers" tone="cyan" />
-                        <AnalyticsCard title="Total Sales" value={stats.sales || 0} description={money(stats.total_sales)} icon="orders" tone="emerald" />
-                        <AnalyticsCard title="Low Stock" value={stats.low_stock || 0} description={`Threshold: ${lowStockLimit}`} icon="stock" tone="amber" />
-                        <AnalyticsCard title="Out of Stock" value={stats.out_of_stock || 0} description="Requires restocking" icon="stock" tone="rose" />
-                    </section>
+                    <BusinessHealthCard
+                        stats={stats}
+                        lowStockLimit={lowStockLimit}
+                    />
+                </section>
 
-                    <section>
-                        <h2 className="mb-3 text-lg font-black text-slate-900">Quick Actions</h2>
-                        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                            {quickActions.map(({ title, description, href, icon: Icon }) => (
-                                <Link
-                                    key={title}
-                                    href={href}
-                                    className="group flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
-                                >
-                                    <div className="rounded-xl bg-blue-50 p-3 text-blue-600">
-                                        <Icon className="h-5 w-5" />
-                                    </div>
-                                    <div className="min-w-0">
-                                        <p className="font-bold text-slate-900">{title}</p>
-                                        <p className="truncate text-xs text-slate-500">{description}</p>
-                                    </div>
-                                    <ArrowRight className="ml-auto h-4 w-4 text-slate-300 transition group-hover:translate-x-1" />
-                                </Link>
-                            ))}
-                        </div>
-                    </section>
-
-                    <section className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]">
-                        <RevenueChart
-                            labels={chartData.labels || []}
-                            sales={chartData.sales || []}
-                            purchases={chartData.purchases || []}
-                        />
-                        <BestSellingProducts products={bestSellingProducts} />
-                    </section>
-
-
-                    {recentActivities.length > 0 && (
-                        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                            <div className="mb-4 flex items-center justify-between">
-                                <div><h2 className="text-lg font-black text-slate-900">Recent Activity</h2><p className="text-xs text-slate-500">Latest security and system actions</p></div>
-                                {(auth?.roles || []).includes("Super Admin") || (auth?.permissions || []).includes("activity-logs.view") ? <Link href={route("admin.activity-logs.index")} className="text-sm font-bold text-blue-600">View all</Link> : null}
+                <section className="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
+                    <div className="rounded-3xl border border-ink-200 bg-white p-5 shadow-soft sm:p-6">
+                        <div className="flex items-start justify-between gap-4">
+                            <div>
+                                <p className="text-xs font-black uppercase tracking-[0.16em] text-brand-700">
+                                    Quick actions
+                                </p>
+                                <h2 className="mt-1 text-lg font-black text-ink-950">
+                                    Continue your workflow
+                                </h2>
                             </div>
-                            <div className="divide-y divide-slate-100">
-                                {recentActivities.map(activity => <div key={activity.id} className="flex items-start gap-3 py-3"><div className="mt-1 h-2.5 w-2.5 rounded-full bg-blue-500"/><div className="min-w-0 flex-1"><p className="text-sm font-semibold text-slate-800">{activity.description}</p><p className="mt-1 text-xs capitalize text-slate-500">{activity.user} · {activity.module} · {activity.created_at}</p></div><span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase text-slate-600">{activity.action}</span></div>)}
-                            </div>
-                        </section>
-                    )}
+                            <ArrowRight
+                                size={18}
+                                className="text-ink-300"
+                            />
+                        </div>
 
-                    <section className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]">
-                        <RecentSales sales={recentSales} />
-                        <LowStockAlert products={lowStockProducts} limit={lowStockLimit} />
-                    </section>
-                </div>
+                        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                            {quickActions.map(
+                                ({
+                                    title,
+                                    description,
+                                    href,
+                                    icon: Icon,
+                                    tone,
+                                }) => (
+                                    <Link
+                                        key={title}
+                                        href={href}
+                                        className="group flex items-center gap-3 rounded-2xl border border-ink-200 bg-ink-50/40 p-3.5 transition hover:border-brand-200 hover:bg-brand-50/40"
+                                    >
+                                        <span
+                                            className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${tone}`}
+                                        >
+                                            <Icon size={18} />
+                                        </span>
+                                        <span className="min-w-0 flex-1">
+                                            <span className="block text-sm font-black text-ink-800">
+                                                {title}
+                                            </span>
+                                            <span className="mt-0.5 block truncate text-[11px] text-ink-400">
+                                                {description}
+                                            </span>
+                                        </span>
+                                        <ArrowRight
+                                            size={15}
+                                            className="text-ink-300 transition group-hover:translate-x-0.5 group-hover:text-brand-600"
+                                        />
+                                    </Link>
+                                ),
+                            )}
+                        </div>
+                    </div>
+
+                    <BestProductsCard
+                        products={bestSellingProducts}
+                        currencySymbol={currencySymbol}
+                    />
+                </section>
+
+                <section className="grid gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(340px,1fr)]">
+                    <EnterpriseRecentSales
+                        sales={recentSales}
+                        currencySymbol={currencySymbol}
+                    />
+                    <InventoryAttention
+                        products={lowStockProducts}
+                        limit={lowStockLimit}
+                    />
+                </section>
+
+                <ActivityTimeline activities={recentActivities} />
             </div>
         </AuthenticatedLayout>
     );

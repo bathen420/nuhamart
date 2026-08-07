@@ -6,52 +6,68 @@ use App\Models\BusinessSetting;
 use App\Repositories\BusinessSettingRepository;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class BusinessSettingService
 {
-    public function __construct(private readonly BusinessSettingRepository $repository)
-    {
-    }
+    private const IMAGE_FIELDS = [
+        'logo', 'dark_logo', 'white_logo', 'footer_logo', 'mobile_logo',
+        'admin_logo', 'login_logo', 'invoice_logo', 'pos_logo', 'email_logo',
+        'favicon', 'og_image',
+    ];
+
+    public function __construct(private readonly BusinessSettingRepository $repository) {}
 
     public function getCurrent(): BusinessSetting
     {
         return $this->repository->getCurrent();
     }
 
-    public function update(array $data, ?UploadedFile $logo = null, bool $removeLogo = false): BusinessSetting
+    public function update(array $data, array $files = [], array $remove = []): BusinessSetting
     {
-        return DB::transaction(function () use ($data, $logo, $removeLogo) {
+        return DB::transaction(function () use ($data, $files, $remove) {
             $setting = $this->repository->getCurrent();
-            unset($data['logo'], $data['remove_logo']);
 
-            if ($removeLogo && $setting->logo) {
-                $this->deleteLogo($setting->logo);
-                $data['logo'] = null;
-            }
+            foreach (self::IMAGE_FIELDS as $field) {
+                unset($data[$field], $data["remove_{$field}"]);
 
-            if ($logo) {
-                if ($setting->logo) {
-                    $this->deleteLogo($setting->logo);
+                if (($remove[$field] ?? false) && $setting->{$field}) {
+                    $this->deleteStoredFile($setting->{$field});
+                    $data[$field] = null;
                 }
 
-                $directory = public_path('uploads/business');
-                File::ensureDirectoryExists($directory);
-                $filename = 'logo-' . Str::uuid() . '.' . $logo->getClientOriginalExtension();
-                $logo->move($directory, $filename);
-                $data['logo'] = '/uploads/business/' . $filename;
+                if (($files[$field] ?? null) instanceof UploadedFile) {
+                    if ($setting->{$field}) {
+                        $this->deleteStoredFile($setting->{$field});
+                    }
+
+                    $data[$field] = $files[$field]->store('business/branding', 'public');
+                }
+            }
+
+            foreach ([
+                'tax_enabled', 'cod_enabled', 'bkash_enabled', 'nagad_enabled',
+                'bank_enabled', 'sslcommerz_enabled', 'store_pickup_enabled',
+                'steadfast_enabled',
+            ] as $booleanField) {
+                $data[$booleanField] = (bool) ($data[$booleanField] ?? false);
             }
 
             return $this->repository->update($setting, $data);
         });
     }
 
-    private function deleteLogo(string $path): void
+    private function deleteStoredFile(?string $path): void
     {
-        $fullPath = public_path(ltrim($path, '/'));
-        if (File::exists($fullPath)) {
-            File::delete($fullPath);
+        if (! $path) {
+            return;
         }
+
+        if (str_starts_with($path, '/uploads/')) {
+            @unlink(public_path(ltrim($path, '/')));
+            return;
+        }
+
+        Storage::disk('public')->delete($path);
     }
 }

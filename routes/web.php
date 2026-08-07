@@ -57,11 +57,15 @@ use App\Http\Controllers\Admin\PublisherController;
 use App\Http\Controllers\Admin\HomepageContentController;
 use App\Http\Controllers\Customer\AccountController as CustomerAccountController;
 use App\Http\Controllers\Customer\AddressController as CustomerAddressController;
+use App\Http\Controllers\Customer\ProfileController as CustomerProfileController;
+use App\Http\Controllers\Customer\WishlistController as CustomerWishlistController;
 use App\Http\Controllers\Storefront\TrackOrderController;
 use App\Http\Controllers\Admin\OrderWorkflowController;
 use App\Http\Controllers\Admin\CourierConsignmentController;
 use App\Http\Controllers\Storefront\SeoController;
 use App\Http\Controllers\Payment\SslCommerzController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\RegisteredUserController;
 
 
 /*
@@ -119,6 +123,24 @@ Route::post('/payments/sslcommerz/retry/{order}', [SslCommerzController::class, 
 | Customer account and order tracking
 |--------------------------------------------------------------------------
 */
+Route::middleware('guest')->group(function () {
+    Route::get('/customer/login', [AuthenticatedSessionController::class, 'createCustomer'])
+        ->name('customer.login');
+    Route::post('/customer/login', [AuthenticatedSessionController::class, 'store'])
+        ->name('customer.login.store');
+
+    Route::get('/customer/register', [RegisteredUserController::class, 'create'])
+        ->name('customer.register');
+    Route::post('/customer/register', [RegisteredUserController::class, 'store'])
+        ->name('customer.register.store');
+});
+
+Route::get('/wishlist', [CustomerWishlistController::class, 'publicIndex'])->name('wishlist.index');
+Route::get('/wishlist/state', [CustomerWishlistController::class, 'state'])->name('wishlist.state');
+Route::post('/wishlist/resolve', [CustomerWishlistController::class, 'resolve'])
+    ->middleware('throttle:60,1')
+    ->name('wishlist.resolve');
+
 Route::get('/track-order', [TrackOrderController::class, 'index'])->name('orders.track');
 Route::post('/track-order', [TrackOrderController::class, 'search'])->middleware('throttle:20,1')->name('orders.track.search');
 
@@ -126,10 +148,24 @@ Route::middleware(['auth', 'verified'])->prefix('account')->name('customer.')->g
     Route::get('/', [CustomerAccountController::class, 'dashboard'])->name('dashboard');
     Route::get('/orders', [CustomerAccountController::class, 'orders'])->name('orders.index');
     Route::get('/orders/{order}', [CustomerAccountController::class, 'show'])->name('orders.show');
+    Route::get('/orders/{order}/invoice', [CustomerAccountController::class, 'invoice'])->name('orders.invoice');
+    Route::post('/orders/{order}/reorder', [CustomerAccountController::class, 'reorder'])->name('orders.reorder');
+    Route::post('/orders/{order}/cancel-request', [CustomerAccountController::class, 'requestCancellation'])
+        ->middleware('throttle:5,1')
+        ->name('orders.cancel-request');
     Route::get('/addresses', [CustomerAddressController::class, 'index'])->name('addresses.index');
     Route::post('/addresses', [CustomerAddressController::class, 'store'])->name('addresses.store');
     Route::put('/addresses/{address}', [CustomerAddressController::class, 'update'])->name('addresses.update');
     Route::delete('/addresses/{address}', [CustomerAddressController::class, 'destroy'])->name('addresses.destroy');
+
+    Route::get('/profile', [CustomerProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [CustomerProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile/avatar', [CustomerProfileController::class, 'destroyAvatar'])->name('profile.avatar.destroy');
+
+    Route::get('/wishlist', [CustomerWishlistController::class, 'index'])->name('wishlist.index');
+    Route::post('/wishlist/merge', [CustomerWishlistController::class, 'merge'])->name('wishlist.merge');
+    Route::post('/wishlist/{product}', [CustomerWishlistController::class, 'store'])->name('wishlist.store');
+    Route::delete('/wishlist/{product}', [CustomerWishlistController::class, 'destroy'])->name('wishlist.destroy');
 });
 
 /*
@@ -485,7 +521,13 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'verified'])
     ->get('/dashboard', function () {
-        return redirect()->route('admin.dashboard');
+        $user = request()->user();
+
+        $isAdmin = method_exists($user, 'hasAnyRole')
+            ? $user->hasAnyRole(['Super Admin', 'Admin', 'Manager', 'Staff'])
+            : $user->can('dashboard.view');
+
+        return redirect()->route($isAdmin ? 'admin.dashboard' : 'customer.dashboard');
     })
     ->name('dashboard');
 

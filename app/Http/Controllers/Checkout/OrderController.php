@@ -25,22 +25,30 @@ class OrderController extends Controller
     public function create(Request $request): Response
     {
         $settings = BusinessSetting::current();
+        $user = $request->user();
 
-        return Inertia::render('Checkout/Index', [
-            'customer' => $request->user() ? [
-                'name' => $request->user()->name,
-                'email' => $request->user()->email,
-                'phone' => $request->user()->phone,
-            ] : null,
-            'savedAddresses' => $request->user()?->customerAddresses()->latest('is_default')->latest()->get() ?? [],
-            'shippingRates' => [
-                'dhaka' => (float) ($settings->shipping_dhaka ?? config('commerce.shipping.dhaka', 60)),
-                'outside_dhaka' => (float) ($settings->shipping_outside_dhaka ?? config('commerce.shipping.outside_dhaka', 120)),
-                'digital_only' => (float) config('commerce.shipping.digital_only', 0),
-                'store_pickup' => (float) config('commerce.shipping.store_pickup', 0),
-                'free_shipping_threshold' => (float) ($settings->free_shipping_threshold ?? 0),
-            ],
-            'paymentMethods' => collect(config('commerce.payments'))->filter(fn ($method) => $method['enabled'] ?? false)->map(function ($method, $key) use ($settings) {
+        $savedAddresses = $user
+            ? $user->customerAddresses()
+                ->orderByDesc('is_default')
+                ->latest()
+                ->get()
+                ->map(fn ($address) => [
+                    'id' => $address->id,
+                    'label' => $address->label,
+                    'name' => $address->name,
+                    'phone' => $address->phone,
+                    'division' => $address->division,
+                    'district' => $address->district,
+                    'area' => $address->area,
+                    'address' => $address->address,
+                    'is_default' => (bool) $address->is_default,
+                ])
+                ->values()
+            : collect();
+
+        $paymentMethods = collect(config('commerce.payments', []))
+            ->filter(fn (array $method) => $method['enabled'] ?? false)
+            ->map(function (array $method, string $key) use ($settings) {
                 $account = match ($key) {
                     'bkash' => $settings->bkash_number ?: ($method['account'] ?? null),
                     'nagad' => $settings->nagad_number ?: ($method['account'] ?? null),
@@ -48,8 +56,30 @@ class OrderController extends Controller
                     default => $method['account'] ?? null,
                 };
 
-                return ['key' => $key, ...$method, 'account' => $account];
-            })->values(),
+                return [
+                    'key' => $key,
+                    'label' => $method['label'] ?? ucfirst($key),
+                    'enabled' => true,
+                    'account' => $account,
+                ];
+            })
+            ->values();
+
+        return Inertia::render('Checkout/Index', [
+            'customer' => $user ? [
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+            ] : null,
+            'savedAddresses' => $savedAddresses,
+            'shippingRates' => [
+                'dhaka' => (float) ($settings->shipping_dhaka ?? config('commerce.shipping.dhaka', 60)),
+                'outside_dhaka' => (float) ($settings->shipping_outside_dhaka ?? config('commerce.shipping.outside_dhaka', 120)),
+                'digital_only' => (float) config('commerce.shipping.digital_only', 0),
+                'store_pickup' => (float) config('commerce.shipping.store_pickup', 0),
+                'free_shipping_threshold' => (float) ($settings->free_shipping_threshold ?? 0),
+            ],
+            'paymentMethods' => $paymentMethods,
         ]);
     }
 
@@ -58,11 +88,18 @@ class OrderController extends Controller
         try {
             $payload = $request->validated();
             $payload['user_id'] = $request->user()?->id;
+
             $order = $this->orderService->place($payload);
 
-            if ($request->user() && $request->boolean('save_address') && ($payload['shipping_method'] ?? 'standard') !== 'store_pickup') {
+            if (
+                $request->user()
+                && $request->boolean('save_address')
+                && ($payload['shipping_method'] ?? 'standard') !== 'store_pickup'
+            ) {
                 if ($request->boolean('address_is_default')) {
-                    $request->user()->customerAddresses()->update(['is_default' => false]);
+                    $request->user()->customerAddresses()->update([
+                        'is_default' => false,
+                    ]);
                 }
 
                 $request->user()->customerAddresses()->create([
@@ -76,10 +113,12 @@ class OrderController extends Controller
                     'is_default' => $request->boolean('address_is_default'),
                 ]);
             }
+
             $request->session()->put('recent_order_id', $order->id);
 
             if ($order->payment_method === 'sslcommerz') {
                 $transaction = $this->sslCommerzService->initiate($order);
+
                 return Inertia::location($transaction->gateway_url);
             }
 
@@ -87,15 +126,24 @@ class OrderController extends Controller
         } catch (Throwable $exception) {
             report($exception);
 
-            return back()->withInput()->with('error', config('app.debug')
-                ? $exception->getMessage()
-                : 'Unable to place the order. Please review your cart and try again.');
+            return back()
+                ->withInput()
+                ->with(
+                    'error',
+                    config('app.debug')
+                        ? $exception->getMessage()
+                        : 'Unable to place the order. Please review your cart and try again.',
+                );
         }
     }
 
     public function success(Request $request, string $orderNo): Response
     {
-        $order = Order::query()->with('items.product')->where('order_no', $orderNo)->firstOrFail();
+        $order = Order::query()
+            ->with('items.product')
+            ->where('order_no', $orderNo)
+            ->firstOrFail();
+
         $recentOrderId = (int) $request->session()->get('recent_order_id');
 
         abort_unless($recentOrderId === $order->id, 403);

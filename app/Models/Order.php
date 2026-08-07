@@ -39,6 +39,8 @@ class Order extends Model
         'payment_status',
         'status',
         'ordered_at',
+        'cancellation_requested_at',
+        'cancellation_reason',
     ];
 
     protected $casts = [
@@ -47,6 +49,7 @@ class Order extends Model
         'discount' => 'decimal:2',
         'total' => 'decimal:2',
         'ordered_at' => 'datetime',
+        'cancellation_requested_at' => 'datetime',
     ];
 
     public function items(): HasMany

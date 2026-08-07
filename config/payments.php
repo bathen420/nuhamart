@@ -8,7 +8,13 @@ return [
         'store_password' => env('SSLCOMMERZ_STORE_PASSWORD'),
         'currency' => env('SSLCOMMERZ_CURRENCY', 'BDT'),
         'timeout' => (int) env('SSLCOMMERZ_TIMEOUT', 30),
-        'sandbox_base_url' => 'https://sandbox.sslcommerz.com',
-        'live_base_url' => 'https://securepay.sslcommerz.com',
+        'sandbox_base_url' => env(
+            'SSLCOMMERZ_SANDBOX_BASE_URL',
+            'https://sandbox.sslcommerz.com'
+        ),
+        'live_base_url' => env(
+            'SSLCOMMERZ_LIVE_BASE_URL',
+            'https://securepay.sslcommerz.com'
+        ),
     ],
 ];

@@ -4,21 +4,58 @@
 
 /*
 |--------------------------------------------------------------------------
-| NuhaMart Global Styles
+| NuhaMart Enterprise Design System v6.0
 |--------------------------------------------------------------------------
 */
 
+:root {
+    color-scheme: light;
+
+    --nm-brand-50: 240 253 250;
+    --nm-brand-100: 204 251 241;
+    --nm-brand-200: 153 246 228;
+    --nm-brand-300: 94 234 212;
+    --nm-brand-400: 45 212 191;
+    --nm-brand-500: 20 184 166;
+    --nm-brand-600: 13 148 136;
+    --nm-brand-700: 15 118 110;
+    --nm-brand-800: 17 94 89;
+    --nm-brand-900: 19 78 74;
+    --nm-brand-950: 4 47 46;
+
+    --nm-ink-50: 248 250 252;
+    --nm-ink-100: 241 245 249;
+    --nm-ink-200: 226 232 240;
+    --nm-ink-300: 203 213 225;
+    --nm-ink-400: 148 163 184;
+    --nm-ink-500: 100 116 139;
+    --nm-ink-600: 71 85 105;
+    --nm-ink-700: 51 65 85;
+    --nm-ink-800: 30 41 59;
+    --nm-ink-900: 15 23 42;
+    --nm-ink-950: 2 6 23;
+
+    --nm-surface: 255 255 255;
+    --nm-canvas: 248 250 252;
+    --nm-border: 226 232 240;
+    --nm-radius: 16px;
+    --nm-radius-lg: 24px;
+    --nm-transition: 160ms ease;
+}
+
 html {
     scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
 }
 
 body {
-    
     margin: 0;
     min-height: 100vh;
-    background: #f8fafc;
-    color: #0f172a;
+    background: rgb(var(--nm-canvas));
+    color: rgb(var(--nm-ink-900));
     font-family:
+        Inter,
+        Figtree,
         ui-sans-serif,
         system-ui,
         -apple-system,
@@ -42,35 +79,160 @@ textarea {
     font: inherit;
 }
 
+button,
+a {
+    -webkit-tap-highlight-color: transparent;
+}
+
 img {
     display: block;
     max-width: 100%;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Utility Classes
-|--------------------------------------------------------------------------
-*/
-
-.no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+::selection {
+    background: rgb(var(--nm-brand-200));
+    color: rgb(var(--nm-brand-950));
 }
 
-.no-scrollbar::-webkit-scrollbar {
-    display: none;
+:focus-visible {
+    outline: 3px solid rgb(var(--nm-brand-500) / 0.3);
+    outline-offset: 2px;
 }
 
-.print-only {
-    display: none;
+@layer base {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        @apply font-display tracking-tight text-ink-900;
+    }
 }
 
-/*
-|--------------------------------------------------------------------------
-| Print Styles
-|--------------------------------------------------------------------------
-*/
+@layer components {
+    .nm-page {
+        @apply min-w-0 animate-fade-up;
+    }
+
+    .nm-page-shell {
+        @apply mx-auto w-full max-w-[1700px] px-4 py-6 sm:px-6 lg:px-8;
+    }
+
+    .nm-panel {
+        @apply rounded-3xl border border-ink-200 bg-white shadow-soft;
+    }
+
+    .nm-panel-header {
+        @apply flex flex-col gap-3 border-b border-ink-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6;
+    }
+
+    .nm-panel-body {
+        @apply p-5 sm:p-6;
+    }
+
+    .nm-eyebrow {
+        @apply text-xs font-black uppercase tracking-[0.16em] text-brand-700;
+    }
+
+    .nm-title {
+        @apply text-2xl font-black tracking-tight text-ink-900 sm:text-3xl;
+    }
+
+    .nm-subtitle {
+        @apply mt-1 text-sm leading-6 text-ink-500;
+    }
+
+    .nm-label {
+        @apply mb-2 block text-sm font-bold text-ink-700;
+    }
+
+    .nm-input {
+        @apply block w-full rounded-xl border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 shadow-sm placeholder:text-ink-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10;
+    }
+
+    .nm-select {
+        @apply nm-input pr-10;
+    }
+
+    .nm-textarea {
+        @apply nm-input min-h-28 resize-y;
+    }
+
+    .nm-help {
+        @apply mt-1.5 text-xs leading-5 text-ink-500;
+    }
+
+    .nm-error {
+        @apply mt-1.5 text-xs font-semibold text-rose-600;
+    }
+
+    .nm-table-wrap {
+        @apply overflow-hidden rounded-2xl border border-ink-200 bg-white;
+    }
+
+    .nm-table {
+        @apply min-w-full divide-y divide-ink-200;
+    }
+
+    .nm-table thead {
+        @apply bg-ink-50;
+    }
+
+    .nm-table th {
+        @apply px-4 py-3 text-left text-xs font-black uppercase tracking-[0.08em] text-ink-500;
+    }
+
+    .nm-table td {
+        @apply px-4 py-3.5 text-sm text-ink-700;
+    }
+
+    .nm-table tbody {
+        @apply divide-y divide-ink-100;
+    }
+
+    .nm-table tbody tr {
+        @apply transition-colors hover:bg-brand-50/40;
+    }
+
+    .nm-scrollbar {
+        scrollbar-color: rgb(var(--nm-ink-300)) transparent;
+        scrollbar-width: thin;
+    }
+
+    .nm-scrollbar::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    .nm-scrollbar::-webkit-scrollbar-thumb {
+        border-radius: 999px;
+        background: rgb(var(--nm-ink-300));
+    }
+
+    .nm-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+}
+
+@layer utilities {
+    .text-balance {
+        text-wrap: balance;
+    }
+
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .print-only {
+        display: none;
+    }
+}
 
 @media print {
     @page {

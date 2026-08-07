@@ -1,512 +1,656 @@
-import { Head, Link, router, useForm } from "@inertiajs/react";
+import { Head, Link, router, useForm, usePage } from "@inertiajs/react";
+import {
+    ArrowLeft,
+    CheckCircle2,
+    Clock3,
+    Download,
+    FileText,
+    MapPin,
+    PackageCheck,
+    Phone,
+    Printer,
+    RefreshCw,
+    Save,
+    ShoppingBag,
+    Truck,
+    UserRound,
+} from "lucide-react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import {
+    Alert,
+    Badge,
+    Button,
+    Card,
+    CardBody,
+    CardHeader,
+    FormField,
+    Input,
+    PageHeader,
+    Select,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableHeader,
+    TableRow,
+    Textarea,
+} from "@/Components/Admin/UI";
 
-const paymentBadge = (status) => {
-    switch (status) {
-        case "Paid":
-            return "bg-green-100 text-green-700";
-        case "Pending":
-            return "bg-yellow-100 text-yellow-700";
-        case "Failed":
-            return "bg-red-100 text-red-700";
-        default:
-            return "bg-gray-100 text-gray-700";
-    }
+const orderTones = {
+    pending: "warning",
+    confirmed: "info",
+    processing: "brand",
+    shipped: "purple",
+    delivered: "success",
+    cancelled: "danger",
 };
 
-const orderBadge = (status) => {
-    switch (status) {
-        case "Pending":
-            return "bg-yellow-100 text-yellow-700";
-        case "Processing":
-            return "bg-blue-100 text-blue-700";
-        case "Shipped":
-            return "bg-purple-100 text-purple-700";
-        case "Delivered":
-            return "bg-green-100 text-green-700";
-        case "Cancelled":
-            return "bg-red-100 text-red-700";
-        default:
-            return "bg-gray-100 text-gray-700";
-    }
+const paymentTones = {
+    pending: "warning",
+    paid: "success",
+    failed: "danger",
 };
 
-export default function Show({ auth, order }) {
-    const consignment = order.courier_consignments?.[0] ?? null;
+const formatStatus = (value) =>
+    String(value || "n/a")
+        .replaceAll("_", " ")
+        .replace(/\b\w/g, (character) => character.toUpperCase());
+
+export default function Show({ order }) {
+    const { businessSettings = {} } = usePage().props;
+    const currency = businessSettings.currency_symbol || "৳";
+    const consignment = order.courier_consignments?.[0] || null;
+    const histories = order.status_histories || [];
+
     const workflow = useForm({
-        status: order.status ?? "pending",
-        payment_status: order.payment_status ?? "pending",
-        courier_name: order.courier_name ?? "",
-        tracking_number: order.tracking_number ?? "",
-        admin_note: order.admin_note ?? "",
+        status: order.status || "pending",
+        payment_status: order.payment_status || "pending",
+        courier_name: order.courier_name || "",
+        tracking_number: order.tracking_number || "",
+        admin_note: order.admin_note || "",
     });
 
-    const updateWorkflow = (event) => {
+    const money = (value) =>
+        `${currency}${new Intl.NumberFormat("en-BD", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        }).format(Number(value || 0))}`;
+
+    const submitWorkflow = (event) => {
         event.preventDefault();
-        workflow.patch(route("admin.orders.workflow.update", order.id), { preserveScroll: true });
+        workflow.patch(route("admin.orders.workflow.update", order.id), {
+            preserveScroll: true,
+        });
     };
 
-    const printInvoice = () => {
-        window.open(
-            route("admin.orders.pdf", order.id),
-            "_blank",
-            "noopener,noreferrer"
-        );
-    };
+    const address = [
+        order.address,
+        order.area,
+        order.district,
+        order.division,
+    ]
+        .filter(Boolean)
+        .join(", ");
 
     return (
-        <>
-            <style>{`
-                @media print{
-                    nav,
-                    aside,
-                    header,
-                    .print-hidden{
-                        display:none !important;
-                    }
+        <AuthenticatedLayout>
+            <Head title={`Order ${order.order_no}`} />
 
-                    body{
-                        background:#fff;
-                    }
-
-                    #invoice{
-                        width:100%;
-                        max-width:100%;
-                        box-shadow:none;
-                        margin:0;
-                        padding:0;
-                    }
-                }
-            `}</style>
-
-            <AuthenticatedLayout
-                user={auth.user}
-                header={
-                    <h2 className="text-xl font-semibold">
-                        Invoice
-                    </h2>
-                }
-            >
-
-                <Head title={`Invoice ${order.order_no ?? order.id}`} />
-
-                <div
-                    id="invoice"
-                    className="mx-auto max-w-6xl space-y-6 bg-white p-8 shadow-xl"
-                >
-
-                    {/* Top Buttons */}
-
-                    <div className="flex justify-between print-hidden">
-
-                        <Link
-                            href={route("admin.orders.index")}
-                            className="rounded-lg bg-gray-700 px-5 py-2 text-white"
-                        >
-                            ← Back
-                        </Link>
-
-                        <div className="space-x-3">
-
-                            <button
-                                onClick={printInvoice}
-                                className="rounded-lg bg-blue-600 px-5 py-2 text-white"
+            <div className="space-y-6">
+                <PageHeader
+                    eyebrow="Order workspace"
+                    title={order.order_no || `Order #${order.id}`}
+                    description="Review products, customer details, payment, fulfilment and courier history."
+                    actions={
+                        <>
+                            <Button
+                                as={Link}
+                                href={route("admin.orders.index")}
+                                variant="secondary"
                             >
-                                🖨 Print
-                            </button>
-
-                            <a
+                                <ArrowLeft size={16} />
+                                Orders
+                            </Button>
+                            <Button
+                                as="a"
                                 href={route("admin.orders.pdf", order.id)}
                                 target="_blank"
-                                rel="noopener noreferrer"
-                                className="rounded-lg bg-red-600 px-5 py-2 text-white"
+                                variant="secondary"
                             >
-                                📄 PDF
-                            </a>
-
-                        </div>
-
+                                <Download size={16} />
+                                Invoice PDF
+                            </Button>
+                            <Button
+                                type="button"
+                                onClick={() => window.print()}
+                            >
+                                <Printer size={16} />
+                                Print
+                            </Button>
+                        </>
+                    }
+                >
+                    <div className="mt-3 flex flex-wrap gap-2">
+                        <Badge
+                            tone={orderTones[order.status] || "neutral"}
+                            dot
+                        >
+                            {formatStatus(order.status)}
+                        </Badge>
+                        <Badge
+                            tone={
+                                paymentTones[order.payment_status] || "neutral"
+                            }
+                            dot
+                        >
+                            {formatStatus(order.payment_status)}
+                        </Badge>
+                        <Badge tone="brand">
+                            {order.items?.length || 0} item(s)
+                        </Badge>
                     </div>
-                                        <form onSubmit={updateWorkflow} className="print-hidden rounded-xl border border-teal-100 bg-teal-50 p-5">
-                        <div className="flex flex-col justify-between gap-2 md:flex-row md:items-center">
-                            <div><h3 className="text-lg font-bold text-teal-900">Order Workflow</h3><p className="text-sm text-teal-700">Update payment, packing and courier details from one place.</p></div>
-                            <button disabled={workflow.processing} className="rounded-lg bg-teal-700 px-5 py-2.5 font-semibold text-white disabled:opacity-50">{workflow.processing ? "Saving..." : "Save Workflow"}</button>
-                        </div>
-                        <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                            <label className="text-sm font-medium">Order Status<select className="mt-1 w-full rounded-lg border-gray-300" value={workflow.data.status} onChange={e => workflow.setData("status", e.target.value)}>{[["pending","Pending"],["confirmed","Confirmed"],["processing","Packed / Processing"],["shipped","Shipped"],["delivered","Delivered"],["cancelled","Cancelled"]].map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select></label>
-                            <label className="text-sm font-medium">Payment Status<select className="mt-1 w-full rounded-lg border-gray-300" value={workflow.data.payment_status} onChange={e => workflow.setData("payment_status", e.target.value)}>{["pending","paid","failed"].map(value => <option key={value} value={value}>{value.charAt(0).toUpperCase()+value.slice(1)}</option>)}</select></label>
-                            <label className="text-sm font-medium">Courier<input className="mt-1 w-full rounded-lg border-gray-300" value={workflow.data.courier_name} onChange={e => workflow.setData("courier_name", e.target.value)} placeholder="Steadfast / Pathao" /></label>
-                            <label className="text-sm font-medium">Tracking Number<input className="mt-1 w-full rounded-lg border-gray-300" value={workflow.data.tracking_number} onChange={e => workflow.setData("tracking_number", e.target.value)} /></label>
-                            <label className="text-sm font-medium md:col-span-2 lg:col-span-4">Internal Admin Note<textarea rows="2" className="mt-1 w-full rounded-lg border-gray-300" value={workflow.data.admin_note} onChange={e => workflow.setData("admin_note", e.target.value)} /></label>
-                        </div>
-                        {Object.keys(workflow.errors).length > 0 && <p className="mt-3 text-sm text-red-600">Please review the workflow fields.</p>}
-                    </form>
+                </PageHeader>
 
-                    <section className="print-hidden rounded-xl border border-indigo-100 bg-indigo-50 p-5">
-                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                            <div>
-                                <h3 className="text-lg font-bold text-indigo-900">Courier Delivery</h3>
-                                <p className="text-sm text-indigo-700">Create and synchronize the Steadfast consignment from this order.</p>
-                            </div>
-                            {!consignment ? (
-                                <button type="button" onClick={() => router.post(route("admin.orders.courier-consignments.store", order.id), { provider: "steadfast" }, { preserveScroll: true })} className="rounded-lg bg-indigo-700 px-5 py-2.5 font-semibold text-white">Send to Steadfast</button>
-                            ) : (
-                                <button type="button" onClick={() => router.post(route("admin.courier-consignments.sync", consignment.id), {}, { preserveScroll: true })} className="rounded-lg bg-indigo-700 px-5 py-2.5 font-semibold text-white">Sync Courier Status</button>
-                            )}
-                        </div>
-                        {consignment && <div className="mt-4 grid gap-3 text-sm md:grid-cols-4">
-                            <div><span className="block text-gray-500">Provider</span><strong className="capitalize">{consignment.provider}</strong></div>
-                            <div><span className="block text-gray-500">Tracking</span><strong>{consignment.tracking_code || "Pending"}</strong></div>
-                            <div><span className="block text-gray-500">Status</span><strong className="capitalize">{consignment.status?.replaceAll("_", " ")}</strong></div>
-                            <div><span className="block text-gray-500">Last Sync</span><strong>{consignment.last_synced_at ? new Date(consignment.last_synced_at).toLocaleString() : "Never"}</strong></div>
-                            {consignment.last_error && <p className="text-red-600 md:col-span-4">{consignment.last_error}</p>}
-                        </div>}
-                    </section>
+                {order.cancellation_requested_at && (
+                    <Alert
+                        variant="warning"
+                        title="Customer requested cancellation"
+                    >
+                        {order.cancellation_reason ||
+                            "No cancellation reason was provided."}
+                    </Alert>
+                )}
 
-                    {/* Invoice Header */}
+                <div className="grid gap-6 xl:grid-cols-[minmax(0,1.7fr)_390px]">
+                    <main className="min-w-0 space-y-6">
+                        <Card>
+                            <CardHeader
+                                title="Ordered products"
+                                description="Items and quantities included in this order."
+                            />
+                            <CardBody className="p-3 sm:p-4">
+                                <TableContainer>
+                                    <Table>
+                                        <TableHead>
+                                            <tr>
+                                                <TableHeader>
+                                                    Product
+                                                </TableHeader>
+                                                <TableHeader className="text-center">
+                                                    Qty
+                                                </TableHeader>
+                                                <TableHeader className="text-right">
+                                                    Unit price
+                                                </TableHeader>
+                                                <TableHeader className="text-right">
+                                                    Total
+                                                </TableHeader>
+                                            </tr>
+                                        </TableHead>
+                                        <TableBody>
+                                            {(order.items || []).map((item) => (
+                                                <TableRow key={item.id}>
+                                                    <TableCell>
+                                                        <div className="flex items-center gap-3">
+                                                            <span className="grid h-11 w-11 place-items-center overflow-hidden rounded-xl bg-ink-100 text-ink-400">
+                                                                {item.product
+                                                                    ?.image ? (
+                                                                    <img
+                                                                        src={`/storage/${item.product.image}`}
+                                                                        alt={
+                                                                            item.product_name
+                                                                        }
+                                                                        className="h-full w-full object-cover"
+                                                                    />
+                                                                ) : (
+                                                                    <ShoppingBag
+                                                                        size={
+                                                                            18
+                                                                        }
+                                                                    />
+                                                                )}
+                                                            </span>
+                                                            <div>
+                                                                <p className="font-black text-ink-900">
+                                                                    {item.product_name ||
+                                                                        item
+                                                                            .product
+                                                                            ?.name ||
+                                                                        "Product"}
+                                                                </p>
+                                                                <p className="mt-1 text-[10px] text-ink-400">
+                                                                    SKU:{" "}
+                                                                    {item.sku ||
+                                                                        item
+                                                                            .product
+                                                                            ?.sku ||
+                                                                        "—"}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell className="text-center font-black">
+                                                        {item.quantity}
+                                                    </TableCell>
+                                                    <TableCell className="text-right">
+                                                        {money(item.unit_price)}
+                                                    </TableCell>
+                                                    <TableCell className="text-right font-black text-ink-950">
+                                                        {money(item.subtotal)}
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                            </CardBody>
+                        </Card>
 
-                    <div className="rounded-xl border-b-4 border-blue-600 pb-8">
-
-                        <div className="flex flex-col justify-between md:flex-row">
-
-                            <div>
-
-                                <h1 className="text-4xl font-extrabold text-blue-700">
-                                    Nuha Mart BD
-                                </h1>
-
-                                <p className="mt-2 text-gray-500">
-                                    Professional Inventory & POS System
-                                </p>
-
-                                <div className="mt-5 space-y-1 text-sm text-gray-500">
-
-                                    <p>Dhaka, Bangladesh</p>
-
-                                    <p>support@nuhamartbd.com</p>
-
-                                    <p>+880 1700-000000</p>
-
-                                </div>
-
-                            </div>
-
-                            <div className="mt-8 text-right md:mt-0">
-
-                                <h2 className="text-5xl font-bold text-gray-700">
-                                    INVOICE
-                                </h2>
-
-                                <div className="mt-6 space-y-2">
-
-                                    <p>
-                                        <span className="font-bold">
-                                            Invoice #
-                                        </span>
-                                        <br />
-                                        {order.order_no ?? order.id}
-                                    </p>
-
-                                    <p>
-                                        <span className="font-bold">
-                                            Date
-                                        </span>
-                                        <br />
-                                        {new Date(order.created_at).toLocaleDateString()}
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    {/* Customer & Payment */}
-
-                    <div className="grid gap-6 md:grid-cols-2">
-
-                        <div className="rounded-xl bg-gray-50 p-6">
-
-                            <h3 className="mb-5 border-b pb-2 text-xl font-bold">
-                                Customer Information
-                            </h3>
-
-                            <div className="space-y-3">
-
-                                <p>
-                                    <strong>Name:</strong><br />
-                                    {order.customer_name}
-                                </p>
-
-                                <p>
-                                    <strong>Phone:</strong><br />
-                                    {order.customer_phone}
-                                </p>
-
-                                <p>
-                                    <strong>Email:</strong><br />
-                                    {order.customer_email || "-"}
-                                </p>
-
-                                <p>
-                                    <strong>Address:</strong><br />
-                                    {order.address || [order.area, order.district, order.division].filter(Boolean).join(", ") || "-"}
-                                </p>
-
-                            </div>
-
-                        </div>
-
-                        <div className="rounded-xl bg-gray-50 p-6">
-
-                            <h3 className="mb-5 border-b pb-2 text-xl font-bold">
-                                Payment Information
-                            </h3>
-
-                            <div className="space-y-4">
-
-                                <div className="flex justify-between">
-
-                                    <span>Payment Method</span>
-
-                                    <strong>{order.payment_method}</strong>
-
-                                </div>
-
-                                <div className="flex justify-between items-center">
-
-                                    <span>Payment Status</span>
-
-                                    <span
-                                        className={`rounded-full px-3 py-1 text-sm font-semibold ${paymentBadge(order.payment_status)}`}
+                        <Card>
+                            <CardHeader
+                                title="Workflow control"
+                                description="Update fulfilment, payment and tracking details."
+                            />
+                            <CardBody>
+                                <form
+                                    onSubmit={submitWorkflow}
+                                    className="grid gap-5 md:grid-cols-2"
+                                >
+                                    <FormField
+                                        label="Order status"
+                                        error={workflow.errors.status}
                                     >
-                                        {order.payment_status}
-                                    </span>
-
-                                </div>
-
-                                <div className="flex justify-between items-center">
-
-                                    <span>Order Status</span>
-
-                                    <span
-                                        className={`rounded-full px-3 py-1 text-sm font-semibold ${orderBadge(order.status)}`}
-                                    >
-                                        {order.status}
-                                    </span>
-
-                                </div>
-
-                                <div className="flex justify-between">
-
-                                    <span>Created At</span>
-
-                                    <strong>
-                                        {new Date(order.created_at).toLocaleString()}
-                                    </strong>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-                                        {/* Products */}
-
-                    <div className="rounded-xl bg-white p-6 shadow">
-
-                        <h2 className="mb-6 text-2xl font-bold">
-                            Ordered Products
-                        </h2>
-
-                        <div className="overflow-x-auto">
-
-                            <table className="min-w-full border border-gray-200">
-
-                                <thead className="bg-blue-600 text-white">
-
-                                    <tr>
-
-                                        <th className="border px-4 py-3 text-center w-16">
-                                            #
-                                        </th>
-
-                                        <th className="border px-4 py-3 text-left">
-                                            Product
-                                        </th>
-
-                                        <th className="border px-4 py-3 text-center">
-                                            Qty
-                                        </th>
-
-                                        <th className="border px-4 py-3 text-right">
-                                            Unit Price
-                                        </th>
-
-                                        <th className="border px-4 py-3 text-right">
-                                            Total
-                                        </th>
-
-                                    </tr>
-
-                                </thead>
-
-                                <tbody>
-
-                                    {order.items.map((item, index) => (
-
-                                        <tr
-                                            key={item.id}
-                                            className="hover:bg-gray-50"
+                                        <Select
+                                            value={workflow.data.status}
+                                            onChange={(event) =>
+                                                workflow.setData(
+                                                    "status",
+                                                    event.target.value,
+                                                )
+                                            }
                                         >
+                                            {[
+                                                "pending",
+                                                "confirmed",
+                                                "processing",
+                                                "shipped",
+                                                "delivered",
+                                                "cancelled",
+                                            ].map((value) => (
+                                                <option
+                                                    key={value}
+                                                    value={value}
+                                                >
+                                                    {formatStatus(value)}
+                                                </option>
+                                            ))}
+                                        </Select>
+                                    </FormField>
 
-                                            <td className="border px-4 py-3 text-center">
-                                                {index + 1}
-                                            </td>
+                                    <FormField
+                                        label="Payment status"
+                                        error={
+                                            workflow.errors.payment_status
+                                        }
+                                    >
+                                        <Select
+                                            value={
+                                                workflow.data.payment_status
+                                            }
+                                            onChange={(event) =>
+                                                workflow.setData(
+                                                    "payment_status",
+                                                    event.target.value,
+                                                )
+                                            }
+                                        >
+                                            {["pending", "paid", "failed"].map(
+                                                (value) => (
+                                                    <option
+                                                        key={value}
+                                                        value={value}
+                                                    >
+                                                        {formatStatus(value)}
+                                                    </option>
+                                                ),
+                                            )}
+                                        </Select>
+                                    </FormField>
 
-                                            <td className="border px-4 py-3 font-medium">
-                                                {item.product?.name || "-"}
-                                            </td>
+                                    <FormField label="Courier name">
+                                        <Input
+                                            value={workflow.data.courier_name}
+                                            onChange={(event) =>
+                                                workflow.setData(
+                                                    "courier_name",
+                                                    event.target.value,
+                                                )
+                                            }
+                                            placeholder="Steadfast / Pathao"
+                                        />
+                                    </FormField>
 
-                                            <td className="border px-4 py-3 text-center">
-                                                {item.quantity}
-                                            </td>
+                                    <FormField label="Tracking number">
+                                        <Input
+                                            value={
+                                                workflow.data.tracking_number
+                                            }
+                                            onChange={(event) =>
+                                                workflow.setData(
+                                                    "tracking_number",
+                                                    event.target.value,
+                                                )
+                                            }
+                                        />
+                                    </FormField>
 
-                                            <td className="border px-4 py-3 text-right">
-                                                ৳ {Number(item.unit_price).toFixed(2)}
-                                            </td>
+                                    <FormField
+                                        label="Internal admin note"
+                                        className="md:col-span-2"
+                                    >
+                                        <Textarea
+                                            value={workflow.data.admin_note}
+                                            onChange={(event) =>
+                                                workflow.setData(
+                                                    "admin_note",
+                                                    event.target.value,
+                                                )
+                                            }
+                                        />
+                                    </FormField>
 
-                                            <td className="border px-4 py-3 text-right font-semibold">
-                                                ৳ {Number(item.subtotal).toFixed(2)}
-                                            </td>
+                                    <div className="md:col-span-2 flex justify-end">
+                                        <Button
+                                            type="submit"
+                                            loading={workflow.processing}
+                                        >
+                                            <Save size={16} />
+                                            Save workflow
+                                        </Button>
+                                    </div>
+                                </form>
+                            </CardBody>
+                        </Card>
 
-                                        </tr>
+                        <Card>
+                            <CardHeader
+                                title="Order timeline"
+                                description="Status changes recorded for this order."
+                            />
+                            <CardBody>
+                                {histories.length > 0 ? (
+                                    <div className="relative space-y-1 before:absolute before:bottom-4 before:left-[19px] before:top-4 before:w-px before:bg-ink-200">
+                                        {histories.map((history, index) => (
+                                            <div
+                                                key={history.id || index}
+                                                className="relative flex gap-3 rounded-2xl py-3"
+                                            >
+                                                <span className="relative z-10 grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-brand-100 bg-brand-50 text-brand-700">
+                                                    {index === 0 ? (
+                                                        <Clock3 size={17} />
+                                                    ) : (
+                                                        <CheckCircle2
+                                                            size={17}
+                                                        />
+                                                    )}
+                                                </span>
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="flex flex-wrap items-center gap-2">
+                                                        <p className="font-black text-ink-800">
+                                                            {history.title ||
+                                                                formatStatus(
+                                                                    history.status,
+                                                                )}
+                                                        </p>
+                                                        <Badge
+                                                            tone={
+                                                                orderTones[
+                                                                    history
+                                                                        .status
+                                                                ] || "neutral"
+                                                            }
+                                                        >
+                                                            {formatStatus(
+                                                                history.status,
+                                                            )}
+                                                        </Badge>
+                                                    </div>
+                                                    {history.note && (
+                                                        <p className="mt-1 text-sm text-ink-500">
+                                                            {history.note}
+                                                        </p>
+                                                    )}
+                                                    <p className="mt-1 text-[10px] font-medium text-ink-400">
+                                                        {history.recorded_at
+                                                            ? new Date(
+                                                                  history.recorded_at,
+                                                              ).toLocaleString()
+                                                            : ""}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="rounded-2xl border border-dashed border-ink-200 bg-ink-50 p-10 text-center">
+                                        <Clock3
+                                            size={28}
+                                            className="mx-auto text-ink-300"
+                                        />
+                                        <p className="mt-3 font-black text-ink-600">
+                                            No timeline entries
+                                        </p>
+                                    </div>
+                                )}
+                            </CardBody>
+                        </Card>
+                    </main>
 
-                                    ))}
-
-                                </tbody>
-
-                            </table>
-
-                        </div>
-
-                    </div>
-
-                    {/* Order Summary */}
-
-                    <div className="flex justify-end">
-
-                        <div className="w-full rounded-xl bg-white p-6 shadow md:w-[420px]">
-
-                            <h2 className="mb-6 text-xl font-bold">
-                                Order Summary
-                            </h2>
-
-                            <div className="space-y-4">
-
-                                <div className="flex justify-between">
-
-                                    <span>Subtotal</span>
-
-                                    <strong>
-                                        ৳ {Number(order.subtotal).toFixed(2)}
-                                    </strong>
-
+                    <aside className="h-fit space-y-6 xl:sticky xl:top-28">
+                        <Card>
+                            <CardHeader title="Order summary" />
+                            <CardBody className="space-y-3">
+                                {[
+                                    ["Subtotal", money(order.subtotal)],
+                                    ["Discount", `− ${money(order.discount)}`],
+                                    [
+                                        "Shipping",
+                                        money(order.shipping_charge),
+                                    ],
+                                ].map(([label, value]) => (
+                                    <div
+                                        key={label}
+                                        className="flex items-center justify-between text-sm"
+                                    >
+                                        <span className="text-ink-500">
+                                            {label}
+                                        </span>
+                                        <span className="font-black text-ink-800">
+                                            {value}
+                                        </span>
+                                    </div>
+                                ))}
+                                <div className="border-t border-ink-200 pt-4">
+                                    <div className="flex items-center justify-between">
+                                        <span className="font-black text-ink-900">
+                                            Grand total
+                                        </span>
+                                        <span className="text-2xl font-black text-brand-700">
+                                            {money(order.total)}
+                                        </span>
+                                    </div>
                                 </div>
+                            </CardBody>
+                        </Card>
 
-                                <div className="flex justify-between">
-
-                                    <span>Discount</span>
-
-                                    <strong>
-                                        ৳ {Number(order.discount).toFixed(2)}
-                                    </strong>
-
-                                </div>
-
-                                <div className="flex justify-between">
-
-                                    <span>Shipping</span>
-
-                                    <strong>
-                                        ৳ {Number(order.shipping_charge).toFixed(2)}
-                                    </strong>
-
-                                </div>
-
-                                <hr />
-
-                                <div className="flex justify-between text-2xl font-bold text-blue-700">
-
-                                    <span>Grand Total</span>
-
-                                    <span>
-                                        ৳ {Number(order.total).toFixed(2)}
+                        <Card>
+                            <CardHeader
+                                title="Customer & delivery"
+                                description="Recipient and shipping location."
+                            />
+                            <CardBody className="space-y-4">
+                                <div className="flex gap-3">
+                                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700">
+                                        <UserRound size={18} />
                                     </span>
-
+                                    <div>
+                                        <p className="font-black text-ink-900">
+                                            {order.customer_name}
+                                        </p>
+                                        <p className="mt-1 text-xs text-ink-400">
+                                            {order.customer_email || "No email"}
+                                        </p>
+                                    </div>
                                 </div>
+                                <div className="flex gap-3 text-sm">
+                                    <Phone
+                                        size={16}
+                                        className="mt-0.5 shrink-0 text-ink-400"
+                                    />
+                                    <span className="font-bold text-ink-700">
+                                        {order.customer_phone}
+                                    </span>
+                                </div>
+                                <div className="flex gap-3 text-sm">
+                                    <MapPin
+                                        size={16}
+                                        className="mt-0.5 shrink-0 text-ink-400"
+                                    />
+                                    <span className="leading-6 text-ink-600">
+                                        {address || "No address"}
+                                    </span>
+                                </div>
+                            </CardBody>
+                        </Card>
 
-                            </div>
+                        <Card>
+                            <CardHeader
+                                title="Courier delivery"
+                                description="Book or synchronize parcel delivery."
+                            />
+                            <CardBody>
+                                {consignment ? (
+                                    <div className="space-y-4">
+                                        <div className="rounded-2xl bg-brand-50 p-4">
+                                            <div className="flex items-center gap-3">
+                                                <Truck
+                                                    size={20}
+                                                    className="text-brand-700"
+                                                />
+                                                <div>
+                                                    <p className="font-black capitalize text-ink-900">
+                                                        {
+                                                            consignment.provider
+                                                        }
+                                                    </p>
+                                                    <p className="mt-1 text-xs text-ink-500">
+                                                        {consignment.tracking_code ||
+                                                            "Tracking pending"}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="mt-4 flex items-center justify-between">
+                                                <Badge tone="brand" dot>
+                                                    {formatStatus(
+                                                        consignment.status,
+                                                    )}
+                                                </Badge>
+                                                <span className="text-[10px] text-ink-400">
+                                                    {consignment.last_synced_at
+                                                        ? new Date(
+                                                              consignment.last_synced_at,
+                                                          ).toLocaleString()
+                                                        : "Never synced"}
+                                                </span>
+                                            </div>
+                                        </div>
 
-                        </div>
+                                        {consignment.last_error && (
+                                            <Alert variant="danger">
+                                                {consignment.last_error}
+                                            </Alert>
+                                        )}
 
-                    </div>
+                                        <Button
+                                            type="button"
+                                            variant="secondary"
+                                            className="w-full"
+                                            onClick={() =>
+                                                router.post(
+                                                    route(
+                                                        "admin.courier-consignments.sync",
+                                                        consignment.id,
+                                                    ),
+                                                    {},
+                                                    {
+                                                        preserveScroll: true,
+                                                    },
+                                                )
+                                            }
+                                        >
+                                            <RefreshCw size={16} />
+                                            Sync courier status
+                                        </Button>
+                                    </div>
+                                ) : (
+                                    <div>
+                                        <div className="rounded-2xl border border-dashed border-ink-200 bg-ink-50 p-6 text-center">
+                                            <PackageCheck
+                                                size={27}
+                                                className="mx-auto text-ink-300"
+                                            />
+                                            <p className="mt-3 text-sm font-black text-ink-700">
+                                                Not sent to courier
+                                            </p>
+                                        </div>
+                                        <Button
+                                            type="button"
+                                            className="mt-4 w-full"
+                                            onClick={() =>
+                                                router.post(
+                                                    route(
+                                                        "admin.orders.courier-consignments.store",
+                                                        order.id,
+                                                    ),
+                                                    {
+                                                        provider: "steadfast",
+                                                    },
+                                                    {
+                                                        preserveScroll: true,
+                                                    },
+                                                )
+                                            }
+                                        >
+                                            <Truck size={16} />
+                                            Send to Steadfast
+                                        </Button>
+                                    </div>
+                                )}
+                            </CardBody>
+                        </Card>
 
-                                        {/* Footer */}
-
-                    <div className="rounded-xl bg-white p-8 shadow">
-
-                        <div className="grid gap-8 md:grid-cols-2">
-
-                            <div>
-
-                                <h3 className="mb-3 text-lg font-bold">
-                                    Notes
-                                </h3>
-
-                                <p className="text-gray-600">
-                                    {order.note || "No additional notes."}
+                        <Card>
+                            <CardHeader title="Notes" />
+                            <CardBody>
+                                <p className="whitespace-pre-line text-sm leading-6 text-ink-600">
+                                    {order.note || "No customer note."}
                                 </p>
-
-                            </div>
-
-                            <div className="text-right">
-
-                                <div className="mt-16 inline-block border-t border-black pt-2">
-
-                                    <p className="font-semibold">
-                                        Authorized Signature
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        <div className="mt-10 border-t pt-6 text-center">
-
-                            <h2 className="text-2xl font-bold text-blue-700">
-                                Thank You For Your Business ❤️
-                            </h2>
-
-                            <p className="mt-2 text-gray-500">
-                                Generated by Nuha Mart BD Inventory & POS System
-                            </p>
-
-                        </div>
-
-                    </div>
-
+                                {order.admin_note && (
+                                    <div className="mt-4 rounded-2xl bg-amber-50 p-4">
+                                        <p className="text-xs font-black uppercase tracking-wider text-amber-700">
+                                            Internal note
+                                        </p>
+                                        <p className="mt-2 text-sm leading-6 text-amber-900">
+                                            {order.admin_note}
+                                        </p>
+                                    </div>
+                                )}
+                            </CardBody>
+                        </Card>
+                    </aside>
                 </div>
-
-            </AuthenticatedLayout>
-
-        </>
-
+            </div>
+        </AuthenticatedLayout>
     );
-
 }

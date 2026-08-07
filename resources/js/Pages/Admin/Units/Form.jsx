@@ -1,1 +1,50 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';import {Head,useForm} from '@inertiajs/react';export default function Form({unit}){const f=useForm({name:unit?.name||'',short_name:unit?.short_name||'',is_base:unit?.is_base||false,status:unit?.status??true});const save=e=>{e.preventDefault();unit?f.put(route('admin.units.update',unit.id)):f.post(route('admin.units.store'))};return <AuthenticatedLayout header={<h2 className="text-xl font-bold">{unit?'Edit':'Create'} Unit</h2>}><Head title="Unit"/><form onSubmit={save} className="mx-auto mt-8 max-w-2xl space-y-4 rounded bg-white p-6 shadow"><input className="w-full rounded border-gray-300" placeholder="Unit name" value={f.data.name} onChange={e=>f.setData('name',e.target.value)}/><input className="w-full rounded border-gray-300" placeholder="Short name" value={f.data.short_name} onChange={e=>f.setData('short_name',e.target.value)}/><label className="block"><input type="checkbox" checked={f.data.is_base} onChange={e=>f.setData('is_base',e.target.checked)}/> Base unit</label><label className="block"><input type="checkbox" checked={f.data.status} onChange={e=>f.setData('status',e.target.checked)}/> Active</label><button className="rounded bg-blue-600 px-5 py-2 text-white">Save</button></form></AuthenticatedLayout>}
+import { Head, useForm } from "@inertiajs/react";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import EntityForm from "@/Components/Admin/Catalog/EntityForm";
+
+export default function Form({ unit = null }) {
+    const form = useForm({
+        name: unit?.name ?? "",
+        short_name: unit?.short_name ?? "",
+        is_base: Boolean(unit?.is_base),
+        status: unit?.status ?? true,
+    });
+
+    return (
+        <AuthenticatedLayout>
+            <Head title={unit ? `Edit ${unit.name}` : "Add Unit"} />
+            <EntityForm
+                entity="unit"
+                title={unit ? "Edit unit" : "Add unit"}
+                description="Define a measurement unit for inventory and products."
+                routeBase="admin.units"
+                data={form.data}
+                setData={form.setData}
+                errors={form.errors}
+                processing={form.processing}
+                isEdit={Boolean(unit)}
+                submit={(event) => {
+                    event.preventDefault();
+                    unit
+                        ? form.put(route("admin.units.update", unit.id), {
+                              preserveScroll: true,
+                          })
+                        : form.post(route("admin.units.store"), {
+                              preserveScroll: true,
+                          });
+                }}
+                fields={[
+                    { name: "name", label: "Unit name", required: true },
+                    { name: "short_name", label: "Short name", required: true },
+                    {
+                        name: "is_base",
+                        label: "Base unit",
+                        type: "toggle",
+                        description:
+                            "Use this as a primary measurement reference.",
+                    },
+                ]}
+            />
+        </AuthenticatedLayout>
+    );
+}

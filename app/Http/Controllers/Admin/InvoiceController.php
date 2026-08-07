@@ -74,13 +74,18 @@ class InvoiceController extends Controller
                 'company_name' => $settings->company_name,
                 'company_tagline' => $settings->company_tagline,
                 'logo' => $settings->logo,
+                'logo_path' => $settings->localImagePath('invoice_logo'),
                 'address' => $settings->address,
                 'phone' => $settings->phone,
-                'email' => $settings->email,
+                'email' => $settings->support_email ?: $settings->email,
                 'website' => $settings->website,
                 'currency_code' => $settings->currency_code,
                 'currency_symbol' => $settings->currency_symbol,
                 'invoice_footer' => $settings->invoice_footer,
+                'receipt_footer' => $settings->receipt_footer,
+                'pos_logo' => $settings->assetUrl(
+                    $settings->pos_logo ?: $settings->invoice_logo ?: $settings->logo
+                ),
             ],
             'generatedAt' => now()->toIso8601String(),
         ];

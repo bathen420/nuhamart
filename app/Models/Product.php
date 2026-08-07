@@ -135,6 +135,17 @@ class Product extends Model
         return $this->hasMany(ProductVariant::class);
     }
 
+    public function wishlistItems()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
+    public function wishlistedByUsers()
+    {
+        return $this->belongsToMany(User::class, 'wishlists')
+            ->withTimestamps();
+    }
+
     /**
  * Sale Items Relationship
  */

@@ -1,3 +1,4 @@
+import { usePage } from "@inertiajs/react";
 import { router } from "@inertiajs/react";
 import {
     ArrowDown,
@@ -39,6 +40,8 @@ export default function SmartSearch({
     mobileFullscreen = false,
     placeholder = "Search books, authors, publishers or ISBN...",
 }) {
+    const { businessSettings = {} } = usePage().props;
+    const companyName = businessSettings.company_name || "Nuha Mart BD";
     const { t } = useI18n();
     const [query, setQuery] = useState("");
     const [category, setCategory] = useState("");
@@ -218,7 +221,7 @@ export default function SmartSearch({
                     {mobileFullscreen && (
                         <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-3 sm:hidden">
                             <div>
-                                <p className="text-xs font-black uppercase tracking-[0.18em] text-[#0f766e]">Nuha Mart BD</p>
+                                <p className="text-xs font-black uppercase tracking-[0.18em] text-[#0f766e]">{companyName}</p>
                                 <h2 className="mt-1 text-lg font-black text-slate-900">{t("searchEverything")}</h2>
                             </div>
                             <button type="button" onClick={() => setOpen(false)} className="rounded-xl border border-slate-200 p-2.5 text-slate-600" aria-label={t("closeSearch")}><X size={20} /></button>

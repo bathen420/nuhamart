@@ -1,87 +1,49 @@
 import { Head, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import Form from "./Form";
+import EntityForm from "@/Components/Admin/Catalog/EntityForm";
 
-
-export default function Edit({ auth, brand }) {
-
-
-    const { data, setData, put, processing, errors } = useForm({
-
-        name: brand.name || "",
-        description: brand.description || "",
+export default function Edit({ brand }) {
+    const form = useForm({
+        name: brand.name ?? "",
+        description: brand.description ?? "",
         status: brand.status ? 1 : 0,
-        sort_order: brand.sort_order || 0,
-
+        sort_order: brand.sort_order ?? 0,
     });
 
-
-
-    const submit = (e) => {
-
-        e.preventDefault();
-
-        put(route("admin.brands.update", brand.id));
-
-    };
-
-
-
     return (
-
-        <AuthenticatedLayout
-            user={auth?.user}
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Edit Brand
-                </h2>
-            }
-        >
-
-            <Head title="Edit Brand" />
-
-
-            <div className="py-8">
-
-                <div className="mx-auto max-w-4xl sm:px-6 lg:px-8">
-
-
-                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-
-
-                        <div className="p-6">
-
-
-                            <Form
-
-                                data={data}
-
-                                setData={setData}
-
-                                errors={errors}
-
-                                processing={processing}
-
-                                submit={submit}
-
-                                buttonText="Update Brand"
-
-                            />
-
-
-                        </div>
-
-
-                    </div>
-
-
-                </div>
-
-
-            </div>
-
-
+        <AuthenticatedLayout>
+            <Head title={`Edit ${brand.name}`} />
+            <EntityForm
+                entity="brand"
+                title="Edit brand"
+                description="Update product-label details and visibility."
+                routeBase="admin.brands"
+                data={form.data}
+                setData={form.setData}
+                errors={form.errors}
+                processing={form.processing}
+                isEdit
+                submit={(event) => {
+                    event.preventDefault();
+                    form.put(route("admin.brands.update", brand.id), {
+                        preserveScroll: true,
+                    });
+                }}
+                fields={[
+                    { name: "name", label: "Brand name", required: true },
+                    {
+                        name: "description",
+                        label: "Description",
+                        type: "textarea",
+                        full: true,
+                    },
+                    {
+                        name: "sort_order",
+                        label: "Display order",
+                        type: "number",
+                    },
+                ]}
+            />
         </AuthenticatedLayout>
-
     );
 }

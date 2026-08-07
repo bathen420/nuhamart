@@ -13,8 +13,9 @@ class BusinessSettingRepository
 
     public function update(BusinessSetting $setting, array $data): BusinessSetting
     {
-        $setting->update($data);
+        $setting->fill($data)->save();
+        BusinessSetting::clearCache();
 
-        return $setting->fresh();
+        return BusinessSetting::current();
     }
 }

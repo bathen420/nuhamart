@@ -1,2 +1,60 @@
-import {Head,useForm} from "@inertiajs/react"; import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout"; import Form from "./Form";
-export default function Edit({auth,author}){const {data,setData,put,processing,errors}=useForm({name:author.name??"",name_bn:author.name_bn??"",biography:author.biography??"",biography_bn:author.biography_bn??"",status:author.status?1:0,sort_order:author.sort_order??0});const submit=e=>{e.preventDefault();put(route("admin.authors.update",author.id));};return <AuthenticatedLayout user={auth?.user} header={<h2 className="text-xl font-semibold">Edit Author</h2>}><Head title="Edit Author"/><div className="mx-auto max-w-4xl py-8"><div className="rounded-lg bg-white p-6 shadow"><Form {...{data,setData,errors,processing,submit}} buttonText="Update Author"/></div></div></AuthenticatedLayout>}
+import { Head, useForm } from "@inertiajs/react";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import EntityForm from "@/Components/Admin/Catalog/EntityForm";
+
+export default function Edit({ author }) {
+    const form = useForm({
+        name: author.name ?? "",
+        name_bn: author.name_bn ?? "",
+        biography: author.biography ?? "",
+        biography_bn: author.biography_bn ?? "",
+        status: author.status ? 1 : 0,
+        sort_order: author.sort_order ?? 0,
+    });
+
+    return (
+        <AuthenticatedLayout>
+            <Head title={`Edit ${author.name}`} />
+            <EntityForm
+                entity="author"
+                title="Edit author"
+                description="Update author names, biography and storefront visibility."
+                routeBase="admin.authors"
+                data={form.data}
+                setData={form.setData}
+                errors={form.errors}
+                processing={form.processing}
+                isEdit
+                submit={(event) => {
+                    event.preventDefault();
+                    form.put(route("admin.authors.update", author.id), {
+                        preserveScroll: true,
+                    });
+                }}
+                fields={[
+                    { name: "name", label: "Name (English)", required: true },
+                    { name: "name_bn", label: "Name (Bangla)" },
+                    {
+                        name: "biography",
+                        label: "Biography (English)",
+                        type: "textarea",
+                        full: true,
+                        rows: 7,
+                    },
+                    {
+                        name: "biography_bn",
+                        label: "Biography (Bangla)",
+                        type: "textarea",
+                        full: true,
+                        rows: 7,
+                    },
+                    {
+                        name: "sort_order",
+                        label: "Display order",
+                        type: "number",
+                    },
+                ]}
+            />
+        </AuthenticatedLayout>
+    );
+}

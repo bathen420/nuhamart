@@ -1,100 +1,120 @@
-import Checkbox from '@/Components/Checkbox';
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
-import GuestLayout from '@/Layouts/GuestLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import Checkbox from "@/Components/Checkbox";
+import InputError from "@/Components/InputError";
+import GuestLayout from "@/Layouts/GuestLayout";
+import { Head, usePage, Link, useForm } from "@inertiajs/react";
+import { LockKeyhole, LogIn, Mail } from "lucide-react";
 
-export default function Login({ status, canResetPassword }) {
+export default function Login({ status, canResetPassword, canRegister = true }) {
+    const { businessSettings = {} } = usePage().props;
+    const companyName = businessSettings.company_name || "Nuha Mart BD";
     const { data, setData, post, processing, errors, reset } = useForm({
-        email: '',
-        password: '',
+        email: "",
+        password: "",
         remember: false,
     });
 
-    const submit = (e) => {
-        e.preventDefault();
-
-        post(route('login'), {
-            onFinish: () => reset('password'),
+    const submit = (event) => {
+        event.preventDefault();
+        post(route("login"), {
+            preserveScroll: true,
+            onFinish: () => reset("password"),
         });
     };
 
     return (
         <GuestLayout>
-            <Head title="Log in" />
+            <Head title="Customer Login" />
+
+            <p className="text-sm font-black uppercase tracking-[.2em] text-[#0f766e]">
+                Customer Login
+            </p>
+            <h2 className="mt-2 text-3xl font-black text-slate-900">Welcome back</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+                Sign in to access your orders and account information.
+            </p>
 
             {status && (
-                <div className="mb-4 text-sm font-medium text-green-600">
+                <div className="mt-5 rounded-xl bg-emerald-50 p-3 text-sm font-semibold text-emerald-700">
                     {status}
                 </div>
             )}
 
-            <form onSubmit={submit}>
+            <form onSubmit={submit} className="mt-7 space-y-5">
                 <div>
-                    <InputLabel htmlFor="email" value="Email" />
-
-                    <TextInput
-                        id="email"
-                        type="email"
-                        name="email"
-                        value={data.email}
-                        className="mt-1 block w-full"
-                        autoComplete="username"
-                        isFocused={true}
-                        onChange={(e) => setData('email', e.target.value)}
-                    />
-
+                    <label htmlFor="email" className="text-sm font-bold text-slate-700">
+                        Email address
+                    </label>
+                    <div className="relative mt-2">
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={19} />
+                        <input
+                            id="email"
+                            type="email"
+                            value={data.email}
+                            onChange={(e) => setData("email", e.target.value)}
+                            autoComplete="username"
+                            autoFocus
+                            required
+                            className="h-12 w-full rounded-xl border-slate-300 pl-11 focus:border-[#0f766e] focus:ring-[#0f766e]"
+                            placeholder="you@example.com"
+                        />
+                    </div>
                     <InputError message={errors.email} className="mt-2" />
                 </div>
 
-                <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
-
-                    <TextInput
-                        id="password"
-                        type="password"
-                        name="password"
-                        value={data.password}
-                        className="mt-1 block w-full"
-                        autoComplete="current-password"
-                        onChange={(e) => setData('password', e.target.value)}
-                    />
-
+                <div>
+                    <div className="flex items-center justify-between gap-3">
+                        <label htmlFor="password" className="text-sm font-bold text-slate-700">
+                            Password
+                        </label>
+                        {canResetPassword && (
+                            <Link href={route("password.request")} className="text-xs font-black text-[#0f766e] hover:underline">
+                                Forgot password?
+                            </Link>
+                        )}
+                    </div>
+                    <div className="relative mt-2">
+                        <LockKeyhole className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={19} />
+                        <input
+                            id="password"
+                            type="password"
+                            value={data.password}
+                            onChange={(e) => setData("password", e.target.value)}
+                            autoComplete="current-password"
+                            required
+                            className="h-12 w-full rounded-xl border-slate-300 pl-11 focus:border-[#0f766e] focus:ring-[#0f766e]"
+                            placeholder="Enter your password"
+                        />
+                    </div>
                     <InputError message={errors.password} className="mt-2" />
                 </div>
 
-                <div className="mt-4 block">
-                    <label className="flex items-center">
-                        <Checkbox
-                            name="remember"
-                            checked={data.remember}
-                            onChange={(e) =>
-                                setData('remember', e.target.checked)
-                            }
-                        />
-                        <span className="ms-2 text-sm text-gray-600">
-                            Remember me
-                        </span>
-                    </label>
-                </div>
+                <label className="flex items-center gap-2 text-sm font-semibold text-slate-600">
+                    <Checkbox
+                        name="remember"
+                        checked={data.remember}
+                        onChange={(e) => setData("remember", e.target.checked)}
+                    />
+                    Remember me
+                </label>
 
-                <div className="mt-4 flex items-center justify-end">
-                    {canResetPassword && (
-                        <Link
-                            href={route('password.request')}
-                            className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                        >
-                            Forgot your password?
-                        </Link>
-                    )}
-
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Log in
-                    </PrimaryButton>
-                </div>
+                <button
+                    type="submit"
+                    disabled={processing}
+                    className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#0f766e] font-black text-white transition hover:bg-[#115e59] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                    <LogIn size={19} />
+                    {processing ? "Signing in..." : "Sign in"}
+                </button>
             </form>
+
+            {canRegister && (
+                <p className="mt-6 text-center text-sm text-slate-500">
+                    New to {companyName}?{" "}
+                    <Link href={route("customer.register")} className="font-black text-[#0f766e] hover:underline">
+                        Create an account
+                    </Link>
+                </p>
+            )}
         </GuestLayout>
     );
 }

@@ -1,363 +1,433 @@
-import { Head, Link, router, useForm } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
+import {
+    Banknote,
+    CalendarDays,
+    CheckCircle2,
+    Clock3,
+    Eye,
+    Filter,
+    PackageCheck,
+    Pencil,
+    Plus,
+    Search,
+    ShoppingBag,
+    Truck,
+    XCircle,
+} from "lucide-react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import Pagination from "@/Components/Pagination";
+import {
+    Badge,
+    Button,
+    Card,
+    CardBody,
+    PageHeader,
+    Select,
+    StatCard,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/Components/Admin/UI";
+import Input from "@/Components/Admin/UI/Input";
 
-const paymentStatusClasses = {
-    paid: "bg-green-100 text-green-700",
-    pending: "bg-yellow-100 text-yellow-700",
-    failed: "bg-red-100 text-red-700",
-    refunded: "bg-purple-100 text-purple-700",
+const orderTones = {
+    pending: "warning",
+    confirmed: "info",
+    processing: "brand",
+    shipped: "purple",
+    delivered: "success",
+    cancelled: "danger",
 };
 
-const orderStatusClasses = {
-    pending: "bg-yellow-100 text-yellow-700",
-    confirmed: "bg-cyan-100 text-cyan-700",
-    processing: "bg-blue-100 text-blue-700",
-    shipped: "bg-purple-100 text-purple-700",
-    delivered: "bg-green-100 text-green-700",
-    cancelled: "bg-red-100 text-red-700",
+const paymentTones = {
+    pending: "warning",
+    paid: "success",
+    failed: "danger",
+    refunded: "purple",
 };
 
-function formatStatus(value) {
-    if (!value) {
-        return "N/A";
-    }
-
-    return String(value)
+const formatStatus = (value) =>
+    String(value || "n/a")
         .replaceAll("_", " ")
-        .replaceAll("-", " ")
         .replace(/\b\w/g, (character) => character.toUpperCase());
-}
-
-function formatCurrency(value) {
-    const numericValue = Number(value ?? 0);
-
-    return new Intl.NumberFormat("en-BD", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-    }).format(Number.isFinite(numericValue) ? numericValue : 0);
-}
 
 export default function Index({
     orders = {},
     filters = {},
+    summary = {},
 }) {
-    const orderRows = Array.isArray(orders?.data)
-        ? orders.data
-        : [];
+    const rows = orders.data || [];
+    const money = (value) =>
+        `৳${new Intl.NumberFormat("en-BD", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        }).format(Number(value || 0))}`;
 
-    const paginationLinks = Array.isArray(orders?.links)
-        ? orders.links
-        : [];
-
-    const { data, setData, processing } = useForm({
-        search: filters?.search ?? "",
-    });
-
-    const searchOrder = (event) => {
+    const applyFilters = (event) => {
         event.preventDefault();
-
-        router.get(
-            route("admin.orders.index"),
-            {
-                search: data.search || undefined,
-            },
-            {
-                preserveState: true,
-                preserveScroll: true,
-                replace: true,
-            }
-        );
-    };
-
-    const clearSearch = () => {
-        setData("search", "");
-
-        router.get(
-            route("admin.orders.index"),
-            {},
-            {
-                preserveState: true,
-                preserveScroll: true,
-                replace: true,
-            }
-        );
-    };
-
-    const deleteOrder = (order) => {
-        const orderReference =
-            order?.order_no ?? `#${order?.id}`;
-
-        const confirmed = window.confirm(
-            `Are you sure you want to delete order ${orderReference}?`
+        const query = Object.fromEntries(new FormData(event.currentTarget));
+        Object.keys(query).forEach(
+            (key) => query[key] === "" && delete query[key],
         );
 
-        if (!confirmed) {
-            return;
-        }
-
-        router.delete(
-            route("admin.orders.destroy", order.id),
-            {
-                preserveScroll: true,
-            }
-        );
+        router.get(route("admin.orders.index"), query, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        });
     };
 
     return (
-        <AuthenticatedLayout
-            header={
-                <div>
-                    <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                        Orders
-                    </h2>
-
-                    <p className="mt-1 text-sm text-gray-500">
-                        Manage customer orders and order statuses.
-                    </p>
-                </div>
-            }
-        >
+        <AuthenticatedLayout>
             <Head title="Orders" />
 
-            <section className="space-y-6">
-                <div className="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm lg:flex-row lg:items-center lg:justify-between">
-                    <form
-                        onSubmit={searchOrder}
-                        className="flex w-full flex-col gap-3 sm:flex-row lg:max-w-2xl"
-                    >
-                        <input
-                            type="search"
-                            placeholder="Search by order number, customer or phone..."
-                            value={data.search}
-                            onChange={(event) =>
-                                setData(
-                                    "search",
-                                    event.target.value
-                                )
-                            }
-                            className="min-w-0 flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                        />
+            <div className="space-y-6">
+                <PageHeader
+                    eyebrow="Sales operations"
+                    title="Orders"
+                    description="Manage customer orders, payment, fulfilment, courier delivery and invoices."
+                    actions={
+                        <Button as={Link} href={route("admin.orders.create")}>
+                            <Plus size={16} />
+                            Create order
+                        </Button>
+                    }
+                />
 
-                        <button
-                            type="submit"
-                            disabled={processing}
-                            className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                    <StatCard
+                        label="All orders"
+                        value={summary.total || 0}
+                        helper={`${summary.today || 0} received today`}
+                        icon={ShoppingBag}
+                        tone="brand"
+                    />
+                    <StatCard
+                        label="Needs attention"
+                        value={(summary.pending || 0) + (summary.processing || 0)}
+                        helper={`${summary.pending || 0} pending · ${summary.processing || 0} processing`}
+                        icon={Clock3}
+                        tone="amber"
+                    />
+                    <StatCard
+                        label="In delivery"
+                        value={summary.shipped || 0}
+                        helper={`${summary.delivered || 0} delivered`}
+                        icon={Truck}
+                        tone="purple"
+                    />
+                    <StatCard
+                        label="Delivered revenue"
+                        value={money(summary.revenue)}
+                        helper={`${summary.pending_payment || 0} payment(s) pending`}
+                        icon={Banknote}
+                        tone="green"
+                    />
+                </section>
+
+                <Card>
+                    <CardBody>
+                        <form
+                            onSubmit={applyFilters}
+                            className="grid gap-3 md:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-8"
                         >
-                            {processing
-                                ? "Searching..."
-                                : "Search"}
-                        </button>
+                            <div className="relative xl:col-span-2">
+                                <Search
+                                    size={16}
+                                    className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400"
+                                />
+                                <Input
+                                    name="search"
+                                    defaultValue={filters.search || ""}
+                                    placeholder="Order, customer, phone or tracking..."
+                                    className="pl-9"
+                                />
+                            </div>
 
-                        {data.search && (
-                            <button
-                                type="button"
-                                onClick={clearSearch}
-                                className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                            <Select
+                                name="status"
+                                defaultValue={filters.status || ""}
                             >
-                                Clear
-                            </button>
-                        )}
-                    </form>
+                                <option value="">All order status</option>
+                                {[
+                                    "pending",
+                                    "confirmed",
+                                    "processing",
+                                    "shipped",
+                                    "delivered",
+                                    "cancelled",
+                                ].map((value) => (
+                                    <option key={value} value={value}>
+                                        {formatStatus(value)}
+                                    </option>
+                                ))}
+                            </Select>
 
-                    <Link
-                        href={route(
-                            "admin.orders.create"
-                        )}
-                        className="inline-flex shrink-0 items-center justify-center rounded-lg bg-green-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-green-700"
-                    >
-                        + Add Order
-                    </Link>
-                </div>
+                            <Select
+                                name="payment_status"
+                                defaultValue={filters.payment_status || ""}
+                            >
+                                <option value="">All payment status</option>
+                                {["pending", "paid", "failed"].map((value) => (
+                                    <option key={value} value={value}>
+                                        {formatStatus(value)}
+                                    </option>
+                                ))}
+                            </Select>
 
-                <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    <th className="whitespace-nowrap px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">
-                                        Order No
-                                    </th>
-
-                                    <th className="whitespace-nowrap px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">
-                                        Customer
-                                    </th>
-
-                                    <th className="whitespace-nowrap px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">
-                                        Phone
-                                    </th>
-
-                                    <th className="whitespace-nowrap px-5 py-3.5 text-right text-xs font-semibold uppercase tracking-wide text-gray-600">
-                                        Total
-                                    </th>
-
-                                    <th className="whitespace-nowrap px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">
-                                        Payment
-                                    </th>
-
-                                    <th className="whitespace-nowrap px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">
-                                        Status
-                                    </th>
-
-                                    <th className="whitespace-nowrap px-5 py-3.5 text-center text-xs font-semibold uppercase tracking-wide text-gray-600">
-                                        Action
-                                    </th>
-                                </tr>
-                            </thead>
-
-                            <tbody className="divide-y divide-gray-100 bg-white">
-                                {orderRows.length > 0 ? (
-                                    orderRows.map((order) => {
-                                        const paymentStatus =
-                                            String(
-                                                order?.payment_status ??
-                                                    "pending"
-                                            ).toLowerCase();
-
-                                        const orderStatus =
-                                            String(
-                                                order?.status ??
-                                                    "pending"
-                                            ).toLowerCase();
-
-                                        return (
-                                            <tr
-                                                key={order.id}
-                                                className="transition hover:bg-gray-50"
-                                            >
-                                                <td className="whitespace-nowrap px-5 py-4 text-sm font-semibold text-gray-900">
-                                                    {order.order_no ??
-                                                        `#${order.id}`}
-                                                </td>
-
-                                                <td className="px-5 py-4 text-sm text-gray-700">
-                                                    <div className="font-medium text-gray-900">
-                                                        {order.customer_name ??
-                                                            "Walk-in Customer"}
-                                                    </div>
-
-                                                    {order.customer_email && (
-                                                        <div className="mt-0.5 text-xs text-gray-500">
-                                                            {
-                                                                order.customer_email
-                                                            }
-                                                        </div>
-                                                    )}
-                                                </td>
-
-                                                <td className="whitespace-nowrap px-5 py-4 text-sm text-gray-700">
-                                                    {order.customer_phone ??
-                                                        "N/A"}
-                                                </td>
-
-                                                <td className="whitespace-nowrap px-5 py-4 text-right text-sm font-semibold text-gray-900">
-                                                    ৳
-                                                    {formatCurrency(
-                                                        order.total
-                                                    )}
-                                                </td>
-
-                                                <td className="whitespace-nowrap px-5 py-4">
-                                                    <span
-                                                        className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-                                                            paymentStatusClasses[
-                                                                paymentStatus
-                                                            ] ??
-                                                            "bg-gray-100 text-gray-700"
-                                                        }`}
-                                                    >
-                                                        {formatStatus(
-                                                            paymentStatus
-                                                        )}
-                                                    </span>
-                                                </td>
-
-                                                <td className="whitespace-nowrap px-5 py-4">
-                                                    <span
-                                                        className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-                                                            orderStatusClasses[
-                                                                orderStatus
-                                                            ] ??
-                                                            "bg-gray-100 text-gray-700"
-                                                        }`}
-                                                    >
-                                                        {formatStatus(
-                                                            orderStatus
-                                                        )}
-                                                    </span>
-                                                </td>
-
-                                                <td className="whitespace-nowrap px-5 py-4 text-center">
-                                                    <div className="inline-flex flex-wrap items-center justify-center gap-2">
-                                                        <Link
-                                                            href={route(
-                                                                "admin.orders.show",
-                                                                order.id
-                                                            )}
-                                                            className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-blue-700"
-                                                        >
-                                                            View
-                                                        </Link>
-
-                                                        <Link
-                                                            href={route(
-                                                                "admin.orders.edit",
-                                                                order.id
-                                                            )}
-                                                            className="rounded-md bg-amber-500 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-amber-600"
-                                                        >
-                                                            Edit
-                                                        </Link>
-
-                                                        <button
-                                                            type="button"
-                                                            onClick={() =>
-                                                                deleteOrder(
-                                                                    order
-                                                                )
-                                                            }
-                                                            className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-red-700"
-                                                        >
-                                                            Delete
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })
-                                ) : (
-                                    <tr>
-                                        <td
-                                            colSpan={7}
-                                            className="px-5 py-16 text-center"
-                                        >
-                                            <div className="text-base font-medium text-gray-700">
-                                                No orders found
-                                            </div>
-
-                                            <p className="mt-1 text-sm text-gray-500">
-                                                Create a new order or
-                                                change your search
-                                                criteria.
-                                            </p>
-                                        </td>
-                                    </tr>
+                            <Select
+                                name="payment_method"
+                                defaultValue={filters.payment_method || ""}
+                            >
+                                <option value="">All payment methods</option>
+                                {["cod", "sslcommerz", "bkash", "nagad"].map(
+                                    (value) => (
+                                        <option key={value} value={value}>
+                                            {formatStatus(value)}
+                                        </option>
+                                    ),
                                 )}
-                            </tbody>
-                        </table>
+                            </Select>
+
+                            <Input
+                                name="courier"
+                                defaultValue={filters.courier || ""}
+                                placeholder="Courier"
+                            />
+
+                            <Input
+                                name="date_from"
+                                type="date"
+                                defaultValue={filters.date_from || ""}
+                            />
+
+                            <Input
+                                name="date_to"
+                                type="date"
+                                defaultValue={filters.date_to || ""}
+                            />
+
+                            <Select
+                                name="sort"
+                                defaultValue={filters.sort || "latest"}
+                            >
+                                <option value="latest">Latest first</option>
+                                <option value="oldest">Oldest first</option>
+                                <option value="total_high">
+                                    Highest total
+                                </option>
+                                <option value="total_low">Lowest total</option>
+                            </Select>
+
+                            <div className="flex gap-2 xl:col-span-3 2xl:col-span-2">
+                                <Button type="submit" className="flex-1">
+                                    <Filter size={15} />
+                                    Apply filters
+                                </Button>
+                                <Button
+                                    as={Link}
+                                    href={route("admin.orders.index")}
+                                    variant="secondary"
+                                >
+                                    Reset
+                                </Button>
+                            </div>
+                        </form>
+                    </CardBody>
+                </Card>
+
+                <Card>
+                    <div className="flex items-center justify-between border-b border-ink-100 px-5 py-4 sm:px-6">
+                        <div>
+                            <h2 className="font-black text-ink-950">
+                                Order queue
+                            </h2>
+                            <p className="mt-1 text-xs text-ink-400">
+                                {orders.total || rows.length} matching order(s)
+                            </p>
+                        </div>
+                        <Badge tone="brand">
+                            Page {orders.current_page || 1}
+                        </Badge>
                     </div>
 
-                    {paginationLinks.length > 0 && (
-                        <div className="border-t border-gray-200 px-5 py-4">
-                            <Pagination
-                                links={
-                                    paginationLinks
-                                }
-                            />
-                        </div>
-                    )}
-                </div>
-            </section>
+                    <div className="p-3 sm:p-4">
+                        <TableContainer>
+                            <Table>
+                                <TableHead>
+                                    <tr>
+                                        <TableHeader>Order</TableHeader>
+                                        <TableHeader>Customer</TableHeader>
+                                        <TableHeader>Payment</TableHeader>
+                                        <TableHeader>Fulfilment</TableHeader>
+                                        <TableHeader>Courier</TableHeader>
+                                        <TableHeader className="text-right">
+                                            Total
+                                        </TableHeader>
+                                        <TableHeader className="text-right">
+                                            Actions
+                                        </TableHeader>
+                                    </tr>
+                                </TableHead>
+                                <TableBody>
+                                    {rows.map((order) => (
+                                        <TableRow key={order.id}>
+                                            <TableCell>
+                                                <Link
+                                                    href={route(
+                                                        "admin.orders.show",
+                                                        order.id,
+                                                    )}
+                                                    className="font-black text-brand-700 hover:text-brand-900"
+                                                >
+                                                    {order.order_no ||
+                                                        `#${order.id}`}
+                                                </Link>
+                                                <p className="mt-1 flex items-center gap-1 text-[10px] font-medium text-ink-400">
+                                                    <CalendarDays size={11} />
+                                                    {new Date(
+                                                        order.created_at,
+                                                    ).toLocaleString()}
+                                                    <span>
+                                                        · {order.items_count}{" "}
+                                                        item(s)
+                                                    </span>
+                                                </p>
+                                            </TableCell>
+                                            <TableCell>
+                                                <p className="font-black text-ink-800">
+                                                    {order.customer_name}
+                                                </p>
+                                                <p className="mt-1 text-[10px] text-ink-400">
+                                                    {order.customer_phone}
+                                                </p>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge
+                                                    tone={
+                                                        paymentTones[
+                                                            order.payment_status
+                                                        ] || "neutral"
+                                                    }
+                                                    dot
+                                                >
+                                                    {formatStatus(
+                                                        order.payment_status,
+                                                    )}
+                                                </Badge>
+                                                <p className="mt-2 text-[10px] font-bold uppercase text-ink-400">
+                                                    {order.payment_method}
+                                                </p>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge
+                                                    tone={
+                                                        orderTones[
+                                                            order.status
+                                                        ] || "neutral"
+                                                    }
+                                                    dot
+                                                >
+                                                    {formatStatus(order.status)}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell>
+                                                <p className="font-bold text-ink-700">
+                                                    {order.courier_name || "—"}
+                                                </p>
+                                                <p className="mt-1 max-w-32 truncate text-[10px] text-ink-400">
+                                                    {order.tracking_number ||
+                                                        "Not booked"}
+                                                </p>
+                                            </TableCell>
+                                            <TableCell className="text-right font-black text-ink-950">
+                                                {money(order.total)}
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex justify-end gap-1">
+                                                    <Button
+                                                        as={Link}
+                                                        href={route(
+                                                            "admin.orders.show",
+                                                            order.id,
+                                                        )}
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        title="View order"
+                                                    >
+                                                        <Eye size={16} />
+                                                    </Button>
+                                                    <Button
+                                                        as={Link}
+                                                        href={route(
+                                                            "admin.orders.edit",
+                                                            order.id,
+                                                        )}
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        title="Edit order"
+                                                    >
+                                                        <Pencil size={16} />
+                                                    </Button>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+
+                        {rows.length === 0 && (
+                            <div className="py-14 text-center">
+                                <PackageCheck
+                                    size={32}
+                                    className="mx-auto text-ink-300"
+                                />
+                                <p className="mt-3 font-black text-ink-700">
+                                    No orders found
+                                </p>
+                                <p className="mt-1 text-xs text-ink-400">
+                                    Adjust the filters or create a new order.
+                                </p>
+                            </div>
+                        )}
+
+                        {(orders.links || []).length > 0 && (
+                            <div className="mt-4 flex flex-wrap justify-center gap-2">
+                                {orders.links.map((link, index) =>
+                                    link.url ? (
+                                        <Link
+                                            key={index}
+                                            href={link.url}
+                                            preserveScroll
+                                            preserveState
+                                            className={`rounded-lg border px-3 py-2 text-xs font-black ${
+                                                link.active
+                                                    ? "border-brand-700 bg-brand-700 text-white"
+                                                    : "border-ink-200 bg-white text-ink-600 hover:bg-ink-50"
+                                            }`}
+                                            dangerouslySetInnerHTML={{
+                                                __html: link.label,
+                                            }}
+                                        />
+                                    ) : (
+                                        <span
+                                            key={index}
+                                            className="rounded-lg border border-ink-100 px-3 py-2 text-xs text-ink-300"
+                                            dangerouslySetInnerHTML={{
+                                                __html: link.label,
+                                            }}
+                                        />
+                                    ),
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </Card>
+            </div>
         </AuthenticatedLayout>
     );
 }

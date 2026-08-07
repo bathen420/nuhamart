@@ -21,6 +21,9 @@
 </head>
 <body>
     <table class="header"><tr><td style="border:0; padding:0;">
+        @if(!empty($invoiceSettings['logo_path']) && file_exists($invoiceSettings['logo_path']))
+            <img src="{{ $invoiceSettings['logo_path'] }}" style="max-height:55px;max-width:180px;margin-bottom:5px;">
+        @endif
         <div class="brand">{{ $invoiceSettings['company_name'] ?: 'Nuha Mart BD' }}</div>
         <div class="muted">{{ $invoiceSettings['company_tagline'] ?: 'Inventory & POS System' }}</div>
         <div class="muted">{{ collect([$invoiceSettings['address'], $invoiceSettings['phone'], $invoiceSettings['email'], $invoiceSettings['website']])->filter()->implode(' · ') }}</div>

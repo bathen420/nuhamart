@@ -1,120 +1,86 @@
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
-import GuestLayout from '@/Layouts/GuestLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import InputError from "@/Components/InputError";
+import GuestLayout from "@/Layouts/GuestLayout";
+import { Head, Link, useForm } from "@inertiajs/react";
+import { LockKeyhole, Mail, User, UserPlus } from "lucide-react";
 
 export default function Register() {
     const { data, setData, post, processing, errors, reset } = useForm({
-        name: '',
-        email: '',
-        password: '',
-        password_confirmation: '',
+        name: "",
+        email: "",
+        password: "",
+        password_confirmation: "",
     });
 
-    const submit = (e) => {
-        e.preventDefault();
-
-        post(route('register'), {
-            onFinish: () => reset('password', 'password_confirmation'),
+    const submit = (event) => {
+        event.preventDefault();
+        post(route("customer.register.store"), {
+            preserveScroll: true,
+            onFinish: () => reset("password", "password_confirmation"),
         });
     };
 
+    const fields = [
+        { key: "name", label: "Full name", type: "text", icon: User, autoComplete: "name", placeholder: "Your full name" },
+        { key: "email", label: "Email address", type: "email", icon: Mail, autoComplete: "username", placeholder: "you@example.com" },
+        { key: "password", label: "Password", type: "password", icon: LockKeyhole, autoComplete: "new-password", placeholder: "Create a secure password" },
+        { key: "password_confirmation", label: "Confirm password", type: "password", icon: LockKeyhole, autoComplete: "new-password", placeholder: "Repeat your password" },
+    ];
+
     return (
         <GuestLayout>
-            <Head title="Register" />
+            <Head title="Create Customer Account" />
 
-            <form onSubmit={submit}>
-                <div>
-                    <InputLabel htmlFor="name" value="Name" />
+            <p className="text-sm font-black uppercase tracking-[.2em] text-[#0f766e]">
+                Customer Registration
+            </p>
+            <h2 className="mt-2 text-3xl font-black text-slate-900">Create your account</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+                Register to track orders and enjoy a faster checkout.
+            </p>
 
-                    <TextInput
-                        id="name"
-                        name="name"
-                        value={data.name}
-                        className="mt-1 block w-full"
-                        autoComplete="name"
-                        isFocused={true}
-                        onChange={(e) => setData('name', e.target.value)}
-                        required
-                    />
+            <form onSubmit={submit} className="mt-7 space-y-4">
+                {fields.map((field, index) => {
+                    const Icon = field.icon;
+                    return (
+                        <div key={field.key}>
+                            <label htmlFor={field.key} className="text-sm font-bold text-slate-700">
+                                {field.label}
+                            </label>
+                            <div className="relative mt-2">
+                                <Icon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={19} />
+                                <input
+                                    id={field.key}
+                                    type={field.type}
+                                    value={data[field.key]}
+                                    onChange={(e) => setData(field.key, e.target.value)}
+                                    autoComplete={field.autoComplete}
+                                    autoFocus={index === 0}
+                                    required
+                                    className="h-12 w-full rounded-xl border-slate-300 pl-11 focus:border-[#0f766e] focus:ring-[#0f766e]"
+                                    placeholder={field.placeholder}
+                                />
+                            </div>
+                            <InputError message={errors[field.key]} className="mt-2" />
+                        </div>
+                    );
+                })}
 
-                    <InputError message={errors.name} className="mt-2" />
-                </div>
-
-                <div className="mt-4">
-                    <InputLabel htmlFor="email" value="Email" />
-
-                    <TextInput
-                        id="email"
-                        type="email"
-                        name="email"
-                        value={data.email}
-                        className="mt-1 block w-full"
-                        autoComplete="username"
-                        onChange={(e) => setData('email', e.target.value)}
-                        required
-                    />
-
-                    <InputError message={errors.email} className="mt-2" />
-                </div>
-
-                <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
-
-                    <TextInput
-                        id="password"
-                        type="password"
-                        name="password"
-                        value={data.password}
-                        className="mt-1 block w-full"
-                        autoComplete="new-password"
-                        onChange={(e) => setData('password', e.target.value)}
-                        required
-                    />
-
-                    <InputError message={errors.password} className="mt-2" />
-                </div>
-
-                <div className="mt-4">
-                    <InputLabel
-                        htmlFor="password_confirmation"
-                        value="Confirm Password"
-                    />
-
-                    <TextInput
-                        id="password_confirmation"
-                        type="password"
-                        name="password_confirmation"
-                        value={data.password_confirmation}
-                        className="mt-1 block w-full"
-                        autoComplete="new-password"
-                        onChange={(e) =>
-                            setData('password_confirmation', e.target.value)
-                        }
-                        required
-                    />
-
-                    <InputError
-                        message={errors.password_confirmation}
-                        className="mt-2"
-                    />
-                </div>
-
-                <div className="mt-4 flex items-center justify-end">
-                    <Link
-                        href={route('login')}
-                        className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                    >
-                        Already registered?
-                    </Link>
-
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Register
-                    </PrimaryButton>
-                </div>
+                <button
+                    type="submit"
+                    disabled={processing}
+                    className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#0f766e] font-black text-white transition hover:bg-[#115e59] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                    <UserPlus size={19} />
+                    {processing ? "Creating account..." : "Create account"}
+                </button>
             </form>
+
+            <p className="mt-6 text-center text-sm text-slate-500">
+                Already registered?{" "}
+                <Link href={route("customer.login")} className="font-black text-[#0f766e] hover:underline">
+                    Sign in
+                </Link>
+            </p>
         </GuestLayout>
     );
 }

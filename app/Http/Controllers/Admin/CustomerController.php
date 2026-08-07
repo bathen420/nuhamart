@@ -10,7 +10,6 @@ use App\Repositories\CustomerRepository;
 use App\Services\CustomerService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -30,38 +29,56 @@ class CustomerController extends Controller
         $validated = $request->validate([
             'search' => ['nullable', 'string', 'max:255'],
             'status' => ['nullable', Rule::in(['0', '1'])],
+            'segment' => ['nullable', Rule::in(['new', 'returning', 'vip', 'due'])],
             'per_page' => ['nullable', 'integer', 'in:10,15,25,50,100'],
         ]);
 
         $search = trim($validated['search'] ?? '');
         $status = $validated['status'] ?? null;
+        $segment = $validated['segment'] ?? null;
         $perPage = (int) ($validated['per_page'] ?? 15);
 
-        $customers = $this->customerRepository->paginate(
-            $search,
-            $status,
-            $perPage
-        );
+        $query = Customer::query()
+            ->with(['crmProfile.loyaltyTier'])
+            ->withCount(['sales', 'orders'])
+            ->withSum(['sales as lifetime_spend' => fn ($query) => $query->where('sale_status', 'completed')], 'total')
+            ->withMax('sales as last_purchase_at', 'created_at')
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('customer_code', 'like', "%{$search}%")
+                        ->orWhere('name', 'like', "%{$search}%")
+                        ->orWhere('phone', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->when($status !== null && $status !== '', fn ($query) => $query->where('status', (bool) $status))
+            ->when($segment === 'new', fn ($query) => $query->where('created_at', '>=', now()->startOfMonth()))
+            ->when($segment === 'returning', fn ($query) => $query->has('sales', '>=', 2))
+            ->when($segment === 'vip', fn ($query) => $query->whereHas('crmProfile.loyaltyTier', fn ($tier) => $tier->whereIn('name', ['Gold', 'Platinum', 'Diamond', 'VIP'])))
+            ->when($segment === 'due', fn ($query) => $query->where('current_balance', '>', 0))
+            ->latest('id');
 
-        $summary = Customer::query()
-            ->selectRaw('COUNT(*) as total_customers')
-            ->selectRaw('SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as active_customers')
-            ->selectRaw('SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) as inactive_customers')
-            ->selectRaw('COALESCE(SUM(current_balance), 0) as total_due')
-            ->first();
+        $customers = $query->paginate($perPage)->withQueryString();
+
+        $base = Customer::query();
 
         return Inertia::render('Admin/Customers/Index', [
             'customers' => $customers,
             'filters' => [
                 'search' => $search,
                 'status' => $status ?? '',
+                'segment' => $segment ?? '',
                 'per_page' => $perPage,
             ],
             'summary' => [
-                'total_customers' => (int) ($summary->total_customers ?? 0),
-                'active_customers' => (int) ($summary->active_customers ?? 0),
-                'inactive_customers' => (int) ($summary->inactive_customers ?? 0),
-                'total_due' => (float) ($summary->total_due ?? 0),
+                'total_customers' => (clone $base)->count(),
+                'active_customers' => (clone $base)->where('status', true)->count(),
+                'new_this_month' => (clone $base)->where('created_at', '>=', now()->startOfMonth())->count(),
+                'returning_customers' => (clone $base)->has('sales', '>=', 2)->count(),
+                'total_due' => (float) (clone $base)->sum('current_balance'),
+                'lifetime_revenue' => (float) \App\Models\Sale::query()
+                    ->where('sale_status', 'completed')
+                    ->sum('total'),
             ],
         ]);
     }
@@ -74,10 +91,10 @@ class CustomerController extends Controller
     public function store(StoreCustomerRequest $request): RedirectResponse
     {
         try {
-            $this->customerService->store($request->validated());
+            $customer = $this->customerService->store($request->validated());
 
             return redirect()
-                ->route('admin.customers.index')
+                ->route('admin.crm.show', $customer)
                 ->with('success', 'Customer created successfully.');
         } catch (Throwable $exception) {
             report($exception);
@@ -114,7 +131,7 @@ class CustomerController extends Controller
             $this->customerService->update($customer, $request->validated());
 
             return redirect()
-                ->route('admin.customers.index')
+                ->route('admin.crm.show', $customer)
                 ->with('success', 'Customer updated successfully.');
         } catch (Throwable $exception) {
             report($exception);

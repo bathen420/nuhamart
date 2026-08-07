@@ -1,1 +1,36 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';import {Head,Link,router} from '@inertiajs/react';import {useState} from 'react';export default function Index({units,filters}){const[s,setS]=useState(filters.search||'');const go=e=>{e.preventDefault();router.get(route('admin.units.index'),{search:s},{preserveState:true})};return <AuthenticatedLayout header={<h2 className="text-xl font-bold">Units</h2>}><Head title="Units"/><div className="mx-auto max-w-6xl p-6"><div className="mb-4 flex justify-between"><form onSubmit={go}><input className="rounded border-gray-300" value={s} onChange={e=>setS(e.target.value)} placeholder="Search unit"/></form><Link href={route('admin.units.create')} className="rounded bg-blue-600 px-4 py-2 text-white">New Unit</Link></div><div className="overflow-hidden rounded bg-white shadow"><table className="w-full"><thead className="bg-gray-50"><tr><th className="p-3 text-left">Name</th><th>Short</th><th>Base</th><th>Status</th><th></th></tr></thead><tbody>{units.data.map(u=><tr className="border-t" key={u.id}><td className="p-3">{u.name}</td><td className="text-center">{u.short_name}</td><td className="text-center">{u.is_base?'Yes':'No'}</td><td className="text-center">{u.status?'Active':'Inactive'}</td><td className="p-3 text-right"><Link className="text-blue-600" href={route('admin.units.edit',u.id)}>Edit</Link></td></tr>)}</tbody></table></div></div></AuthenticatedLayout>}
+import EntityIndex from "@/Components/Admin/Catalog/EntityIndex";
+
+export default function Index({ units, filters = {} }) {
+    return (
+        <EntityIndex
+            entity="units"
+            title="Units"
+            description="Manage measurement units used by inventory and product variants."
+            createLabel="Add unit"
+            items={units}
+            filters={filters}
+            routeBase="admin.units"
+            canDelete={false}
+            columns={[
+                {
+                    key: "short_name",
+                    label: "Short name",
+                    render: (item) => (
+                        <span className="font-black text-ink-700">
+                            {item.short_name || "—"}
+                        </span>
+                    ),
+                },
+                {
+                    key: "is_base",
+                    label: "Base unit",
+                    render: (item) => (
+                        <Badge tone={item.is_base ? "brand" : "neutral"}>
+                            {item.is_base ? "Yes" : "No"}
+                        </Badge>
+                    ),
+                },
+            ]}
+        />
+    );
+}

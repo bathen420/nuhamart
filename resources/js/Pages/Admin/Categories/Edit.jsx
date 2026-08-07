@@ -1,61 +1,58 @@
 import { Head, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import Form from "./Form";
+import EntityForm from "@/Components/Admin/Catalog/EntityForm";
 
-export default function Edit({ auth, category }) {
-
-    const { data, setData, put, processing, errors } = useForm({
-        name: category.name || "",
-        description: category.description || "",
+export default function Edit({ category }) {
+    const form = useForm({
+        name: category.name ?? "",
+        name_bn: category.name_bn ?? "",
+        description: category.description ?? "",
+        description_bn: category.description_bn ?? "",
         status: category.status ? 1 : 0,
-        sort_order: category.sort_order || 0,
+        sort_order: category.sort_order ?? 0,
     });
 
-
-    const submit = (e) => {
-        e.preventDefault();
-
-        put(route("admin.categories.update", category.id));
-    };
-
-
     return (
-        <AuthenticatedLayout
-            user={auth?.user}
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Edit Category
-                </h2>
-            }
-        >
-
-            <Head title="Edit Category" />
-
-            <div className="py-8">
-
-                <div className="mx-auto max-w-4xl sm:px-6 lg:px-8">
-
-                    <div className="bg-white shadow-sm sm:rounded-lg">
-
-                        <div className="p-6">
-
-                            <Form
-                                data={data}
-                                setData={setData}
-                                errors={errors}
-                                processing={processing}
-                                submit={submit}
-                                buttonText="Update Category"
-                            />
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
+        <AuthenticatedLayout>
+            <Head title={`Edit ${category.name}`} />
+            <EntityForm
+                entity="category"
+                title="Edit category"
+                description="Update catalog naming, translations and display order."
+                routeBase="admin.categories"
+                data={form.data}
+                setData={form.setData}
+                errors={form.errors}
+                processing={form.processing}
+                isEdit
+                submit={(event) => {
+                    event.preventDefault();
+                    form.put(route("admin.categories.update", category.id), {
+                        preserveScroll: true,
+                    });
+                }}
+                fields={[
+                    { name: "name", label: "Name (English)", required: true },
+                    { name: "name_bn", label: "Name (Bangla)" },
+                    {
+                        name: "description",
+                        label: "Description (English)",
+                        type: "textarea",
+                        full: true,
+                    },
+                    {
+                        name: "description_bn",
+                        label: "Description (Bangla)",
+                        type: "textarea",
+                        full: true,
+                    },
+                    {
+                        name: "sort_order",
+                        label: "Display order",
+                        type: "number",
+                    },
+                ]}
+            />
         </AuthenticatedLayout>
     );
 }

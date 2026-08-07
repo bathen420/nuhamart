@@ -11,14 +11,34 @@ class PaymentTransaction extends Model
     use HasFactory;
 
     protected $fillable = [
-        'order_id', 'gateway', 'transaction_id', 'session_key', 'validation_id',
-        'bank_transaction_id', 'amount', 'currency', 'status', 'risk_level',
-        'gateway_url', 'request_payload', 'response_payload', 'callback_payload',
-        'failure_reason', 'initiated_at', 'paid_at', 'failed_at', 'last_verified_at',
+        'order_id',
+        'gateway',
+        'attempt_no',
+        'transaction_id',
+        'session_key',
+        'validation_id',
+        'bank_transaction_id',
+        'amount',
+        'currency',
+        'status',
+        'callback_count',
+        'risk_level',
+        'gateway_url',
+        'request_payload',
+        'response_payload',
+        'callback_payload',
+        'failure_reason',
+        'initiated_at',
+        'paid_at',
+        'failed_at',
+        'last_verified_at',
+        'last_callback_at',
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
+        'attempt_no' => 'integer',
+        'callback_count' => 'integer',
         'request_payload' => 'array',
         'response_payload' => 'array',
         'callback_payload' => 'array',
@@ -26,6 +46,7 @@ class PaymentTransaction extends Model
         'paid_at' => 'datetime',
         'failed_at' => 'datetime',
         'last_verified_at' => 'datetime',
+        'last_callback_at' => 'datetime',
     ];
 
     public function order(): BelongsTo

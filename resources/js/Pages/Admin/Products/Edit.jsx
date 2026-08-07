@@ -1,23 +1,17 @@
 import { Head, useForm } from "@inertiajs/react";
+import { ArrowLeft, PackageCheck } from "lucide-react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import { Badge, Button, PageHeader } from "@/Components/Admin/UI";
 import Form from "./Form";
 
 export default function Edit({
-    auth,
     product,
-    categories,
-    brands,
-    authors,
-    publishers,
+    categories = [],
+    brands = [],
+    authors = [],
+    publishers = [],
 }) {
-    const {
-        data,
-        setData,
-        post,
-        processing,
-        errors,
-        transform,
-    } = useForm({
+    const form = useForm({
         category_id: product.category_id ?? "",
         brand_id: product.brand_id ?? "",
         name: product.name ?? "",
@@ -47,6 +41,8 @@ export default function Edit({
         short_description_bn: product.short_description_bn ?? "",
         description: product.description ?? "",
         description_bn: product.description_bn ?? "",
+        seo_title: product.seo_title ?? "",
+        seo_description: product.seo_description ?? "",
         status: product.status ? 1 : 0,
         sort_order: product.sort_order ?? 0,
         image: null,
@@ -54,53 +50,63 @@ export default function Edit({
         sample_file: null,
     });
 
-    const submit = (event) => {
-        event.preventDefault();
-
-        // PHP does not reliably parse multipart/form-data sent directly with PUT.
-        // Send POST and spoof the method so text fields and image are both received.
-        transform((formData) => ({
-            ...formData,
-            _method: "put",
-        }));
-
-        post(route("admin.products.update", product.id), {
-            forceFormData: true,
-            preserveScroll: true,
-        });
-    };
-
     return (
-        <AuthenticatedLayout
-            user={auth?.user}
-            header={
-                <h2 className="text-xl font-semibold">
-                    Edit Product
-                </h2>
-            }
-        >
-            <Head title="Edit Product" />
+        <AuthenticatedLayout>
+            <Head title={`Edit ${product.name}`} />
 
-            <div className="py-8">
-                <div className="mx-auto max-w-5xl sm:px-6 lg:px-8">
-                    <div className="rounded-lg bg-white shadow">
-                        <div className="p-6">
-                            <Form
-                                data={data}
-                                setData={setData}
-                                errors={errors}
-                                processing={processing}
-                                submit={submit}
-                                categories={categories}
-                                brands={brands}
-                                authors={authors}
-                                publishers={publishers}
-                                buttonText="Update Product"
-                                product={product}
-                            />
-                        </div>
+            <div className="space-y-6">
+                <PageHeader
+                    eyebrow="Catalog"
+                    title="Edit product"
+                    description="Update catalog content, pricing, media and storefront visibility."
+                    actions={
+                        <Button
+                            as="a"
+                            href={route("admin.products.index")}
+                            variant="secondary"
+                        >
+                            <ArrowLeft size={16} />
+                            Products
+                        </Button>
+                    }
+                >
+                    <div className="mt-3 flex flex-wrap gap-2">
+                        <Badge tone="brand">{product.sku}</Badge>
+                        <Badge
+                            tone={product.status ? "success" : "neutral"}
+                            dot
+                        >
+                            {product.status ? "Active" : "Inactive"}
+                        </Badge>
                     </div>
-                </div>
+                </PageHeader>
+
+                <Form
+                    data={form.data}
+                    setData={form.setData}
+                    errors={form.errors}
+                    processing={form.processing}
+                    submit={(event) => {
+                        event.preventDefault();
+                        form.transform((data) => ({
+                            ...data,
+                            _method: "put",
+                        }));
+                        form.post(
+                            route("admin.products.update", product.id),
+                            {
+                                forceFormData: true,
+                                preserveScroll: true,
+                            },
+                        );
+                    }}
+                    categories={categories}
+                    brands={brands}
+                    authors={authors}
+                    publishers={publishers}
+                    buttonText="Update product"
+                    product={product}
+                />
             </div>
         </AuthenticatedLayout>
     );

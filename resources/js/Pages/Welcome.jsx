@@ -1,4 +1,4 @@
-import { Head } from "@inertiajs/react";
+import { Head, usePage } from "@inertiajs/react";
 
 import CategoriesSection from "@/Components/Storefront/CategoriesSection";
 import FeaturesSection from "@/Components/Storefront/FeaturesSection";
@@ -13,12 +13,14 @@ export default function Welcome({
     canLogin = true,
     canRegister = true,
 }) {
+    const { businessSettings = {} } = usePage().props;
+    const companyName = businessSettings.company_name || "Nuha Mart BD";
     return (
         <>
-            <Head title="Nuha Mart BD - Online Shopping in Bangladesh">
+            <Head title={`${companyName} - Online Shopping in Bangladesh`}>
                 <meta
                     name="description"
-                    content="Shop electronics, fashion, books, beauty products and daily essentials from Nuha Mart BD."
+                    content={`Shop electronics, fashion, books, beauty products and daily essentials from ${companyName}.`}
                 />
             </Head>
 

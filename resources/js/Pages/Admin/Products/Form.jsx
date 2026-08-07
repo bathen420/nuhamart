@@ -1,10 +1,40 @@
-import { useState } from "react";
-import InputError from "@/Components/InputError";
-import InputLabel from "@/Components/InputLabel";
-import PrimaryButton from "@/Components/PrimaryButton";
-import TextInput from "@/Components/TextInput";
+import { useMemo, useState } from "react";
+import {
+    BadgeDollarSign,
+    BookOpen,
+    Boxes,
+    FileText,
+    Image,
+    Package,
+    Save,
+    Search,
+    Settings2,
+    Upload,
+} from "lucide-react";
+import {
+    Alert,
+    Badge,
+    Button,
+    Card,
+    CardBody,
+    CardHeader,
+    FormField,
+    Input,
+    Select,
+    Textarea,
+    Toggle,
+} from "@/Components/Admin/UI";
+import cn from "@/lib/cn";
 
-
+const tabs = [
+    ["general", "General", Package],
+    ["pricing", "Pricing", BadgeDollarSign],
+    ["inventory", "Inventory", Boxes],
+    ["book", "Book & Digital", BookOpen],
+    ["media", "Media", Image],
+    ["seo", "SEO", Search],
+    ["advanced", "Advanced", Settings2],
+];
 
 export default function Form({
     data,
@@ -12,353 +42,607 @@ export default function Form({
     errors,
     processing,
     submit,
-    categories,
-    brands,
+    categories = [],
+    brands = [],
     authors = [],
     publishers = [],
     buttonText,
     product = null,
 }) {
+    const [active, setActive] = useState("general");
+    const [imagePreview, setImagePreview] = useState(
+        product?.image ? `/storage/${product.image}` : null,
+    );
+    const [galleryPreviews, setGalleryPreviews] = useState(
+        Array.isArray(product?.gallery_images)
+            ? product.gallery_images.map((path) => `/storage/${path}`)
+            : [],
+    );
 
-    const [preview, setPreview] = useState(
-        product?.image ? `/storage/${product.image}` : null
+    const effectivePrice = Number(data.discount_price || data.price || 0);
+    const stockTone =
+        Number(data.stock_quantity || 0) <= 0
+            ? "danger"
+            : Number(data.stock_quantity || 0) <= 5
+              ? "warning"
+              : "success";
+
+    const titlePreview = data.seo_title || data.name || "Product title";
+    const descriptionPreview =
+        data.seo_description ||
+        data.short_description ||
+        "Add a short description to preview search results.";
+
+    const selectField = (name, label, options, placeholder = "Select") => (
+        <FormField label={label} error={errors[name]}>
+            <Select
+                value={data[name] ?? ""}
+                onChange={(event) => setData(name, event.target.value)}
+                invalid={Boolean(errors[name])}
+            >
+                <option value="">{placeholder}</option>
+                {options.map((item) => (
+                    <option key={item.id} value={item.id}>
+                        {item.name}
+                    </option>
+                ))}
+            </Select>
+        </FormField>
+    );
+
+    const textField = (name, label, type = "text", props = {}) => (
+        <FormField label={label} error={errors[name]} {...props}>
+            <Input
+                type={type}
+                value={data[name] ?? ""}
+                onChange={(event) => setData(name, event.target.value)}
+                invalid={Boolean(errors[name])}
+            />
+        </FormField>
     );
 
     return (
         <form onSubmit={submit} className="space-y-6">
+            {errors.error && (
+                <Alert variant="danger" title="Product could not be saved">
+                    {errors.error}
+                </Alert>
+            )}
 
-            {/* Category */}
-            <div>
-                <InputLabel htmlFor="category_id" value="Category" />
+            <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)] 2xl:grid-cols-[220px_minmax(0,1fr)_340px]">
+                <aside className="h-fit lg:sticky lg:top-28">
+                    <Card>
+                        <CardBody className="p-3">
+                            <nav className="space-y-1">
+                                {tabs.map(([key, label, Icon]) => (
+                                    <button
+                                        key={key}
+                                        type="button"
+                                        onClick={() => setActive(key)}
+                                        className={cn(
+                                            "flex w-full items-center gap-3 rounded-xl border px-3 py-3 text-left text-sm font-black transition",
+                                            active === key
+                                                ? "border-brand-200 bg-brand-50 text-brand-800"
+                                                : "border-transparent text-ink-600 hover:bg-ink-50",
+                                        )}
+                                    >
+                                        <span
+                                            className={cn(
+                                                "grid h-9 w-9 place-items-center rounded-xl",
+                                                active === key
+                                                    ? "bg-white text-brand-700 shadow-sm"
+                                                    : "bg-ink-50 text-ink-500",
+                                            )}
+                                        >
+                                            <Icon size={18} />
+                                        </span>
+                                        {label}
+                                    </button>
+                                ))}
+                            </nav>
+                        </CardBody>
+                    </Card>
+                </aside>
 
-                <select
-                    id="category_id"
-                    value={data.category_id}
-                    onChange={(e) => setData("category_id", e.target.value)}
-                    className="mt-1 block w-full rounded-md border-gray-300"
-                >
-                    <option value="">Select Category</option>
-
-                    {categories.map((category) => (
-                        <option key={category.id} value={category.id}>
-                            {category.name}
-                        </option>
-                    ))}
-                </select>
-
-                <InputError message={errors.category_id} className="mt-2" />
-            </div>
-
-            {/* Brand */}
-            <div>
-                <InputLabel htmlFor="brand_id" value="Brand" />
-
-                <select
-                    id="brand_id"
-                    value={data.brand_id}
-                    onChange={(e) => setData("brand_id", e.target.value)}
-                    className="mt-1 block w-full rounded-md border-gray-300"
-                >
-                    <option value="">Select Brand</option>
-
-                    {brands.map((brand) => (
-                        <option key={brand.id} value={brand.id}>
-                            {brand.name}
-                        </option>
-                    ))}
-                </select>
-
-                <InputError message={errors.brand_id} className="mt-2" />
-            </div>
-
-
-            <div className="rounded-xl border border-indigo-100 bg-indigo-50/40 p-5">
-                <h3 className="mb-4 text-lg font-bold text-slate-900">Book & Digital Product Information</h3>
-                <div className="grid gap-4 md:grid-cols-2">
-                    <div><InputLabel value="Product Type"/><select className="mt-1 block w-full rounded-md border-gray-300" value={data.product_type} onChange={e=>setData("product_type",e.target.value)}><option value="physical">Physical Product / Hardcopy</option><option value="ebook">Ebook</option><option value="both">Physical + Ebook</option></select><InputError className="mt-2" message={errors.product_type}/></div>
-                    <div><InputLabel value="ISBN"/><TextInput className="mt-1 block w-full" value={data.isbn ?? ""} onChange={e=>setData("isbn",e.target.value)}/><InputError className="mt-2" message={errors.isbn}/></div>
-                    <div><InputLabel value="Author"/><select className="mt-1 block w-full rounded-md border-gray-300" value={data.author_id ?? ""} onChange={e=>setData("author_id",e.target.value)}><option value="">Not applicable</option>{authors.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
-                    <div><InputLabel value="Publisher"/><select className="mt-1 block w-full rounded-md border-gray-300" value={data.publisher_id ?? ""} onChange={e=>setData("publisher_id",e.target.value)}><option value="">Not applicable</option>{publishers.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
-                    {[["edition","Edition"],["language","Language"],["pages","Pages"],["publication_year","Publication Year"],["binding","Binding"],["weight","Weight (kg)"],["dimensions","Dimensions"],["ebook_price","Ebook Price"]].map(([field,label])=><div key={field}><InputLabel value={label}/><TextInput type={["pages","publication_year","weight","ebook_price"].includes(field)?"number":"text"} className="mt-1 block w-full" value={data[field] ?? ""} onChange={e=>setData(field,e.target.value)}/><InputError className="mt-2" message={errors[field]}/></div>)}
-                </div>
-                <div className="mt-4 flex flex-wrap gap-5">{[["is_featured","Featured"],["is_new_arrival","New Arrival"],["is_best_seller","Best Seller"]].map(([field,label])=><label key={field} className="flex items-center gap-2"><input type="checkbox" checked={Boolean(data[field])} onChange={e=>setData(field,e.target.checked?1:0)}/><span>{label}</span></label>)}</div>
-            </div>
-
-            {/* Product Name */}
-            <div>
-                <InputLabel htmlFor="name" value="Product Name" />
-
-                <TextInput
-                    id="name"
-                    className="mt-1 block w-full"
-                    value={data.name}
-                    onChange={(e) => setData("name", e.target.value)}
-                />
-
-                <InputError message={errors.name} className="mt-2" />
-            </div>
-
-            <div><InputLabel value="Product Name (Bangla)"/><TextInput className="mt-1 block w-full" value={data.name_bn ?? ""} onChange={(e)=>setData("name_bn",e.target.value)}/><InputError message={errors.name_bn} className="mt-2"/></div>
-
-            {/* SKU */}
-            <div>
-                <InputLabel htmlFor="sku" value="SKU" />
-
-                <TextInput
-                    id="sku"
-                    className="mt-1 block w-full"
-                    value={data.sku}
-                    onChange={(e) => setData("sku", e.target.value)}
-                />
-
-                <InputError message={errors.sku} className="mt-2" />
-            </div>
-
-            {/* Barcode */}
-            <div className="grid gap-4 md:grid-cols-2">
-                <div>
-                    <InputLabel htmlFor="barcode" value="Barcode (optional)" />
-                    <TextInput
-                        id="barcode"
-                        className="mt-1 block w-full"
-                        value={data.barcode ?? ""}
-                        onChange={(e) => setData("barcode", e.target.value)}
-                        placeholder="Leave blank to generate later"
-                    />
-                    <InputError message={errors.barcode} className="mt-2" />
-                </div>
-                <div>
-                    <InputLabel htmlFor="barcode_type" value="Barcode Type" />
-                    <select
-                        id="barcode_type"
-                        value={data.barcode_type ?? "code128"}
-                        onChange={(e) => setData("barcode_type", e.target.value)}
-                        className="mt-1 block w-full rounded-md border-gray-300"
-                    >
-                        <option value="code128">Code 128</option>
-                        <option value="ean13">EAN-13</option>
-                    </select>
-                    <InputError message={errors.barcode_type} className="mt-2" />
-                </div>
-            </div>
-
-            {/* Price */}
-            <div>
-                <InputLabel htmlFor="price" value="Price" />
-
-                <TextInput
-                    id="price"
-                    type="number"
-                    className="mt-1 block w-full"
-                    value={data.price}
-                    onChange={(e) => setData("price", e.target.value)}
-                />
-
-                <InputError message={errors.price} className="mt-2" />
-            </div>
-
-            {/* Discount Price */}
-            <div>
-                <InputLabel
-                    htmlFor="discount_price"
-                    value="Discount Price"
-                />
-
-                <TextInput
-                    id="discount_price"
-                    type="number"
-                    className="mt-1 block w-full"
-                    value={data.discount_price}
-                    onChange={(e) =>
-                        setData("discount_price", e.target.value)
-                    }
-                />
-
-                <InputError
-                    message={errors.discount_price}
-                    className="mt-2"
-                />
-            </div>
-
-            {/* Stock */}
-            <div>
-                <InputLabel
-                    htmlFor="stock_quantity"
-                    value="Stock Quantity"
-                />
-
-                <TextInput
-                    id="stock_quantity"
-                    type="number"
-                    className="mt-1 block w-full"
-                    value={data.stock_quantity}
-                    onChange={(e) =>
-                        setData("stock_quantity", e.target.value)
-                    }
-                />
-
-                <InputError
-                    message={errors.stock_quantity}
-                    className="mt-2"
-                />
-            </div>
-
-            {/* Short Description */}
-            <div>
-                <InputLabel
-                    htmlFor="short_description"
-                    value="Short Description"
-                />
-
-                <textarea
-                    id="short_description"
-                    rows="3"
-                    className="mt-1 block w-full rounded-md border-gray-300"
-                    value={data.short_description}
-                    onChange={(e) =>
-                        setData("short_description", e.target.value)
-                    }
-                />
-
-                <InputError
-                    message={errors.short_description}
-                    className="mt-2"
-                />
-            </div>
-
-            {/* Description */}
-            <div>
-                <InputLabel
-                    htmlFor="description"
-                    value="Description"
-                />
-
-                <textarea
-                    id="description"
-                    rows="6"
-                    className="mt-1 block w-full rounded-md border-gray-300"
-                    value={data.description}
-                    onChange={(e) =>
-                        setData("description", e.target.value)
-                    }
-                />
-
-                <InputError
-                    message={errors.description}
-                    className="mt-2"
-                />
-            </div>
-
-            <div><InputLabel value="Short Description (Bangla)"/><textarea rows="3" className="mt-1 block w-full rounded-md border-gray-300" value={data.short_description_bn ?? ""} onChange={(e)=>setData("short_description_bn",e.target.value)}/><InputError message={errors.short_description_bn} className="mt-2"/></div>
-            <div><InputLabel value="Description (Bangla)"/><textarea rows="6" className="mt-1 block w-full rounded-md border-gray-300" value={data.description_bn ?? ""} onChange={(e)=>setData("description_bn",e.target.value)}/><InputError message={errors.description_bn} className="mt-2"/></div>
-
-            {/* Status */}
-            <div className="flex items-center gap-2">
-                <input
-                    id="status"
-                    type="checkbox"
-                    checked={Boolean(data.status)}
-                    onChange={(e) =>
-                        setData("status", e.target.checked ? 1 : 0)
-                    }
-                />
-
-                <label htmlFor="status">Active</label>
-            </div>
-
-
-            {/* Product Image */}
-            
-            <div>
-                <InputLabel htmlFor="image" value="Product Image" />
-
-                <input
-                    id="image"
-                    name="image"
-                    type="file"
-                    accept="image/*"
-                    className="mt-1 block w-full"
-                    onChange={(e) => {
-                        const file = e.target.files[0];
-
-                        setData("image", file);
-
-                        if (file) {
-                            setPreview(URL.createObjectURL(file));
-                        }
-                    }}
-                />
-
-                {preview && (
-                    <div className="mt-4">
-                        <img
-                            src={preview}
-                            alt="Preview"
-                            className="h-32 w-32 rounded-lg border object-cover"
-                        />
-                    </div>
-                )}
-
-                <InputError
-                    message={errors.image}
-                    className="mt-2"
-                />
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
-                <div>
-                    <InputLabel htmlFor="gallery_images" value="Gallery Images (up to 6)" />
-                    <input
-                        id="gallery_images"
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        className="mt-1 block w-full"
-                        onChange={(e) => setData("gallery_images", Array.from(e.target.files || []))}
-                    />
-                    {product?.gallery_images?.length > 0 && (
-                        <p className="mt-2 text-xs text-slate-500">Uploading new gallery images will replace the current gallery.</p>
+                <main className="min-w-0 space-y-6">
+                    {active === "general" && (
+                        <Card>
+                            <CardHeader
+                                title="General information"
+                                description="Core identity and catalog placement."
+                            />
+                            <CardBody className="grid gap-5 md:grid-cols-2">
+                                {textField("name", "Product name")}
+                                {textField("name_bn", "Product name (Bangla)")}
+                                {selectField(
+                                    "category_id",
+                                    "Category",
+                                    categories,
+                                    "Select category",
+                                )}
+                                {selectField(
+                                    "brand_id",
+                                    "Brand",
+                                    brands,
+                                    "Select brand",
+                                )}
+                                {textField("sku", "SKU")}
+                                {textField("sort_order", "Sort order", "number")}
+                                <FormField
+                                    label="Short description"
+                                    error={errors.short_description}
+                                    className="md:col-span-2"
+                                >
+                                    <Textarea
+                                        value={data.short_description ?? ""}
+                                        onChange={(event) =>
+                                            setData(
+                                                "short_description",
+                                                event.target.value,
+                                            )
+                                        }
+                                    />
+                                </FormField>
+                                <FormField
+                                    label="Short description (Bangla)"
+                                    error={errors.short_description_bn}
+                                    className="md:col-span-2"
+                                >
+                                    <Textarea
+                                        value={data.short_description_bn ?? ""}
+                                        onChange={(event) =>
+                                            setData(
+                                                "short_description_bn",
+                                                event.target.value,
+                                            )
+                                        }
+                                    />
+                                </FormField>
+                                <FormField
+                                    label="Full description"
+                                    error={errors.description}
+                                    className="md:col-span-2"
+                                >
+                                    <Textarea
+                                        rows={7}
+                                        value={data.description ?? ""}
+                                        onChange={(event) =>
+                                            setData(
+                                                "description",
+                                                event.target.value,
+                                            )
+                                        }
+                                    />
+                                </FormField>
+                                <FormField
+                                    label="Full description (Bangla)"
+                                    error={errors.description_bn}
+                                    className="md:col-span-2"
+                                >
+                                    <Textarea
+                                        rows={7}
+                                        value={data.description_bn ?? ""}
+                                        onChange={(event) =>
+                                            setData(
+                                                "description_bn",
+                                                event.target.value,
+                                            )
+                                        }
+                                    />
+                                </FormField>
+                            </CardBody>
+                        </Card>
                     )}
-                    <InputError message={errors.gallery_images} className="mt-2" />
-                </div>
-                <div>
-                    <InputLabel htmlFor="sample_file" value="Sample PDF (optional)" />
-                    <input
-                        id="sample_file"
-                        type="file"
-                        accept="application/pdf"
-                        className="mt-1 block w-full"
-                        onChange={(e) => setData("sample_file", e.target.files?.[0] ?? null)}
-                    />
-                    {product?.sample_file && <p className="mt-2 text-xs text-slate-500">A sample PDF is already uploaded.</p>}
-                    <InputError message={errors.sample_file} className="mt-2" />
-                </div>
+
+                    {active === "pricing" && (
+                        <Card>
+                            <CardHeader
+                                title="Pricing"
+                                description="Selling price and promotional pricing."
+                            />
+                            <CardBody className="grid gap-5 md:grid-cols-2">
+                                {textField("price", "Regular price", "number")}
+                                {textField(
+                                    "discount_price",
+                                    "Discount price",
+                                    "number",
+                                )}
+                                {textField(
+                                    "ebook_price",
+                                    "Ebook price",
+                                    "number",
+                                )}
+                                <div className="rounded-2xl border border-brand-100 bg-brand-50 p-4">
+                                    <p className="text-xs font-black uppercase tracking-wider text-brand-700">
+                                        Effective storefront price
+                                    </p>
+                                    <p className="mt-2 text-2xl font-black text-ink-950">
+                                        ৳
+                                        {effectivePrice.toLocaleString("en-BD", {
+                                            minimumFractionDigits: 2,
+                                        })}
+                                    </p>
+                                </div>
+                            </CardBody>
+                        </Card>
+                    )}
+
+                    {active === "inventory" && (
+                        <Card>
+                            <CardHeader
+                                title="Inventory & barcode"
+                                description="Stock quantity, SKU and barcode controls."
+                            />
+                            <CardBody className="grid gap-5 md:grid-cols-2">
+                                {textField(
+                                    "stock_quantity",
+                                    "Stock quantity",
+                                    "number",
+                                )}
+                                {textField("barcode", "Barcode")}
+                                <FormField label="Barcode type">
+                                    <Select
+                                        value={data.barcode_type ?? "code128"}
+                                        onChange={(event) =>
+                                            setData(
+                                                "barcode_type",
+                                                event.target.value,
+                                            )
+                                        }
+                                    >
+                                        <option value="code128">Code 128</option>
+                                        <option value="ean13">EAN-13</option>
+                                    </Select>
+                                </FormField>
+                                <div className="flex items-center">
+                                    <Badge tone={stockTone} dot>
+                                        {Number(data.stock_quantity || 0) <= 0
+                                            ? "Out of stock"
+                                            : `${data.stock_quantity || 0} in stock`}
+                                    </Badge>
+                                </div>
+                            </CardBody>
+                        </Card>
+                    )}
+
+                    {active === "book" && (
+                        <Card>
+                            <CardHeader
+                                title="Book & digital details"
+                                description="Publishing metadata and digital-delivery options."
+                            />
+                            <CardBody className="grid gap-5 md:grid-cols-2">
+                                <FormField label="Product type">
+                                    <Select
+                                        value={data.product_type ?? "physical"}
+                                        onChange={(event) =>
+                                            setData(
+                                                "product_type",
+                                                event.target.value,
+                                            )
+                                        }
+                                    >
+                                        <option value="physical">
+                                            Physical / hardcopy
+                                        </option>
+                                        <option value="ebook">Ebook</option>
+                                        <option value="both">
+                                            Physical + Ebook
+                                        </option>
+                                    </Select>
+                                </FormField>
+                                {textField("isbn", "ISBN")}
+                                {selectField(
+                                    "author_id",
+                                    "Author",
+                                    authors,
+                                    "Not applicable",
+                                )}
+                                {selectField(
+                                    "publisher_id",
+                                    "Publisher",
+                                    publishers,
+                                    "Not applicable",
+                                )}
+                                {textField("edition", "Edition")}
+                                {textField("language", "Language")}
+                                {textField("pages", "Pages", "number")}
+                                {textField(
+                                    "publication_year",
+                                    "Publication year",
+                                    "number",
+                                )}
+                                {textField("binding", "Binding")}
+                                {textField("weight", "Weight (kg)", "number")}
+                                {textField("dimensions", "Dimensions")}
+                                <FormField
+                                    label="Sample PDF"
+                                    error={errors.sample_file}
+                                >
+                                    <Input
+                                        type="file"
+                                        accept="application/pdf"
+                                        onChange={(event) =>
+                                            setData(
+                                                "sample_file",
+                                                event.target.files?.[0] || null,
+                                            )
+                                        }
+                                    />
+                                </FormField>
+                            </CardBody>
+                        </Card>
+                    )}
+
+                    {active === "media" && (
+                        <Card>
+                            <CardHeader
+                                title="Product media"
+                                description="Primary cover image and gallery."
+                            />
+                            <CardBody className="space-y-6">
+                                <div className="grid gap-5 md:grid-cols-2">
+                                    <FormField
+                                        label="Primary image"
+                                        error={errors.image}
+                                    >
+                                        <label className="grid min-h-52 cursor-pointer place-items-center rounded-2xl border border-dashed border-ink-300 bg-ink-50 p-4 transition hover:border-brand-300 hover:bg-brand-50/40">
+                                            {imagePreview ? (
+                                                <img
+                                                    src={imagePreview}
+                                                    alt="Product preview"
+                                                    className="max-h-44 object-contain"
+                                                />
+                                            ) : (
+                                                <div className="text-center">
+                                                    <Upload
+                                                        size={28}
+                                                        className="mx-auto text-ink-300"
+                                                    />
+                                                    <p className="mt-3 text-sm font-black text-ink-600">
+                                                        Upload cover image
+                                                    </p>
+                                                </div>
+                                            )}
+                                            <input
+                                                type="file"
+                                                accept="image/png,image/jpeg,image/webp"
+                                                className="hidden"
+                                                onChange={(event) => {
+                                                    const file =
+                                                        event.target.files?.[0] ||
+                                                        null;
+                                                    setData("image", file);
+                                                    if (file) {
+                                                        setImagePreview(
+                                                            URL.createObjectURL(
+                                                                file,
+                                                            ),
+                                                        );
+                                                    }
+                                                }}
+                                            />
+                                        </label>
+                                    </FormField>
+
+                                    <FormField
+                                        label="Gallery images"
+                                        error={
+                                            errors.gallery_images ||
+                                            errors["gallery_images.0"]
+                                        }
+                                    >
+                                        <label className="grid min-h-52 cursor-pointer place-items-center rounded-2xl border border-dashed border-ink-300 bg-ink-50 p-4 transition hover:border-brand-300 hover:bg-brand-50/40">
+                                            <div className="text-center">
+                                                <Image
+                                                    size={28}
+                                                    className="mx-auto text-ink-300"
+                                                />
+                                                <p className="mt-3 text-sm font-black text-ink-600">
+                                                    Select up to 6 images
+                                                </p>
+                                            </div>
+                                            <input
+                                                type="file"
+                                                multiple
+                                                accept="image/png,image/jpeg,image/webp"
+                                                className="hidden"
+                                                onChange={(event) => {
+                                                    const files = Array.from(
+                                                        event.target.files || [],
+                                                    );
+                                                    setData(
+                                                        "gallery_images",
+                                                        files,
+                                                    );
+                                                    setGalleryPreviews(
+                                                        files.map((file) =>
+                                                            URL.createObjectURL(
+                                                                file,
+                                                            ),
+                                                        ),
+                                                    );
+                                                }}
+                                            />
+                                        </label>
+                                    </FormField>
+                                </div>
+
+                                {galleryPreviews.length > 0 && (
+                                    <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+                                        {galleryPreviews.map((src, index) => (
+                                            <div
+                                                key={`${src}-${index}`}
+                                                className="grid aspect-square place-items-center overflow-hidden rounded-xl border border-ink-200 bg-ink-50 p-2"
+                                            >
+                                                <img
+                                                    src={src}
+                                                    alt={`Gallery ${index + 1}`}
+                                                    className="h-full w-full object-contain"
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </CardBody>
+                        </Card>
+                    )}
+
+                    {active === "seo" && (
+                        <Card>
+                            <CardHeader
+                                title="Search engine preview"
+                                description="Control how the product appears in search results."
+                            />
+                            <CardBody className="space-y-5">
+                                {textField("seo_title", "SEO title")}
+                                <FormField
+                                    label="SEO description"
+                                    error={errors.seo_description}
+                                >
+                                    <Textarea
+                                        value={data.seo_description ?? ""}
+                                        onChange={(event) =>
+                                            setData(
+                                                "seo_description",
+                                                event.target.value,
+                                            )
+                                        }
+                                    />
+                                </FormField>
+
+                                <div className="rounded-2xl border border-ink-200 bg-white p-5">
+                                    <p className="text-lg font-medium text-blue-700">
+                                        {titlePreview}
+                                    </p>
+                                    <p className="mt-1 text-sm text-emerald-700">
+                                        /products/product-slug
+                                    </p>
+                                    <p className="mt-2 line-clamp-2 text-sm leading-6 text-ink-600">
+                                        {descriptionPreview}
+                                    </p>
+                                </div>
+                            </CardBody>
+                        </Card>
+                    )}
+
+                    {active === "advanced" && (
+                        <Card>
+                            <CardHeader
+                                title="Publishing controls"
+                                description="Visibility and merchandising flags."
+                            />
+                            <CardBody className="grid gap-4 md:grid-cols-2">
+                                <Toggle
+                                    checked={Boolean(data.status)}
+                                    onChange={(checked) =>
+                                        setData("status", checked ? 1 : 0)
+                                    }
+                                    label="Active product"
+                                    description="Visible in admin workflows and storefront."
+                                />
+                                <Toggle
+                                    checked={Boolean(data.is_featured)}
+                                    onChange={(checked) =>
+                                        setData(
+                                            "is_featured",
+                                            checked ? 1 : 0,
+                                        )
+                                    }
+                                    label="Featured"
+                                />
+                                <Toggle
+                                    checked={Boolean(data.is_new_arrival)}
+                                    onChange={(checked) =>
+                                        setData(
+                                            "is_new_arrival",
+                                            checked ? 1 : 0,
+                                        )
+                                    }
+                                    label="New arrival"
+                                />
+                                <Toggle
+                                    checked={Boolean(data.is_best_seller)}
+                                    onChange={(checked) =>
+                                        setData(
+                                            "is_best_seller",
+                                            checked ? 1 : 0,
+                                        )
+                                    }
+                                    label="Best seller"
+                                />
+                            </CardBody>
+                        </Card>
+                    )}
+                </main>
+
+                <aside className="hidden h-fit 2xl:sticky 2xl:top-28 2xl:block">
+                    <Card>
+                        <CardHeader
+                            title="Product preview"
+                            description="Approximate storefront appearance."
+                        />
+                        <CardBody>
+                            <div className="overflow-hidden rounded-2xl border border-ink-200 bg-white">
+                                <div className="grid aspect-[4/3] place-items-center bg-ink-50 p-5">
+                                    {imagePreview ? (
+                                        <img
+                                            src={imagePreview}
+                                            alt={data.name || "Product"}
+                                            className="h-full w-full object-contain"
+                                        />
+                                    ) : (
+                                        <Package
+                                            size={44}
+                                            className="text-ink-300"
+                                        />
+                                    )}
+                                </div>
+                                <div className="p-4">
+                                    <div className="flex flex-wrap gap-2">
+                                        {Boolean(data.is_featured) && (
+                                            <Badge tone="brand">Featured</Badge>
+                                        )}
+                                        {Boolean(data.is_new_arrival) && (
+                                            <Badge tone="success">New</Badge>
+                                        )}
+                                    </div>
+                                    <h3 className="mt-3 text-lg font-black text-ink-950">
+                                        {data.name || "Product name"}
+                                    </h3>
+                                    <p className="mt-1 line-clamp-2 text-sm text-ink-500">
+                                        {data.short_description ||
+                                            "Short product description"}
+                                    </p>
+                                    <div className="mt-4 flex items-end gap-2">
+                                        <span className="text-xl font-black text-brand-700">
+                                            ৳
+                                            {effectivePrice.toLocaleString(
+                                                "en-BD",
+                                            )}
+                                        </span>
+                                        {data.discount_price && (
+                                            <span className="text-sm text-ink-400 line-through">
+                                                ৳
+                                                {Number(
+                                                    data.price || 0,
+                                                ).toLocaleString("en-BD")}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </CardBody>
+                    </Card>
+                </aside>
             </div>
 
-            {/* Sort Order */}
-            <div>
-                <InputLabel htmlFor="sort_order" value="Sort Order" />
-
-                <TextInput
-                    id="sort_order"
-                    type="number"
-                    className="mt-1 block w-full"
-                    value={data.sort_order}
-                    onChange={(e) =>
-                        setData("sort_order", e.target.value)
-                    }
-                />
-                
-
-                <InputError
-                    message={errors.sort_order}
-                    className="mt-2"
-                />
+            <div className="sticky bottom-4 z-20 flex justify-end">
+                <Button type="submit" loading={processing} size="lg">
+                    <Save size={17} />
+                    {buttonText}
+                </Button>
             </div>
-
-            <PrimaryButton disabled={processing}>
-                {buttonText}
-            </PrimaryButton>
         </form>
     );
 }
